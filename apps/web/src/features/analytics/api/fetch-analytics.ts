@@ -1,4 +1,5 @@
 import type {
+  BudgetAnalytics,
   ForecastAnalytics,
   MonthKey,
   MonthlyTrends,
@@ -12,6 +13,8 @@ import { monthRange } from '@/lib/month';
 
 import { analyticsForecastPath, analyticsRangePath } from '../lib/paths';
 
+import { fetchBudgetAnalytics } from '@/features/budgets/api/budgets-api';
+
 export const DEFAULT_ANALYTICS_MONTHS = 6;
 
 export type AnalyticsData = {
@@ -19,6 +22,7 @@ export type AnalyticsData = {
   savings: SavingsTrends;
   spending: SpendingTrends;
   forecast: ForecastAnalytics;
+  budgetStatus: BudgetAnalytics;
 };
 
 export async function fetchAnalytics(
@@ -28,12 +32,13 @@ export async function fetchAnalytics(
   const { from, to } = monthRange(toMonth, monthCount);
   const fetchOptions = demoFetchOptions();
 
-  const [monthly, savings, spending, forecast] = await Promise.all([
+  const [monthly, savings, spending, forecast, budgetStatus] = await Promise.all([
     apiFetch<MonthlyTrends>(analyticsRangePath('monthly-trends', from, to), fetchOptions),
     apiFetch<SavingsTrends>(analyticsRangePath('savings-trends', from, to), fetchOptions),
     apiFetch<SpendingTrends>(analyticsRangePath('spending-trends', from, to), fetchOptions),
     apiFetch<ForecastAnalytics>(analyticsForecastPath(to, 6, monthCount), fetchOptions),
+    fetchBudgetAnalytics(to),
   ]);
 
-  return { monthly, savings, spending, forecast };
+  return { monthly, savings, spending, forecast, budgetStatus };
 }

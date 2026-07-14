@@ -34,6 +34,7 @@ import {
   SavingsTrendsChart,
   SpendingTrendsChart,
 } from './lazy-charts';
+import { BudgetAnalyticsSection } from '@/features/budgets/components/budget-analytics-section';
 
 type RangePreset = 3 | 6 | 12;
 
@@ -118,7 +119,7 @@ export function AnalyticsView() {
           />
         ) : null}
 
-        {!isLoading && !isError && viewModel && !isEmpty ? (
+        {!isLoading && !isError && data && viewModel && !isEmpty ? (
           <FadeIn>
             <StaggerList className={spacing.section}>
               <StaggerItem>
@@ -143,6 +144,10 @@ export function AnalyticsView() {
                   method={viewModel.forecastMethod}
                   methodComparison={viewModel.methodComparison}
                 />
+              </StaggerItem>
+
+              <StaggerItem>
+                <BudgetAnalyticsSection data={data.budgetStatus} />
               </StaggerItem>
             </StaggerList>
           </FadeIn>

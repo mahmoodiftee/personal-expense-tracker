@@ -30,6 +30,7 @@ import { CategoryBreakdown, TrendCharts } from './lazy-charts';
 import { MonthNavigator } from './month-navigator';
 import { SavingsCard } from './savings-card';
 import { SavingsGoalsWidget } from '@/features/savings-goals/components/savings-goals-widget';
+import { BudgetWidget } from '@/features/budgets/components/budget-widget';
 
 export function DashboardView() {
   const [month, setMonth] = useState(currentMonthKey());
@@ -141,6 +142,10 @@ export function DashboardView() {
 
               <StaggerItem>
                 <SavingsGoalsWidget />
+              </StaggerItem>
+
+              <StaggerItem>
+                <BudgetWidget month={month} />
               </StaggerItem>
 
               <StaggerItem>

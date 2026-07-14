@@ -1,6 +1,7 @@
 import type { Money } from './money';
 import type { MonthKey } from './models';
 import type { CurrencyCode, ForecastMethod } from './enums';
+import type { MonthlyBudgetSummary } from './budget';
 import type { SavingsProjectionPoint } from './savings';
 
 /**
@@ -50,6 +51,7 @@ export interface DashboardOverview {
   readonly snapshot: DashboardSnapshot;
   readonly categoryBreakdown: readonly DashboardCategoryItem[];
   readonly forecast: DashboardForecast;
+  readonly budgetSummary: MonthlyBudgetSummary;
 }
 
 /** One month in a trend / sparkline series. */

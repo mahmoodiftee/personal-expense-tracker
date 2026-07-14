@@ -43,6 +43,7 @@ module.exports = {
         'deps',
         'release',
         'savings',
+        'budgets',
       ],
     ],
     'subject-case': [2, 'never', ['upper-case', 'pascal-case', 'start-case']],

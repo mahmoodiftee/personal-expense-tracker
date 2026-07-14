@@ -6,6 +6,7 @@ export * from './domain/expense';
 export * from './domain/variable-expense';
 export * from './domain/savings';
 export * from './domain/savings-goal';
+export * from './domain/budget';
 export * from './domain/dashboard';
 export * from './domain/analytics';
 export * from './domain/financial-context';

@@ -10,6 +10,7 @@ import {
 } from '@finance/shared';
 import { AppLogger } from '../../../core/logger/app-logger.service';
 import { currentMonthKey } from '../../../common/util/month.util';
+import { BudgetsService } from '../../budgets/application/budgets.service';
 import { SavingsService } from '../../savings/application/savings.service';
 import {
   TRANSACTION_REPOSITORY,
@@ -29,6 +30,7 @@ import type {
 export class DashboardService {
   constructor(
     private readonly savings: SavingsService,
+    private readonly budgets: BudgetsService,
     @Inject(TRANSACTION_REPOSITORY)
     private readonly transactions: TransactionRepositoryPort,
     private readonly logger: AppLogger,
@@ -40,7 +42,7 @@ export class DashboardService {
   async getOverview(userId: string, query: DashboardQueryDto): Promise<DashboardOverview> {
     const monthKey = query.month ?? currentMonthKey();
 
-    const [monthly, categories, projection] = await Promise.all([
+    const [monthly, categories, projection, budgetSummary] = await Promise.all([
       this.savings.getMonthly(userId, { month: monthKey }),
       this.transactions.breakdownByCategory(userId, monthKey, Flow.EXPENSE),
       this.savings.getProjection(userId, {
@@ -49,6 +51,7 @@ export class DashboardService {
         lookback: query.forecastLookback,
         method: query.forecastMethod,
       }),
+      this.budgets.getMonthlySummary(userId, monthKey),
     ]);
 
     const snapshot = this.toSnapshot(monthly);
@@ -69,6 +72,7 @@ export class DashboardService {
       snapshot,
       categoryBreakdown,
       forecast,
+      budgetSummary,
     };
   }
 

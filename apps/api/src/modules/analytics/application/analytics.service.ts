@@ -3,6 +3,7 @@ import {
   CurrencyCode,
   Flow,
   ForecastMethod,
+  type BudgetAnalytics,
   type CategorySpendingPoint,
   type DashboardCategoryItem,
   type DashboardSnapshot,
@@ -23,6 +24,7 @@ import { AppLogger } from '../../../core/logger/app-logger.service';
 import { round2 } from '../../../common/util/math.util';
 import { currentMonthKey, shiftMonthKey } from '../../../common/util/month.util';
 import { validateMonthRange } from '../../../common/validation/validate-month-range';
+import { BudgetsService } from '../../budgets/application/budgets.service';
 import { FixedExpenseService } from '../../fixed-expenses/application/fixed-expense.service';
 import { SavingsService } from '../../savings/application/savings.service';
 import { forecastSavings } from '../../savings/domain/forecast.engine';
@@ -52,6 +54,7 @@ const TOP_CATEGORIES = 5;
 export class AnalyticsService {
   constructor(
     private readonly savings: SavingsService,
+    private readonly budgets: BudgetsService,
     private readonly fixedExpenses: FixedExpenseService,
     @Inject(TRANSACTION_REPOSITORY)
     private readonly transactions: TransactionRepositoryPort,
@@ -92,6 +95,14 @@ export class AnalyticsService {
       unpaidBills,
       topCategories: this.toTopCategories(categoryRows, query.topCategoriesLimit),
     };
+  }
+
+  /** Over- and under-budget categories for a month. */
+  async getBudgetAnalytics(userId: string, month?: MonthKey): Promise<BudgetAnalytics> {
+    const monthKey = month ?? currentMonthKey();
+    const analytics = await this.budgets.getBudgetAnalytics(userId, monthKey);
+    this.logger.log(`Budget analytics loaded for ${monthKey} [user ${userId}]`);
+    return analytics;
   }
 
   /** Income, expense, and savings trends with month-over-month deltas. */

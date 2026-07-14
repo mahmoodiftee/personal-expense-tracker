@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { BudgetsModule } from '../budgets/budgets.module';
 import { FixedExpensesModule } from '../fixed-expenses/fixed-expenses.module';
 import { SavingsModule } from '../savings/savings.module';
 import { TransactionsModule } from '../transactions/transactions.module';
@@ -23,6 +24,7 @@ import { InsightMongoRepository } from './infrastructure/insight.mongo.repositor
   imports: [
     MongooseModule.forFeature([INSIGHT_MODEL]),
     SavingsModule,
+    BudgetsModule,
     FixedExpensesModule,
     TransactionsModule,
   ],

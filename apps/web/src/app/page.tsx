@@ -27,6 +27,9 @@ export default function HomePage() {
               >
                 Analytics
               </Link>
+              <Link href={'/budgets' as Route} className={buttonVariants({ variant: 'secondary' })}>
+                Budget planning
+              </Link>
               <Link
                 href={'/savings-goals' as Route}
                 className={buttonVariants({ variant: 'secondary' })}

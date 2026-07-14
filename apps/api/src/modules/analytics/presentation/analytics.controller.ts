@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import type {
+  BudgetAnalytics,
   FinancialContext,
   ForecastAnalytics,
   MonthlyTrends,
@@ -14,6 +15,7 @@ import {
   AnalyticsRangeQueryDto,
   ForecastAnalyticsQueryDto,
 } from '../application/dto/analytics-query.dto';
+import { MonthlyBudgetQueryDto } from '../../budgets/application/dto/budget-query.dto';
 
 /**
  * Analytics endpoints (v1). Trend and forecast views for charts and AI context.
@@ -29,6 +31,14 @@ export class AnalyticsController {
     @Query() query: AnalyticsOverviewQueryDto,
   ): Promise<FinancialContext> {
     return this.service.getFinancialContext(userId, query);
+  }
+
+  @Get('budget-status')
+  getBudgetStatus(
+    @CurrentUserId() userId: string,
+    @Query() query: MonthlyBudgetQueryDto,
+  ): Promise<BudgetAnalytics> {
+    return this.service.getBudgetAnalytics(userId, query.month);
   }
 
   @Get('monthly-trends')
