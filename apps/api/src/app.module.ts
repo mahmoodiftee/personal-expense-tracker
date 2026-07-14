@@ -9,6 +9,7 @@ import { FixedExpensesModule } from './modules/fixed-expenses/fixed-expenses.mod
 import { VariableExpensesModule } from './modules/variable-expenses/variable-expenses.module';
 import { SavingsModule } from './modules/savings/savings.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -37,6 +38,7 @@ import { validationExceptionFactory } from './common/validation/validation-excep
     VariableExpensesModule,
     SavingsModule,
     DashboardModule,
+    AnalyticsModule,
   ],
   providers: [
     {
