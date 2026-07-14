@@ -9,16 +9,14 @@ import type { SavingsGoalWithProgress } from '@finance/shared';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Container,
   EmptyState,
   ErrorState,
   FadeIn,
   PageHeader,
+  PageShell,
   ThemeToggle,
 } from '@/components/design-system';
 import { buttonVariants } from '@/components/ui/button';
-import { spacing } from '@/lib/design-tokens';
-import { cn } from '@/lib/utils';
 
 import {
   useCreateSavingsGoalMutation,
@@ -48,8 +46,8 @@ export function SavingsGoalsView() {
   const isMutating = createGoal.isPending || updateGoal.isPending || deleteGoal.isPending;
 
   return (
-    <main className={cn('min-h-screen', spacing.pageY)}>
-      <Container className={spacing.section}>
+    <>
+      <PageShell>
         <PageHeader
           title="Savings goals"
           description="Set targets, track progress, and estimate when you will reach each goal."
@@ -108,7 +106,7 @@ export function SavingsGoalsView() {
             </div>
           </FadeIn>
         ) : null}
-      </Container>
+      </PageShell>
 
       <SavingsGoalFormDialog
         open={dialog !== null}
@@ -140,6 +138,6 @@ export function SavingsGoalsView() {
           if (deleteTarget) await deleteGoal.mutateAsync(deleteTarget.id);
         }}
       />
-    </main>
+    </>
   );
 }

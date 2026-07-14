@@ -10,18 +10,16 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Container,
   EmptyState,
   ErrorState,
   FadeIn,
   PageHeader,
+  PageShell,
   ThemeToggle,
 } from '@/components/design-system';
 import { buttonVariants } from '@/components/ui/button';
 import { MonthNavigator } from '@/features/dashboard/components/month-navigator';
-import { spacing } from '@/lib/design-tokens';
 import { currentMonthKey, formatMonthLabel } from '@/lib/month';
-import { cn } from '@/lib/utils';
 import { formatMoney, formatPercent } from '@/lib/format-money';
 import { Typography } from '@/components/design-system';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,8 +68,8 @@ export function BudgetsView() {
   const isMutating = createBudget.isPending || updateBudget.isPending || deleteBudget.isPending;
 
   return (
-    <main className={cn('min-h-screen', spacing.pageY)}>
-      <Container className={spacing.section}>
+    <>
+      <PageShell>
         <PageHeader
           title="Budget planning"
           description="Set monthly spending limits per category and track actual vs budget."
@@ -190,7 +188,7 @@ export function BudgetsView() {
             }
           />
         ) : null}
-      </Container>
+      </PageShell>
 
       <BudgetFormDialog
         open={dialog !== null}
@@ -229,6 +227,6 @@ export function BudgetsView() {
           if (deleteTarget) await deleteBudget.mutateAsync(deleteTarget.id);
         }}
       />
-    </main>
+    </>
   );
 }

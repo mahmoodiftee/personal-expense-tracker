@@ -1,4 +1,5 @@
 export { Container } from './container';
+export { PageShell } from './page-shell';
 export { EmptyState } from './empty-state';
 export { ErrorState } from './error-state';
 export { LoadingSpinner, LoadingState, StatCardSkeleton } from './loading-state';

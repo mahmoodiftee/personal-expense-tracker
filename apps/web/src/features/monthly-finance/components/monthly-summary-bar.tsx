@@ -15,10 +15,7 @@ export function MonthlySummaryBar({ summary, className }: MonthlySummaryBarProps
   return (
     <aside
       aria-label="Monthly expense summary"
-      className={cn(
-        'sticky bottom-0 z-10 -mx-4 border-t border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:static md:mx-0 md:rounded-xl md:border md:p-4',
-        className,
-      )}
+      className={cn('rounded-xl border border-border bg-card p-4', className)}
     >
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <SummaryCell label="Fixed due" value={summary.fixedDue} />

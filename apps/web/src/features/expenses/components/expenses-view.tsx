@@ -11,18 +11,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Container,
   EmptyState,
   ErrorState,
   FadeIn,
   PageHeader,
+  PageShell,
   ThemeToggle,
   Typography,
 } from '@/components/design-system';
 import { buttonVariants } from '@/components/ui/button';
-import { spacing } from '@/lib/design-tokens';
 import { formatMoney } from '@/lib/format-money';
-import { cn } from '@/lib/utils';
 
 import { fixedExpenseToFormValues, variableExpenseToFormValues } from '../lib/form-mappers';
 import {
@@ -107,8 +105,8 @@ export function ExpensesView() {
   }, [tab, variableItems, fixedItems]);
 
   return (
-    <main className={cn('min-h-screen', spacing.pageY)}>
-      <Container className={spacing.section}>
+    <>
+      <PageShell>
         <PageHeader
           title="Expense management"
           description="Create, edit, and delete fixed and variable expenses with validated forms."
@@ -231,7 +229,7 @@ export function ExpensesView() {
             ) : null}
           </section>
         </div>
-      </Container>
+      </PageShell>
 
       <ExpenseFormDialog
         kind="variable"
@@ -278,6 +276,6 @@ export function ExpensesView() {
           }
         }}
       />
-    </main>
+    </>
   );
 }

@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils';
-import { spacing } from '@/lib/design-tokens';
 
 type ContainerProps = React.HTMLAttributes<HTMLDivElement> & {
   size?: 'default' | 'narrow' | 'wide';
@@ -13,6 +12,9 @@ const sizeClasses = {
 
 export function Container({ className, size = 'default', ...props }: ContainerProps) {
   return (
-    <div className={cn('mx-auto w-full', spacing.pageX, sizeClasses[size], className)} {...props} />
+    <div
+      className={cn('mx-auto w-full px-4 sm:px-6 lg:px-8', sizeClasses[size], className)}
+      {...props}
+    />
   );
 }

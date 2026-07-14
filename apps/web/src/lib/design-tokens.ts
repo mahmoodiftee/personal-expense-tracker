@@ -41,12 +41,14 @@ export const typography = {
 
 /** Spacing rhythm (Tailwind class references). */
 export const spacing = {
-  pageX: 'px-4 md:px-6',
+  pageX: 'px-4 sm:px-6 lg:px-8',
   pageY: 'py-6 md:py-8',
   section: 'space-y-6 md:space-y-8',
   stack: 'space-y-4',
   inline: 'gap-3',
   card: 'p-4 md:p-5',
+  /** Cancel horizontal page inset so a child can span the viewport edge on mobile. */
+  bleedXPage: '-mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8',
 } as const;
 
 /** Motion durations (respect reduced-motion in components). */

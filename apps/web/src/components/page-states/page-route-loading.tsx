@@ -1,9 +1,7 @@
 'use client';
 
-import { Container, StatCardSkeleton } from '@/components/design-system';
+import { PageShell, StatCardSkeleton } from '@/components/design-system';
 import { Skeleton } from '@/components/ui/skeleton';
-import { spacing } from '@/lib/design-tokens';
-import { cn } from '@/lib/utils';
 
 import { ChartPanelSkeleton } from './chart-panel-skeleton';
 
@@ -29,7 +27,7 @@ function PageHeaderSkeleton() {
 function DashboardLoadingBody() {
   return (
     <div className="space-y-4" aria-label="Loading dashboard">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 ">
         {Array.from({ length: 4 }).map((_, index) => (
           <StatCardSkeleton key={index} />
         ))}
@@ -106,11 +104,9 @@ export function PageRouteLoading({ variant }: PageRouteLoadingProps) {
   const Body = loadingBodies[variant];
 
   return (
-    <main className={cn('min-h-screen', spacing.pageY)} aria-busy="true">
-      <Container className={spacing.section}>
-        <PageHeaderSkeleton />
-        <Body />
-      </Container>
-    </main>
+    <PageShell aria-busy="true">
+      <PageHeaderSkeleton />
+      <Body />
+    </PageShell>
   );
 }

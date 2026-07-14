@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { EmptyState, ErrorState, LoadingState, Typography } from '@/components/design-system';
 import { useApiQuery } from '@/hooks/use-api-query';
+import { demoFetchOptions } from '@/lib/demo-fetch';
 
 function currentMonthKey(): string {
   const now = new Date();
@@ -23,12 +24,14 @@ export function ApiIntegrationDemo() {
   const [mode, setMode] = useState<DemoMode>('live');
   const month = currentMonthKey();
 
-  const query = useApiQuery<DashboardOverview>(['dashboard', month], `/dashboard?month=${month}`, {
-    enabled: mode === 'live',
-    fetchOptions: {
-      userId: process.env.NEXT_PUBLIC_DEMO_USER_ID,
+  const query = useApiQuery<DashboardOverview>(
+    ['design-system', 'dashboard', month],
+    `/dashboard?month=${month}`,
+    {
+      enabled: mode === 'live',
+      fetchOptions: demoFetchOptions(),
     },
-  });
+  );
 
   return (
     <Card>
@@ -77,7 +80,7 @@ export function ApiIntegrationDemo() {
             {query.isError ? (
               <ErrorState message={query.error.message} onRetry={() => query.refetch()} />
             ) : null}
-            {query.isSuccess ? (
+            {query.isSuccess && query.data.snapshot ? (
               <div className="space-y-3 rounded-lg border border-border bg-secondary/20 p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="success">Connected</Badge>
@@ -90,6 +93,11 @@ export function ApiIntegrationDemo() {
                   Categories tracked: {query.data.categoryBreakdown.length}
                 </Typography>
               </div>
+            ) : query.isSuccess ? (
+              <ErrorState
+                message="Dashboard response is missing snapshot data."
+                onRetry={() => query.refetch()}
+              />
             ) : null}
           </>
         ) : null}

@@ -7,10 +7,10 @@ import { useMemo, useState } from 'react';
 
 import { buttonVariants } from '@/components/ui/button';
 import {
-  Container,
   ErrorState,
   FadeIn,
   PageHeader,
+  PageShell,
   StaggerItem,
   StaggerList,
   ThemeToggle,
@@ -18,8 +18,8 @@ import {
 } from '@/components/design-system';
 import { MonthNavigator } from '@/features/dashboard/components/month-navigator';
 import { spacing } from '@/lib/design-tokens';
-import { currentMonthKey } from '@/lib/month';
 import { cn } from '@/lib/utils';
+import { currentMonthKey } from '@/lib/month';
 
 import { useMonthlyFinance } from '../hooks/use-monthly-finance';
 import { useToggleFixedPayment } from '../hooks/use-toggle-fixed-payment';
@@ -47,83 +47,88 @@ export function MonthlyFinanceView() {
   };
 
   return (
-    <main className={cn('min-h-screen pb-24 md:pb-8', spacing.pageY)}>
-      <Container className={spacing.section}>
-        <PageHeader
-          title="Monthly finance"
-          description="Manage fixed bill payments and variable spending with live totals."
-          actions={
-            <>
-              {viewModel ? (
-                <MonthNavigator
-                  monthKey={viewModel.monthKey}
-                  monthLabel={viewModel.monthLabel}
-                  onChange={setMonth}
-                />
-              ) : null}
-              <Link
-                href={'/dashboard' as Route}
-                className={buttonVariants({ variant: 'outline', size: 'sm' })}
-              >
-                Dashboard
-              </Link>
-              <ThemeToggle />
-            </>
-          }
-        />
+    <PageShell
+      className="pb-28 md:pb-0"
+      footer={
+        viewModel ? (
+          <div
+            className={cn(
+              'sticky bottom-0 z-10 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-8 md:hidden',
+            )}
+          >
+            <MonthlySummaryBar summary={viewModel.summary} />
+          </div>
+        ) : null
+      }
+    >
+      <PageHeader
+        title="Monthly finance"
+        description="Manage fixed bill payments and variable spending with live totals."
+        actions={
+          <>
+            {viewModel ? (
+              <MonthNavigator
+                monthKey={viewModel.monthKey}
+                monthLabel={viewModel.monthLabel}
+                onChange={setMonth}
+              />
+            ) : null}
+            <Link
+              href={'/dashboard' as Route}
+              className={buttonVariants({ variant: 'outline', size: 'sm' })}
+            >
+              Dashboard
+            </Link>
+            <ThemeToggle />
+          </>
+        }
+      />
 
-        {isFetching && !isLoading ? (
-          <Typography variant="caption" className="text-muted-foreground" aria-live="polite">
-            Updating…
-          </Typography>
-        ) : null}
-
-        {isError ? (
-          <ErrorState
-            title="Could not load monthly finance"
-            message={error?.message ?? 'Something went wrong while fetching your data.'}
-            onRetry={() => refetch()}
-          />
-        ) : null}
-
-        {!isError ? (
-          <FadeIn>
-            <StaggerList className={spacing.section}>
-              {viewModel ? (
-                <StaggerItem>
-                  <MonthlySummaryBar summary={viewModel.summary} className="hidden md:block" />
-                </StaggerItem>
-              ) : null}
-
-              <StaggerItem>
-                <FixedExpensesSection
-                  items={viewModel?.fixedItems ?? []}
-                  isLoading={isLoading}
-                  isPending={isMutating}
-                  onToggle={handleToggle}
-                />
-              </StaggerItem>
-
-              <StaggerItem>
-                <VariableExpensesSection
-                  items={viewModel?.variableItems ?? []}
-                  rawItems={data?.variable ?? []}
-                  currency={(viewModel?.currency ?? 'USD') as CurrencyCode}
-                  isLoading={isLoading}
-                  isPending={isMutating}
-                  onDelete={(id) => deleteVariable.mutate(id)}
-                />
-              </StaggerItem>
-            </StaggerList>
-          </FadeIn>
-        ) : null}
-      </Container>
-
-      {viewModel ? (
-        <div className="md:hidden">
-          <MonthlySummaryBar summary={viewModel.summary} />
-        </div>
+      {isFetching && !isLoading ? (
+        <Typography variant="caption" className="text-muted-foreground" aria-live="polite">
+          Updating…
+        </Typography>
       ) : null}
-    </main>
+
+      {isError ? (
+        <ErrorState
+          title="Could not load monthly finance"
+          message={error?.message ?? 'Something went wrong while fetching your data.'}
+          onRetry={() => refetch()}
+        />
+      ) : null}
+
+      {!isError ? (
+        <FadeIn>
+          <StaggerList className={spacing.section}>
+            {viewModel ? (
+              <StaggerItem>
+                <MonthlySummaryBar summary={viewModel.summary} className="hidden md:block" />
+              </StaggerItem>
+            ) : null}
+
+            <StaggerItem>
+              <FixedExpensesSection
+                items={viewModel?.fixedItems ?? []}
+                isLoading={isLoading}
+                isPending={isMutating}
+                onToggle={handleToggle}
+              />
+            </StaggerItem>
+
+            <StaggerItem>
+              <VariableExpensesSection
+                items={viewModel?.variableItems ?? []}
+                rawItems={data?.variable ?? []}
+                currency={(viewModel?.currency ?? 'USD') as CurrencyCode}
+                isLoading={isLoading}
+                isPending={isMutating}
+                onDelete={(id) => deleteVariable.mutate(id)}
+              />
+            </StaggerItem>
+          </StaggerList>
+        </FadeIn>
+      ) : null}
+    </PageShell>
   );
 }
