@@ -5,6 +5,7 @@ import { LoggerModule } from './core/logger/logger.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
 import { IncomeModule } from './modules/income/income.module';
+import { FixedExpensesModule } from './modules/fixed-expenses/fixed-expenses.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -23,7 +24,14 @@ import { validationExceptionFactory } from './common/validation/validation-excep
  * Feature modules (transactions, categories, …) are added here as they land.
  */
 @Module({
-  imports: [AppConfigModule, LoggerModule, DatabaseModule, HealthModule, IncomeModule],
+  imports: [
+    AppConfigModule,
+    LoggerModule,
+    DatabaseModule,
+    HealthModule,
+    IncomeModule,
+    FixedExpensesModule,
+  ],
   providers: [
     {
       provide: APP_PIPE,

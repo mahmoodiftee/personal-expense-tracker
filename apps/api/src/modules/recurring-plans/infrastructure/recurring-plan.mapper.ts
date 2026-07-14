@@ -1,20 +1,44 @@
-import { CurrencyCode, type AmountPeriod, type IncomeSource, type Money } from '@finance/shared';
+import {
+  type AmountPeriod,
+  type Cadence,
+  CurrencyCode,
+  type Money,
+  type MonthKey,
+  type RecurringStatus,
+} from '@finance/shared';
 import type { HydratedDocument } from 'mongoose';
-import type { RecurringPlanEntity } from '../../recurring-plans/infrastructure/recurring-plan.schema';
 import { currentMonthKey } from '../../../common/util/month.util';
-import { effectiveAmountForMonth } from '../domain/income.calculations';
-
-type RecurringPlanDoc = HydratedDocument<RecurringPlanEntity>;
+import { effectiveAmountForMonth } from '../../../common/domain/recurring.calculations';
+import type { RecurringPlanEntity } from './recurring-plan.schema';
 
 /**
- * Maps a persisted recurring-plan document (kind = INCOME) to the framework-free
- * {@link IncomeSource} read model, stripping Mongo internals and deriving the
- * currently-effective amount from the effective-dated history.
+ * Structural view of a recurring plan. Both `IncomeSource` and `FixedExpense`
+ * are assignable from this shape, so one mapper serves both features (DRY).
  */
-export function toIncomeSource(
-  doc: RecurringPlanDoc,
-  referenceMonth = currentMonthKey(),
-): IncomeSource {
+export interface RecurringPlanView {
+  id: string;
+  userId: string;
+  name: string;
+  amount: Money;
+  amountHistory: AmountPeriod[];
+  cadence: Cadence;
+  dueDay: number;
+  status: RecurringStatus;
+  startMonth: MonthKey;
+  endMonth: MonthKey | null;
+  categoryId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Maps a persisted recurring-plan document to the framework-free view, stripping
+ * Mongo internals and deriving the amount effective for `referenceMonth`.
+ */
+export function toRecurringPlanView(
+  doc: HydratedDocument<RecurringPlanEntity>,
+  referenceMonth: MonthKey = currentMonthKey(),
+): RecurringPlanView {
   const amountHistory: AmountPeriod[] = doc.amountHistory.map((period) => ({
     amount: { amountMinor: period.amount.amountMinor, currency: period.amount.currency },
     effectiveFrom: period.effectiveFrom,
@@ -38,14 +62,11 @@ export function toIncomeSource(
   };
 }
 
-/** Effective amount for the reference month, falling back to the open/last period. */
-function resolveCurrentAmount(history: AmountPeriod[], referenceMonth: string): Money {
+function resolveCurrentAmount(history: AmountPeriod[], referenceMonth: MonthKey): Money {
   const effective = effectiveAmountForMonth({ amountHistory: history }, referenceMonth);
   if (effective) return effective;
-
   const open = history.find((p) => p.effectiveTo === null);
   if (open) return open.amount;
-
   const last = history[history.length - 1];
   return last ? last.amount : { amountMinor: 0, currency: CurrencyCode.USD };
 }

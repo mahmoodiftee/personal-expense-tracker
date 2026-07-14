@@ -3,10 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { IncomeController } from './presentation/income.controller';
 import { IncomeService } from './application/income.service';
 import { INCOME_SOURCE_REPOSITORY } from './domain/income-source.repository.port';
-import {
-  IncomeSourceMongoRepository,
-  RECURRING_PLAN_MODEL,
-} from './infrastructure/income-source.mongo.repository';
+import { IncomeSourceMongoRepository } from './infrastructure/income-source.mongo.repository';
+import { RECURRING_PLAN_MODEL } from '../recurring-plans/infrastructure/recurring-plan.model';
 
 /**
  * Income feature module. Wires the controller and service, and binds the

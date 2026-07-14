@@ -51,6 +51,12 @@ export enum CurrencyCode {
   INR = 'INR',
 }
 
+/** Payment state of a fixed expense for a given month. */
+export enum PaymentStatus {
+  PAID = 'PAID',
+  UNPAID = 'UNPAID',
+}
+
 /** Severity of an insight, ordered informational → urgent for UI ranking. */
 export enum InsightSeverity {
   INFO = 'INFO',
