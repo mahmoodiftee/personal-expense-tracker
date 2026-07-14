@@ -18,7 +18,7 @@ import { InsightMongoRepository } from './infrastructure/insight.mongo.repositor
  * {@link TransactionsModule} into trend and forecast analytics — no collection of
  * its own (Computed Pattern, Dependency Inversion).
  *
- * The `insights` collection is read via {@link InsightsService}; generation is deferred.
+ * The `insights` collection stores rule-generated insights via {@link InsightsService}.
  */
 @Module({
   imports: [
