@@ -1,11 +1,29 @@
+import Link from 'next/link';
+import type { Route } from 'next';
+
+import { buttonVariants } from '@/components/ui/button';
+import { Container, PageHeader, Typography } from '@/components/design-system';
+import { spacing } from '@/lib/design-tokens';
+import { cn } from '@/lib/utils';
+
 export default function HomePage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6">
-      <p className="text-sm uppercase tracking-widest text-zinc-500">Personal Finance</p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight">Dashboard coming soon</h1>
-      <p className="mt-4 text-zinc-400">
-        The API is ready. This shell unblocks CI and Docker builds while the UI is implemented.
-      </p>
+    <main className={cn('min-h-screen', spacing.pageY)}>
+      <Container>
+        <PageHeader
+          title="Personal Finance"
+          description="Track income, fixed and variable expenses, savings, and forecasts in one place."
+          actions={
+            <Link href={'/design-system' as Route} className={buttonVariants()}>
+              View design system
+            </Link>
+          }
+        />
+        <Typography variant="body-sm" className="mt-8 text-muted-foreground">
+          Dashboard coming soon. Explore the design system to preview tokens, components, and API
+          patterns.
+        </Typography>
+      </Container>
     </main>
   );
 }

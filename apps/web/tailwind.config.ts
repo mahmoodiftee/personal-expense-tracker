@@ -50,6 +50,12 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        success: 'hsl(var(--success))',
+        warning: 'hsl(var(--warning))',
+      },
+      fontSize: {
+        display: ['2rem', { lineHeight: '2.5rem', fontWeight: '600' }],
+        'display-md': ['2.25rem', { lineHeight: '2.75rem', fontWeight: '600' }],
       },
       borderRadius: {
         lg: 'var(--radius)',
