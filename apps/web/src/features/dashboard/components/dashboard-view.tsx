@@ -23,13 +23,12 @@ import { useState } from 'react';
 
 import { useDashboard } from '../hooks/use-dashboard';
 import { mapDashboardToViewModel } from '../lib/map-view-model';
-import { CategoryBreakdown } from './category-breakdown';
 import { ExpenseCard } from './expense-card';
 import { ForecastCard } from './forecast-card';
 import { IncomeCard } from './income-card';
+import { CategoryBreakdown, TrendCharts } from './lazy-charts';
 import { MonthNavigator } from './month-navigator';
 import { SavingsCard } from './savings-card';
-import { TrendCharts } from './trend-charts';
 
 export function DashboardView() {
   const [month, setMonth] = useState(currentMonthKey());

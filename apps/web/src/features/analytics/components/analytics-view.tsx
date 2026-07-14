@@ -17,6 +17,7 @@ import {
   ThemeToggle,
   Typography,
 } from '@/components/design-system';
+import { ChartPanelSkeleton } from '@/components/page-states';
 import { MonthNavigator } from '@/features/dashboard/components/month-navigator';
 import { spacing } from '@/lib/design-tokens';
 import { currentMonthKey, formatMonthLabel } from '@/lib/month';
@@ -27,16 +28,14 @@ import { useAnalytics } from '../hooks/use-analytics';
 import { isAnalyticsEmpty, mapAnalyticsToViewModel } from '../lib/map-view-model';
 import { AnalyticsRangeControls } from './analytics-range-controls';
 import { AnalyticsSummaryCards } from './analytics-summary-cards';
-import { ForecastChart } from './forecast-chart';
-import { MonthlyComparisonChart } from './monthly-comparison-chart';
-import { SavingsTrendsChart } from './savings-trends-chart';
-import { SpendingTrendsChart } from './spending-trends-chart';
+import {
+  ForecastChart,
+  MonthlyComparisonChart,
+  SavingsTrendsChart,
+  SpendingTrendsChart,
+} from './lazy-charts';
 
 type RangePreset = 3 | 6 | 12;
-
-function ChartSkeleton() {
-  return <Skeleton className="h-72 w-full rounded-xl" />;
-}
 
 export function AnalyticsView() {
   const [toMonth, setToMonth] = useState(currentMonthKey());
@@ -96,10 +95,10 @@ export function AnalyticsView() {
               ))}
             </div>
             <div className="grid gap-4 lg:grid-cols-2">
-              <ChartSkeleton />
-              <ChartSkeleton />
+              <ChartPanelSkeleton />
+              <ChartPanelSkeleton />
             </div>
-            <ChartSkeleton />
+            <ChartPanelSkeleton />
           </div>
         ) : null}
 
