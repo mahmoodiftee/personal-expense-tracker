@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
 import { IncomeModule } from './modules/income/income.module';
 import { FixedExpensesModule } from './modules/fixed-expenses/fixed-expenses.module';
+import { VariableExpensesModule } from './modules/variable-expenses/variable-expenses.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -31,6 +32,7 @@ import { validationExceptionFactory } from './common/validation/validation-excep
     HealthModule,
     IncomeModule,
     FixedExpensesModule,
+    VariableExpensesModule,
   ],
   providers: [
     {

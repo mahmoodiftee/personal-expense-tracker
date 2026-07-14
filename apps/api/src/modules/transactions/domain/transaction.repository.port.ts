@@ -7,7 +7,7 @@ export interface CreateTransactionData {
   readonly userId: string;
   readonly flow: Flow;
   readonly amount: Money;
-  readonly categoryId: string;
+  readonly categoryId?: string | null;
   readonly categorySnapshot: CategorySnapshot;
   readonly recurringPlanId?: string | null;
   readonly description: string;
@@ -33,6 +33,11 @@ export interface TransactionFilter {
   readonly flow?: Flow;
   readonly categoryId?: string;
   readonly tags?: readonly string[];
+  /** Case-insensitive match against description, notes, and category name. */
+  readonly search?: string;
+  /** Inclusive amount bounds in minor units. */
+  readonly amountMinMinor?: number;
+  readonly amountMaxMinor?: number;
 }
 
 /** Aggregate total of a flow for a given month (drives statement rollups). */

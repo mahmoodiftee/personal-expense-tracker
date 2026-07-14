@@ -10,11 +10,16 @@ export function isValidMonthKey(value: string): value is MonthKey {
   return MONTH_KEY_REGEX.test(value);
 }
 
+/** The `MonthKey` (UTC) a given date falls into. */
+export function monthKeyFromDate(date: Date): MonthKey {
+  const year = date.getUTCFullYear();
+  const month = `${date.getUTCMonth() + 1}`.padStart(2, '0');
+  return `${year}-${month}`;
+}
+
 /** Current month in UTC as a `MonthKey`. */
 export function currentMonthKey(now: Date = new Date()): MonthKey {
-  const year = now.getUTCFullYear();
-  const month = `${now.getUTCMonth() + 1}`.padStart(2, '0');
-  return `${year}-${month}`;
+  return monthKeyFromDate(now);
 }
 
 function splitMonthKey(monthKey: MonthKey): { year: number; month: number } {

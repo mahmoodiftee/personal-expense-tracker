@@ -21,8 +21,8 @@ export class TransactionEntity {
   @Prop({ type: MoneySchema, required: true })
   amount!: MoneyEmbeddable;
 
-  @Prop({ type: Types.ObjectId, required: true })
-  categoryId!: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, default: null }) // null for dynamic categories
+  categoryId!: Types.ObjectId | null;
 
   @Prop({ type: CategorySnapshotSchema, required: true })
   categorySnapshot!: CategorySnapshotEmbeddable;

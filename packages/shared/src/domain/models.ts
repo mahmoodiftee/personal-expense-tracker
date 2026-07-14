@@ -95,7 +95,11 @@ export interface Transaction extends EntityTimestamps {
   readonly userId: string;
   readonly flow: Flow;
   readonly amount: Money;
-  readonly categoryId: string;
+  /**
+   * Null for "dynamic" categories captured only as a {@link CategorySnapshot}
+   * (e.g. ad-hoc variable expenses before a Categories catalogue exists).
+   */
+  readonly categoryId: string | null;
   readonly categorySnapshot: CategorySnapshot;
   /** Set when this transaction was materialised from a recurring plan. */
   readonly recurringPlanId: string | null;
