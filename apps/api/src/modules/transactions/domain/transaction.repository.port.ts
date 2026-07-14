@@ -74,6 +74,14 @@ export interface TransactionRepositoryPort {
   /** Totals grouped by flow for a month. */
   sumByFlowForMonth(userId: string, monthKey: MonthKey): Promise<readonly FlowTotal[]>;
 
+  /** Totals for one flow grouped by monthKey within an inclusive range. */
+  sumByFlowGroupedByMonth(
+    userId: string,
+    from: MonthKey,
+    to: MonthKey,
+    flow: Flow,
+  ): Promise<ReadonlyMap<MonthKey, Money>>;
+
   /** Expense (or income) totals grouped by category for a month. */
   breakdownByCategory(
     userId: string,

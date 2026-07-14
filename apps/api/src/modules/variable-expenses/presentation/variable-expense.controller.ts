@@ -13,6 +13,7 @@ import {
 import type { VariableExpense } from '@finance/shared';
 import type { Paginated } from '../../../common/domain/pagination';
 import { CurrentUserId } from '../../../common/decorators/current-user.decorator';
+import { ParseObjectIdPipe } from '../../../common/pipes/parse-object-id.pipe';
 import { VariableExpenseService } from '../application/variable-expense.service';
 import { CreateVariableExpenseDto } from '../application/dto/create-variable-expense.dto';
 import { UpdateVariableExpenseDto } from '../application/dto/update-variable-expense.dto';
@@ -46,14 +47,17 @@ export class VariableExpenseController {
   }
 
   @Get(':id')
-  get(@CurrentUserId() userId: string, @Param('id') id: string): Promise<VariableExpense> {
+  get(
+    @CurrentUserId() userId: string,
+    @Param('id', ParseObjectIdPipe) id: string,
+  ): Promise<VariableExpense> {
     return this.service.getExpense(userId, id);
   }
 
   @Patch(':id')
   edit(
     @CurrentUserId() userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateVariableExpenseDto,
   ): Promise<VariableExpense> {
     return this.service.editExpense(userId, id, dto);
@@ -63,7 +67,7 @@ export class VariableExpenseController {
   @HttpCode(HttpStatus.OK)
   async delete(
     @CurrentUserId() userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<{ id: string; deleted: true }> {
     await this.service.deleteExpense(userId, id);
     return { id, deleted: true };

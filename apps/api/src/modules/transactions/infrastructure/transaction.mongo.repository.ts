@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { type FilterQuery, type HydratedDocument, type Model, Types } from 'mongoose';
-import { CurrencyCode, type Flow, type MonthKey, type Transaction } from '@finance/shared';
+import {
+  CurrencyCode,
+  type Flow,
+  type Money,
+  type MonthKey,
+  type Transaction,
+} from '@finance/shared';
 import { MongoBaseRepository } from '../../../common/database/base.repository';
 import {
   MAX_PAGE_SIZE,
@@ -9,6 +15,7 @@ import {
   type Paginated,
 } from '../../../common/domain/pagination';
 import { monthKeyFromDate } from '../../../common/util/month.util';
+import { DomainValidationException } from '../../../common/exceptions/app.exception';
 import type {
   CategoryAggregate,
   CreateTransactionData,
@@ -45,7 +52,7 @@ export class TransactionMongoRepository
 
   async create(data: CreateTransactionData): Promise<Transaction> {
     const userObjectId = this.toObjectId(data.userId);
-    if (!userObjectId) throw new Error('Invalid user context');
+    if (!userObjectId) throw new DomainValidationException('Invalid user context');
 
     const doc = await this.insertOne({
       userId: userObjectId,
@@ -108,6 +115,9 @@ export class TransactionMongoRepository
     const limit = Math.min(Math.max(pagination.limit, 1), MAX_PAGE_SIZE);
 
     const cursor = pagination.cursor ? this.decodeCursor(pagination.cursor) : null;
+    if (pagination.cursor && !cursor) {
+      throw new DomainValidationException('Invalid pagination cursor');
+    }
     const cursorClause: FilterQuery<TransactionEntity> | null = cursor
       ? {
           $or: [
@@ -167,6 +177,38 @@ export class TransactionMongoRepository
       total: { amountMinor: row.totalMinor, currency: row.currency ?? CurrencyCode.USD },
       transactionCount: row.count,
     }));
+  }
+
+  async sumByFlowGroupedByMonth(
+    userId: string,
+    from: MonthKey,
+    to: MonthKey,
+    flow: Flow,
+  ): Promise<Map<MonthKey, Money>> {
+    const userObjectId = this.toObjectId(userId);
+    if (!userObjectId) return new Map();
+
+    const rows = await this.model
+      .aggregate<{ _id: MonthKey; totalMinor: number; currency: CurrencyCode }>([
+        { $match: { userId: userObjectId, monthKey: { $gte: from, $lte: to }, flow } },
+        {
+          $group: {
+            _id: '$monthKey',
+            totalMinor: { $sum: '$amount.amountMinor' },
+            currency: { $first: '$amount.currency' },
+          },
+        },
+      ])
+      .exec();
+
+    const result = new Map<MonthKey, Money>();
+    for (const row of rows) {
+      result.set(row._id, {
+        amountMinor: row.totalMinor,
+        currency: row.currency ?? CurrencyCode.USD,
+      });
+    }
+    return result;
   }
 
   async breakdownByCategory(

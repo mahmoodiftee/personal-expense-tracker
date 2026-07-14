@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   CurrencyCode,
   Flow,
+  type FixedExpense,
+  type IncomeSource,
   type Money,
   type MonthKey,
   type MonthlySavings,
@@ -10,10 +12,16 @@ import {
   type SavingsProjectionPoint,
 } from '@finance/shared';
 import { AppLogger } from '../../../core/logger/app-logger.service';
-import { DomainValidationException } from '../../../common/exceptions/app.exception';
+import { resolveCurrencyFromMonies } from '../../../common/domain/currency.util';
+import {
+  effectiveAmountForMonth,
+  isActiveInMonth,
+} from '../../../common/domain/recurring.calculations';
+import { round2 } from '../../../common/util/math.util';
 import { currentMonthKey, monthKeyRange, shiftMonthKey } from '../../../common/util/month.util';
-import { IncomeService } from '../../income/application/income.service';
+import { validateMonthRange } from '../../../common/validation/validate-month-range';
 import { FixedExpenseService } from '../../fixed-expenses/application/fixed-expense.service';
+import { IncomeService } from '../../income/application/income.service';
 import {
   TRANSACTION_REPOSITORY,
   type TransactionRepositoryPort,
@@ -53,17 +61,8 @@ export class SavingsService {
 
   /** Savings for each month in an inclusive range, with aggregates. */
   async getHistory(userId: string, query: SavingsHistoryQueryDto): Promise<SavingsHistory> {
-    if (query.from > query.to) {
-      throw new DomainValidationException('`from` month must not be after `to` month');
-    }
-    const months = monthKeyRange(query.from, query.to, MAX_HISTORY_MONTHS + 1);
-    if (months.length > MAX_HISTORY_MONTHS) {
-      throw new DomainValidationException(
-        `History range cannot exceed ${MAX_HISTORY_MONTHS} months`,
-      );
-    }
-
-    const monthly = await Promise.all(months.map((m) => this.computeMonthlySavings(userId, m)));
+    const months = validateMonthRange(query.from, query.to, MAX_HISTORY_MONTHS);
+    const monthly = await this.computeMonthlySavingsBatch(userId, months);
     const currency = this.resolveSeriesCurrency(monthly);
 
     const totalSavedMinor = monthly.reduce((sum, m) => sum + m.savings.amountMinor, 0);
@@ -71,9 +70,6 @@ export class SavingsService {
     const averageRatePct = monthly.length
       ? round2(monthly.reduce((sum, m) => sum + m.savingsRatePct, 0) / monthly.length)
       : 0;
-
-    const best = this.extremeMonth(monthly, 'max');
-    const worst = this.extremeMonth(monthly, 'min');
 
     return {
       rangeStart: query.from,
@@ -83,8 +79,8 @@ export class SavingsService {
       totalSaved: { amountMinor: totalSavedMinor, currency },
       averageSaved: { amountMinor: averageSavedMinor, currency },
       averageRatePct,
-      bestMonth: best,
-      worstMonth: worst,
+      bestMonth: this.extremeMonth(monthly, 'max'),
+      worstMonth: this.extremeMonth(monthly, 'min'),
     };
   }
 
@@ -96,13 +92,113 @@ export class SavingsService {
     const asOf = query.asOf ?? currentMonthKey();
     const start = shiftMonthKey(asOf, -(query.lookback - 1));
     const historyMonths = monthKeyRange(start, asOf, query.lookback);
-
-    const monthly = await Promise.all(
-      historyMonths.map((m) => this.computeMonthlySavings(userId, m)),
-    );
+    const monthly = await this.computeMonthlySavingsBatch(userId, historyMonths);
     const currency = this.resolveSeriesCurrency(monthly);
-    const series = monthly.map((m) => m.savings.amountMinor); // oldest → newest
+    const series = monthly.map((m) => m.savings.amountMinor);
 
+    this.logger.log(
+      `Savings projection: ${query.method} horizon=${query.months} lookback=${query.lookback} [user ${userId}]`,
+    );
+
+    return this.buildProjection(series, monthly, query, asOf, currency);
+  }
+
+  /** Builds a projection from a pre-loaded savings series (avoids duplicate DB reads). */
+  buildProjectionFromHistory(
+    history: SavingsHistory,
+    query: Pick<SavingsProjectionQueryDto, 'months' | 'lookback' | 'method'>,
+    asOf: MonthKey,
+  ): SavingsProjection {
+    const series = history.months.map((m) => m.savings.amountMinor);
+    return this.buildProjection(series, history.months, query, asOf, history.currency);
+  }
+
+  /** Single-month calculation (3 parallel reads). */
+  private async computeMonthlySavings(userId: string, month: MonthKey): Promise<MonthlySavings> {
+    const [batch] = await this.computeMonthlySavingsBatch(userId, [month]);
+    return batch!;
+  }
+
+  /**
+   * Batch monthly savings: loads income/fixed plans once and variable expenses
+   * in one aggregation — O(1) plan reads + O(1) aggregation instead of N×3.
+   */
+  private async computeMonthlySavingsBatch(
+    userId: string,
+    months: MonthKey[],
+  ): Promise<MonthlySavings[]> {
+    if (months.length === 0) return [];
+
+    const from = months[0]!;
+    const to = months[months.length - 1]!;
+
+    const [incomeSources, fixedExpensePlans, variableByMonth] = await Promise.all([
+      this.income.listSources(userId, {}),
+      this.fixedExpenses.listExpenses(userId, {}),
+      this.transactions.sumByFlowGroupedByMonth(userId, from, to, Flow.EXPENSE),
+    ]);
+
+    return months.map((monthKey) =>
+      this.computeMonthFromPlans(monthKey, incomeSources, fixedExpensePlans, variableByMonth),
+    );
+  }
+
+  private computeMonthFromPlans(
+    monthKey: MonthKey,
+    incomeSources: readonly IncomeSource[],
+    fixedExpensePlans: readonly FixedExpense[],
+    variableByMonth: ReadonlyMap<MonthKey, Money>,
+  ): MonthlySavings {
+    let incomeMinor = 0;
+    let fixedMinor = 0;
+    const monies: Money[] = [];
+
+    for (const source of incomeSources) {
+      if (!isActiveInMonth(source, monthKey)) continue;
+      const amount = effectiveAmountForMonth(source, monthKey);
+      if (amount && amount.amountMinor > 0) {
+        incomeMinor += amount.amountMinor;
+        monies.push(amount);
+      }
+    }
+
+    for (const expense of fixedExpensePlans) {
+      if (!isActiveInMonth(expense, monthKey)) continue;
+      const amount = effectiveAmountForMonth(expense, monthKey);
+      if (amount && amount.amountMinor > 0) {
+        fixedMinor += amount.amountMinor;
+        monies.push(amount);
+      }
+    }
+
+    const variableExpense =
+      variableByMonth.get(monthKey) ?? ({ amountMinor: 0, currency: CurrencyCode.USD } as Money);
+    if (variableExpense.amountMinor > 0) monies.push(variableExpense);
+
+    const currency = resolveCurrencyFromMonies(monies);
+    const totalExpenseMinor = fixedMinor + variableExpense.amountMinor;
+    const savingsMinor = incomeMinor - totalExpenseMinor;
+    const savingsRatePct = incomeMinor > 0 ? round2((savingsMinor / incomeMinor) * 100) : 0;
+
+    return {
+      monthKey,
+      currency,
+      income: { amountMinor: incomeMinor, currency },
+      fixedExpense: { amountMinor: fixedMinor, currency },
+      variableExpense: { amountMinor: variableExpense.amountMinor, currency },
+      totalExpense: { amountMinor: totalExpenseMinor, currency },
+      savings: { amountMinor: savingsMinor, currency },
+      savingsRatePct,
+    };
+  }
+
+  private buildProjection(
+    series: number[],
+    monthly: readonly MonthlySavings[],
+    query: Pick<SavingsProjectionQueryDto, 'months' | 'lookback' | 'method'>,
+    asOf: MonthKey,
+    currency: CurrencyCode,
+  ): SavingsProjection {
     const { values, confidencePct } = forecastSavings(series, query.method, query.months);
 
     let cumulative = 0;
@@ -115,14 +211,9 @@ export class SavingsService {
       };
     });
 
-    const basedOnMonths = monthly.filter(hasActivity).length;
-    this.logger.log(
-      `Savings projection: ${query.method} horizon=${query.months} lookback=${query.lookback} [user ${userId}]`,
-    );
-
     return {
       method: query.method,
-      basedOnMonths,
+      basedOnMonths: monthly.filter(hasActivity).length,
       lookbackMonths: query.lookback,
       horizonMonths: query.months,
       confidencePct,
@@ -132,52 +223,11 @@ export class SavingsService {
     };
   }
 
-  /** Core calculation: compose income, fixed (due), and variable (actual). */
-  private async computeMonthlySavings(userId: string, month: MonthKey): Promise<MonthlySavings> {
-    const [incomeMonth, fixedStatus, flowTotals] = await Promise.all([
-      this.income.getMonthlyIncome(userId, month),
-      this.fixedExpenses.getMonthlyStatus(userId, month),
-      this.transactions.sumByFlowForMonth(userId, month),
-    ]);
-
-    const income = incomeMonth.total;
-    const fixedExpense = fixedStatus.totalDue;
-    const variableExpense =
-      flowTotals.find((f) => f.flow === Flow.EXPENSE)?.total ??
-      ({ amountMinor: 0, currency: CurrencyCode.USD } as Money);
-
-    const currency = this.resolveCurrency([income, fixedExpense, variableExpense]);
-    const totalExpenseMinor = fixedExpense.amountMinor + variableExpense.amountMinor;
-    const savingsMinor = income.amountMinor - totalExpenseMinor;
-    const savingsRatePct =
-      income.amountMinor > 0 ? round2((savingsMinor / income.amountMinor) * 100) : 0;
-
-    return {
-      monthKey: month,
-      currency,
-      income: { amountMinor: income.amountMinor, currency },
-      fixedExpense: { amountMinor: fixedExpense.amountMinor, currency },
-      variableExpense: { amountMinor: variableExpense.amountMinor, currency },
-      totalExpense: { amountMinor: totalExpenseMinor, currency },
-      savings: { amountMinor: savingsMinor, currency },
-      savingsRatePct,
-    };
-  }
-
-  /** Single currency across amounts, ignoring zero amounts (which carry defaults). */
-  private resolveCurrency(monies: readonly Money[]): CurrencyCode {
-    const currencies = new Set(monies.filter((m) => m.amountMinor !== 0).map((m) => m.currency));
-    if (currencies.size > 1) {
-      throw new DomainValidationException('Mixed currencies are not supported yet');
-    }
-    return [...currencies][0] ?? CurrencyCode.USD;
-  }
-
   private resolveSeriesCurrency(months: readonly MonthlySavings[]): CurrencyCode {
     const representatives = months
       .filter(hasActivity)
       .map((m) => (m.income.amountMinor !== 0 ? m.income : m.totalExpense));
-    return this.resolveCurrency(representatives);
+    return resolveCurrencyFromMonies(representatives);
   }
 
   private extremeMonth(months: readonly MonthlySavings[], mode: 'max' | 'min'): MonthKey | null {
@@ -193,11 +243,6 @@ export class SavingsService {
   }
 }
 
-function round2(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-
-/** Whether a month has any income or expense activity (excludes empty months). */
 function hasActivity(month: MonthlySavings): boolean {
   return (
     month.income.amountMinor !== 0 ||

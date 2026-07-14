@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { type HydratedDocument, type Model, Types } from 'mongoose';
 import type { MonthKey } from '@finance/shared';
+import { DomainValidationException } from '../../../common/exceptions/app.exception';
 import type {
   ExpensePaymentRecord,
   ExpensePaymentRepositoryPort,
@@ -22,8 +23,8 @@ export class ExpensePaymentMongoRepository implements ExpensePaymentRepositoryPo
     private readonly model: Model<FixedExpensePaymentEntity>,
   ) {}
 
-  private toObjectId(id: string): Types.ObjectId {
-    return new Types.ObjectId(id);
+  private toObjectId(id: string): Types.ObjectId | null {
+    return Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : null;
   }
 
   private toDomain(doc: PaymentDoc): ExpensePaymentRecord {
@@ -37,11 +38,17 @@ export class ExpensePaymentMongoRepository implements ExpensePaymentRepositoryPo
   }
 
   async upsert(data: UpsertPaymentData): Promise<ExpensePaymentRecord> {
+    const userObjectId = this.toObjectId(data.userId);
+    const planObjectId = this.toObjectId(data.planId);
+    if (!userObjectId || !planObjectId) {
+      throw new DomainValidationException('Invalid user or plan context');
+    }
+
     const doc = await this.model
       .findOneAndUpdate(
         {
-          userId: this.toObjectId(data.userId),
-          planId: this.toObjectId(data.planId),
+          userId: userObjectId,
+          planId: planObjectId,
           monthKey: data.monthKey,
         },
         {
@@ -58,7 +65,9 @@ export class ExpensePaymentMongoRepository implements ExpensePaymentRepositoryPo
   }
 
   async findByMonth(userId: string, monthKey: MonthKey): Promise<readonly ExpensePaymentRecord[]> {
-    const docs = await this.model.find({ userId: this.toObjectId(userId), monthKey }).exec();
+    const userObjectId = this.toObjectId(userId);
+    if (!userObjectId) return [];
+    const docs = await this.model.find({ userId: userObjectId, monthKey }).exec();
     return docs.map((doc) => this.toDomain(doc));
   }
 
@@ -67,15 +76,20 @@ export class ExpensePaymentMongoRepository implements ExpensePaymentRepositoryPo
     from: MonthKey,
     to: MonthKey,
   ): Promise<readonly ExpensePaymentRecord[]> {
+    const userObjectId = this.toObjectId(userId);
+    if (!userObjectId) return [];
     const docs = await this.model
-      .find({ userId: this.toObjectId(userId), monthKey: { $gte: from, $lte: to } })
+      .find({ userId: userObjectId, monthKey: { $gte: from, $lte: to } })
       .exec();
     return docs.map((doc) => this.toDomain(doc));
   }
 
   async deleteForPlan(userId: string, planId: string): Promise<number> {
+    const userObjectId = this.toObjectId(userId);
+    const planObjectId = this.toObjectId(planId);
+    if (!userObjectId || !planObjectId) return 0;
     const result = await this.model
-      .deleteMany({ userId: this.toObjectId(userId), planId: this.toObjectId(planId) })
+      .deleteMany({ userId: userObjectId, planId: planObjectId })
       .exec();
     return result.deletedCount ?? 0;
   }

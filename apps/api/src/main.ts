@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { VersioningType } from '@nestjs/common';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
 import { AppLogger } from './core/logger/app-logger.service';
@@ -19,6 +20,7 @@ async function bootstrap(): Promise<void> {
 
   const config = app.get(AppConfigService);
 
+  app.use(helmet());
   app.setGlobalPrefix(config.globalPrefix);
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: config.defaultApiVersion });
   app.enableCors({ origin: config.corsOrigins, credentials: true });

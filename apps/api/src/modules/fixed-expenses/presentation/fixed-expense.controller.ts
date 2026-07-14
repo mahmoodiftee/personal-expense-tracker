@@ -17,6 +17,7 @@ import type {
   MonthlyExpenseStatus,
 } from '@finance/shared';
 import { CurrentUserId } from '../../../common/decorators/current-user.decorator';
+import { ParseObjectIdPipe } from '../../../common/pipes/parse-object-id.pipe';
 import { FixedExpenseService } from '../application/fixed-expense.service';
 import { CreateFixedExpenseDto } from '../application/dto/create-fixed-expense.dto';
 import { UpdateFixedExpenseDto } from '../application/dto/update-fixed-expense.dto';
@@ -73,14 +74,17 @@ export class FixedExpenseController {
   }
 
   @Get(':id')
-  get(@CurrentUserId() userId: string, @Param('id') id: string): Promise<FixedExpense> {
+  get(
+    @CurrentUserId() userId: string,
+    @Param('id', ParseObjectIdPipe) id: string,
+  ): Promise<FixedExpense> {
     return this.service.getExpense(userId, id);
   }
 
   @Patch(':id')
   update(
     @CurrentUserId() userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateFixedExpenseDto,
   ): Promise<FixedExpense> {
     return this.service.updateExpense(userId, id, dto);
@@ -89,7 +93,7 @@ export class FixedExpenseController {
   @Patch(':id/amount')
   changeAmount(
     @CurrentUserId() userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateExpenseAmountDto,
   ): Promise<FixedExpense> {
     return this.service.changeAmount(userId, id, dto);
@@ -99,7 +103,7 @@ export class FixedExpenseController {
   @HttpCode(HttpStatus.OK)
   async delete(
     @CurrentUserId() userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<{ id: string; deleted: true }> {
     await this.service.deleteExpense(userId, id);
     return { id, deleted: true };
@@ -111,7 +115,7 @@ export class FixedExpenseController {
   @HttpCode(HttpStatus.OK)
   markPaid(
     @CurrentUserId() userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: MarkPaidDto,
   ): Promise<FixedExpenseMonthlyStatusItem> {
     return this.service.markPaid(userId, id, dto);
@@ -121,7 +125,7 @@ export class FixedExpenseController {
   @HttpCode(HttpStatus.OK)
   markUnpaid(
     @CurrentUserId() userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: MarkUnpaidDto,
   ): Promise<FixedExpenseMonthlyStatusItem> {
     return this.service.markUnpaid(userId, id, dto);

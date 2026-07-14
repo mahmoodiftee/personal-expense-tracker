@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import type { IncomeSource, IncomeSummary, MonthlyIncome } from '@finance/shared';
 import { CurrentUserId } from '../../../common/decorators/current-user.decorator';
+import { ParseObjectIdPipe } from '../../../common/pipes/parse-object-id.pipe';
 import { IncomeService } from '../application/income.service';
 import { CreateIncomeSourceDto } from '../application/dto/create-income-source.dto';
 import { UpdateIncomeSourceDto } from '../application/dto/update-income-source.dto';
@@ -51,14 +52,17 @@ export class IncomeController {
   }
 
   @Get('sources/:id')
-  getSource(@CurrentUserId() userId: string, @Param('id') id: string): Promise<IncomeSource> {
+  getSource(
+    @CurrentUserId() userId: string,
+    @Param('id', ParseObjectIdPipe) id: string,
+  ): Promise<IncomeSource> {
     return this.incomeService.getSource(userId, id);
   }
 
   @Patch('sources/:id')
   updateSource(
     @CurrentUserId() userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateIncomeSourceDto,
   ): Promise<IncomeSource> {
     return this.incomeService.updateSource(userId, id, dto);
@@ -67,7 +71,7 @@ export class IncomeController {
   @Patch('sources/:id/amount')
   changeAmount(
     @CurrentUserId() userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: UpdateIncomeAmountDto,
   ): Promise<IncomeSource> {
     return this.incomeService.changeAmount(userId, id, dto);
@@ -77,7 +81,7 @@ export class IncomeController {
   @HttpCode(HttpStatus.OK)
   async deleteSource(
     @CurrentUserId() userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<{ id: string; deleted: true }> {
     await this.incomeService.deleteSource(userId, id);
     return { id, deleted: true };

@@ -1,5 +1,14 @@
 import { Transform, Type } from 'class-transformer';
-import { IsArray, IsInt, IsISO8601, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsISO8601,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../common/domain/pagination';
 import { IsMonthKey } from '../../../../common/validation/is-month-key';
 
@@ -23,6 +32,7 @@ export class VariableExpenseQueryDto {
   /** Free-text search over description, notes, and category name. */
   @IsOptional()
   @IsString()
+  @MaxLength(120)
   q?: string;
 
   /** Comma-separated tags, e.g. `?tags=food,coffee`. */

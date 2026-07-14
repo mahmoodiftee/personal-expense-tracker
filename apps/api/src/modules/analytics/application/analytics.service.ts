@@ -17,8 +17,9 @@ import {
   type SpendingTrends,
 } from '@finance/shared';
 import { AppLogger } from '../../../core/logger/app-logger.service';
-import { DomainValidationException } from '../../../common/exceptions/app.exception';
-import { currentMonthKey, monthKeyRange, shiftMonthKey } from '../../../common/util/month.util';
+import { round2 } from '../../../common/util/math.util';
+import { currentMonthKey, shiftMonthKey } from '../../../common/util/month.util';
+import { validateMonthRange } from '../../../common/validation/validate-month-range';
 import { SavingsService } from '../../savings/application/savings.service';
 import { forecastSavings } from '../../savings/domain/forecast.engine';
 import {
@@ -55,7 +56,7 @@ export class AnalyticsService {
 
   /** Income, expense, and savings trends with month-over-month deltas. */
   async getMonthlyTrends(userId: string, query: AnalyticsRangeQueryDto): Promise<MonthlyTrends> {
-    const months = this.resolveRange(query.from, query.to);
+    const months = validateMonthRange(query.from, query.to, MAX_RANGE_MONTHS);
     const monthly = await this.loadMonthlySeries(userId, months);
 
     const points: MonthlyTrendPoint[] = monthly.map((m, index) => ({
@@ -132,7 +133,7 @@ export class AnalyticsService {
 
   /** Fixed vs variable spending and top categories per month. */
   async getSpendingTrends(userId: string, query: AnalyticsRangeQueryDto): Promise<SpendingTrends> {
-    const months = this.resolveRange(query.from, query.to);
+    const months = validateMonthRange(query.from, query.to, MAX_RANGE_MONTHS);
 
     const [monthly, categoryRows] = await Promise.all([
       this.loadMonthlySeries(userId, months),
@@ -198,16 +199,8 @@ export class AnalyticsService {
   ): Promise<ForecastAnalytics> {
     const asOf = query.asOf ?? currentMonthKey();
     const historyStart = shiftMonthKey(asOf, -(query.lookback - 1));
-
-    const [projection, history] = await Promise.all([
-      this.savings.getProjection(userId, {
-        asOf,
-        months: query.months,
-        lookback: query.lookback,
-        method: query.method,
-      }),
-      this.savings.getHistory(userId, { from: historyStart, to: asOf }),
-    ]);
+    const history = await this.savings.getHistory(userId, { from: historyStart, to: asOf });
+    const projection = this.savings.buildProjectionFromHistory(history, query, asOf);
 
     const currency = history.currency;
     const series = history.months.map((m) => m.savings.amountMinor);
@@ -254,28 +247,14 @@ export class AnalyticsService {
     };
   }
 
-  private resolveRange(from: MonthKey, to: MonthKey): MonthKey[] {
-    if (from > to) {
-      throw new DomainValidationException('`from` month must not be after `to` month');
-    }
-    const months = monthKeyRange(from, to, MAX_RANGE_MONTHS + 1);
-    if (months.length > MAX_RANGE_MONTHS) {
-      throw new DomainValidationException(`Range cannot exceed ${MAX_RANGE_MONTHS} months`);
-    }
-    return months;
-  }
-
   private loadMonthlySeries(userId: string, months: MonthKey[]): Promise<MonthlySavings[]> {
-    return Promise.all(
-      months.map((monthKey) => this.savings.getMonthly(userId, { month: monthKey })),
-    );
+    if (months.length === 0) return Promise.resolve([]);
+    return this.savings
+      .getHistory(userId, { from: months[0]!, to: months[months.length - 1]! })
+      .then((history) => [...history.months]);
   }
 }
 
 function avgMoney(values: readonly number[], currency: CurrencyCode): Money {
   return { amountMinor: averageMinor(values), currency };
-}
-
-function round2(value: number): number {
-  return Math.round(value * 100) / 100;
 }
