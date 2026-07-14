@@ -79,6 +79,7 @@ describe('insights.engine', () => {
           },
         ],
       },
+      overBudgetCategories: [],
       ...overrides,
     };
   }
@@ -157,5 +158,34 @@ describe('insights.engine', () => {
 
   it('respects new category lookback history', () => {
     expect(NEW_CATEGORY_LOOKBACK_MONTHS).toBeGreaterThan(0);
+  });
+
+  it('emits budget overrun insight when categories exceed limits', () => {
+    const results = generateInsights(
+      baseInput({
+        overBudgetCategories: [
+          {
+            categoryId: 'cat-dining',
+            categoryName: 'Dining',
+            budgetMinor: 10_000,
+            actualMinor: 15_000,
+            usedPct: 150,
+            currency,
+          },
+        ],
+      }),
+    );
+
+    const insight = results.find((item) => item.type === InsightType.BUDGET_OVERRUN);
+    expect(insight).toBeDefined();
+    expect(insight?.severity).toBe(InsightSeverity.CRITICAL);
+    expect(insight?.data?.categories).toEqual([
+      expect.objectContaining({ categoryName: 'Dining', usedPct: 150 }),
+    ]);
+  });
+
+  it('skips budget overrun insight when all categories are within budget', () => {
+    const results = generateInsights(baseInput({ overBudgetCategories: [] }));
+    expect(results.some((item) => item.type === InsightType.BUDGET_OVERRUN)).toBe(false);
   });
 });

@@ -6,10 +6,9 @@ import type { ApiClientError } from '@/lib/api-client';
 
 import { createSavingsGoal, deleteSavingsGoal, updateSavingsGoal } from '../api/savings-goals-api';
 import type { SavingsGoalFormValues } from '../lib/schemas';
-import { savingsGoalsQueryKey } from './use-savings-goals';
 
 async function invalidateGoalQueries(queryClient: ReturnType<typeof useQueryClient>) {
-  await queryClient.invalidateQueries({ queryKey: savingsGoalsQueryKey });
+  await queryClient.invalidateQueries({ queryKey: ['savings-goals'] });
 }
 
 export function useCreateSavingsGoalMutation() {

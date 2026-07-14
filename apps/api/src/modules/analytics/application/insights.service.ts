@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Flow, type Insight, type MonthKey } from '@finance/shared';
+import { Flow, type CategoryBudgetStatus, type Insight, type MonthKey } from '@finance/shared';
 
 import { AppLogger } from '../../../core/logger/app-logger.service';
 import { currentMonthKey, previousMonthKey, shiftMonthKey } from '../../../common/util/month.util';
 import { FixedExpenseService } from '../../fixed-expenses/application/fixed-expense.service';
+import { BudgetsService } from '../../budgets/application/budgets.service';
 import { SavingsService } from '../../savings/application/savings.service';
 import {
   TRANSACTION_REPOSITORY,
@@ -13,6 +14,7 @@ import {
 import {
   generateInsights,
   NEW_CATEGORY_LOOKBACK_MONTHS,
+  type BudgetOverrunRow,
   type CategorySpendRow,
   type InsightsEngineInput,
 } from '../domain/insights.engine';
@@ -29,6 +31,7 @@ export class InsightsService {
     @Inject(INSIGHT_REPOSITORY)
     private readonly insights: InsightRepositoryPort,
     private readonly savings: SavingsService,
+    private readonly budgets: BudgetsService,
     private readonly fixedExpenses: FixedExpenseService,
     @Inject(TRANSACTION_REPOSITORY)
     private readonly transactions: TransactionRepositoryPort,
@@ -83,6 +86,7 @@ export class InsightsService {
       currentCategories,
       historicalCategoriesByMonth,
       fixedExpenseStatus,
+      budgetAnalytics,
     ] = await Promise.all([
       this.savings.getMonthly(userId, { month: monthKey }),
       this.savings.getMonthly(userId, { month: priorMonthKey }),
@@ -96,6 +100,7 @@ export class InsightsService {
           )
         : Promise.resolve(new Map<MonthKey, readonly CategoryAggregate[]>()),
       this.fixedExpenses.getMonthlyStatus(userId, monthKey),
+      this.budgets.getBudgetAnalytics(userId, monthKey),
     ]);
 
     const hasPreviousData =
@@ -110,6 +115,7 @@ export class InsightsService {
       currentCategories: currentCategories.map(toCategorySpendRow),
       historicalCategoriesByMonth: mapHistoricalCategories(historicalCategoriesByMonth),
       fixedExpenseStatus,
+      overBudgetCategories: budgetAnalytics.overBudget.map(toBudgetOverrunRow),
     };
   }
 }
@@ -132,4 +138,15 @@ function mapHistoricalCategories(
     mapped.set(month, rows.map(toCategorySpendRow));
   }
   return mapped;
+}
+
+function toBudgetOverrunRow(row: CategoryBudgetStatus): BudgetOverrunRow {
+  return {
+    categoryId: row.categoryId,
+    categoryName: row.categoryName,
+    budgetMinor: row.budget.amountMinor,
+    actualMinor: row.actual.amountMinor,
+    usedPct: row.usedPct,
+    currency: row.budget.currency,
+  };
 }

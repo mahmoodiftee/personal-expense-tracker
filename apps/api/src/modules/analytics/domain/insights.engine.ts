@@ -3,6 +3,7 @@ import {
   InsightType,
   MoneyMath,
   PaymentStatus,
+  type CurrencyCode,
   type MonthKey,
   type MonthlyExpenseStatus,
   type MonthlySavings,
@@ -26,6 +27,15 @@ export type CategorySpendRow = {
   readonly transactionCount: number;
 };
 
+export type BudgetOverrunRow = {
+  readonly categoryId: string;
+  readonly categoryName: string;
+  readonly budgetMinor: number;
+  readonly actualMinor: number;
+  readonly usedPct: number;
+  readonly currency: CurrencyCode;
+};
+
 export type InsightsEngineInput = {
   readonly monthKey: MonthKey;
   readonly currentMonth: MonthlySavings;
@@ -33,6 +43,7 @@ export type InsightsEngineInput = {
   readonly currentCategories: readonly CategorySpendRow[];
   readonly historicalCategoriesByMonth: ReadonlyMap<MonthKey, readonly CategorySpendRow[]>;
   readonly fixedExpenseStatus: MonthlyExpenseStatus;
+  readonly overBudgetCategories: readonly BudgetOverrunRow[];
 };
 
 export type InsightDraft = {
@@ -61,6 +72,9 @@ export function generateInsights(input: InsightsEngineInput): readonly InsightDr
 
   const newCategoryInsight = buildNewCategoryInsight(input);
   if (newCategoryInsight) results.push(newCategoryInsight);
+
+  const budgetOverrunInsight = buildBudgetOverrunInsight(input);
+  if (budgetOverrunInsight) results.push(budgetOverrunInsight);
 
   return results;
 }
@@ -216,6 +230,38 @@ function buildNewCategoryInsight(input: InsightsEngineInput): InsightDraft | nul
         color: row.color,
         totalMinor: row.totalMinor,
         transactionCount: row.transactionCount,
+      })),
+    },
+    monthKey: input.monthKey,
+  };
+}
+
+function buildBudgetOverrunInsight(input: InsightsEngineInput): InsightDraft | null {
+  const overBudget = input.overBudgetCategories;
+  if (overBudget.length === 0) return null;
+
+  const names = overBudget.map((row) => row.categoryName);
+  const worst = overBudget.reduce((top, row) => (row.usedPct > top.usedPct ? row : top));
+  const severity =
+    overBudget.length === 1 && worst.usedPct >= 150
+      ? InsightSeverity.CRITICAL
+      : InsightSeverity.WARNING;
+
+  return {
+    type: InsightType.BUDGET_OVERRUN,
+    severity,
+    title: overBudget.length === 1 ? 'Over budget' : 'Categories over budget',
+    message:
+      overBudget.length === 1
+        ? `${names[0]} exceeded its budget at ${worst.usedPct.toFixed(0)}% used (${MoneyMath.format({ amountMinor: worst.actualMinor, currency: worst.currency })} of ${MoneyMath.format({ amountMinor: worst.budgetMinor, currency: worst.currency })}).`
+        : `${overBudget.length} categories exceeded their budgets: ${names.join(', ')}.`,
+    data: {
+      categories: overBudget.map((row) => ({
+        categoryId: row.categoryId,
+        categoryName: row.categoryName,
+        budgetMinor: row.budgetMinor,
+        actualMinor: row.actualMinor,
+        usedPct: row.usedPct,
       })),
     },
     monthKey: input.monthKey,

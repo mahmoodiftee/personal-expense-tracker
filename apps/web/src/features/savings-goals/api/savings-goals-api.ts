@@ -4,6 +4,8 @@ import type {
   SavingsGoalWithProgress,
 } from '@finance/shared';
 
+import type { MonthKey } from '@finance/shared';
+
 import { apiFetch } from '@/lib/api-client';
 import { demoFetchOptions } from '@/lib/demo-fetch';
 
@@ -24,8 +26,9 @@ function bodyFromForm(values: SavingsGoalFormValues, currency = defaultCurrency)
   };
 }
 
-export async function fetchSavingsGoalsOverview(): Promise<SavingsGoalsOverview> {
-  return apiFetch<SavingsGoalsOverview>('/savings-goals', fetchOptions());
+export async function fetchSavingsGoalsOverview(asOf?: MonthKey): Promise<SavingsGoalsOverview> {
+  const params = asOf ? `?asOf=${encodeURIComponent(asOf)}` : '';
+  return apiFetch<SavingsGoalsOverview>(`/savings-goals${params}`, fetchOptions());
 }
 
 export async function createSavingsGoal(

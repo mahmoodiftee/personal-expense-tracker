@@ -71,10 +71,11 @@ export class SavingsGoalsService {
     query: SavingsGoalsOverviewQueryDto,
   ): Promise<SavingsGoalsOverview> {
     const asOf = query.asOf ?? currentMonthKey();
+    const lookbackMonths = query.lookbackMonths ?? 6;
     const items = await this.goals.findMany(userId);
-    const withProgress = await Promise.all(
-      items.map((goal) => this.attachProgress(userId, goal, asOf, query.lookbackMonths)),
-    );
+
+    const progressContext = await this.loadProgressContext(userId, asOf, lookbackMonths);
+    const withProgress = items.map((goal) => this.applyProgress(goal, asOf, progressContext));
 
     const currency = withProgress[0]?.targetAmount.currency ?? CurrencyCode.USD;
     return { currency, goals: withProgress };
@@ -135,20 +136,39 @@ export class SavingsGoalsService {
     asOf: MonthKey,
     lookbackMonths = 6,
   ): Promise<SavingsGoalWithProgress> {
+    const progressContext = await this.loadProgressContext(userId, asOf, lookbackMonths);
+    return this.applyProgress(goal, asOf, progressContext);
+  }
+
+  private async loadProgressContext(
+    userId: string,
+    asOf: MonthKey,
+    lookbackMonths: number,
+  ): Promise<GoalProgressContext> {
     const from = shiftMonthKey(asOf, -(lookbackMonths - 1));
     const history = await this.savings.getHistory(userId, { from, to: asOf });
-    const averageMonthlySavingsMinor = history.averageSaved.amountMinor;
+    return {
+      averageMonthlySavingsMinor: history.averageSaved.amountMinor,
+      historyMonths: history.months.length,
+    };
+  }
+
+  private applyProgress(
+    goal: SavingsGoal,
+    asOf: MonthKey,
+    context: GoalProgressContext,
+  ): SavingsGoalWithProgress {
     const currency = reconcileCurrency(goal.targetAmount.currency, goal.currentAmount.currency);
 
     const computed = computeGoalProgress({
       goalId: goal.id,
       targetAmountMinor: goal.targetAmount.amountMinor,
       currentAmountMinor: goal.currentAmount.amountMinor,
-      averageMonthlySavingsMinor,
+      averageMonthlySavingsMinor: context.averageMonthlySavingsMinor,
       currency,
       asOfMonth: asOf,
       targetDate: goal.targetDate,
-      historyMonths: history.months.length,
+      historyMonths: context.historyMonths,
     });
 
     const progress: SavingsGoalProgress = {
@@ -157,7 +177,7 @@ export class SavingsGoalsService {
       remaining: { amountMinor: computed.remainingMinor, currency },
       estimatedCompletionMonth: computed.estimatedCompletionMonth,
       estimatedCompletionDate: computed.estimatedCompletionDate,
-      averageMonthlySavings: { amountMinor: averageMonthlySavingsMinor, currency },
+      averageMonthlySavings: { amountMinor: context.averageMonthlySavingsMinor, currency },
       confidencePct: computed.confidencePct,
       onTrack: computed.onTrack,
     };
@@ -184,3 +204,8 @@ export class SavingsGoalsService {
     return goal;
   }
 }
+
+type GoalProgressContext = {
+  readonly averageMonthlySavingsMinor: number;
+  readonly historyMonths: number;
+};

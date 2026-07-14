@@ -2,26 +2,23 @@
 
 import Link from 'next/link';
 import type { Route } from 'next';
-import type { MonthKey } from '@finance/shared';
+import type { MonthlyBudgetSummary } from '@finance/shared';
 
 import { buttonVariants } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Typography } from '@/components/design-system';
 import { formatMoney, formatPercent } from '@/lib/format-money';
 
-import { useMonthlyBudgetSummary } from '../hooks/use-budgets';
 import { BudgetCard } from './budget-card';
 
 const PREVIEW_LIMIT = 3;
 
 type BudgetWidgetProps = {
-  month: MonthKey;
+  summary: MonthlyBudgetSummary;
 };
 
-export function BudgetWidget({ month }: BudgetWidgetProps) {
-  const { data, isLoading, isError } = useMonthlyBudgetSummary(month);
-  const categories = data?.categories.slice(0, PREVIEW_LIMIT) ?? [];
+export function BudgetWidget({ summary }: BudgetWidgetProps) {
+  const categories = summary.categories.slice(0, PREVIEW_LIMIT);
 
   return (
     <Card>
@@ -38,28 +35,14 @@ export function BudgetWidget({ month }: BudgetWidgetProps) {
         </Link>
       </CardHeader>
       <CardContent className="space-y-4">
-        {isLoading ? (
-          <div className="space-y-3" aria-busy="true">
-            {Array.from({ length: 2 }).map((_, index) => (
-              <Skeleton key={index} className="h-28 w-full rounded-xl" />
-            ))}
-          </div>
-        ) : null}
-
-        {isError ? (
-          <Typography variant="body-sm" className="text-muted-foreground">
-            Could not load budgets.
-          </Typography>
-        ) : null}
-
-        {!isLoading && !isError && data && data.categories.length > 0 ? (
+        {summary.categories.length > 0 ? (
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
               <Typography variant="caption" className="text-muted-foreground">
                 Total budget
               </Typography>
               <Typography variant="label" className="tabular-nums">
-                {formatMoney(data.totalBudget)}
+                {formatMoney(summary.totalBudget)}
               </Typography>
             </div>
             <div>
@@ -67,7 +50,7 @@ export function BudgetWidget({ month }: BudgetWidgetProps) {
                 Total actual
               </Typography>
               <Typography variant="label" className="tabular-nums">
-                {formatMoney(data.totalActual)}
+                {formatMoney(summary.totalActual)}
               </Typography>
             </div>
             <div>
@@ -75,21 +58,21 @@ export function BudgetWidget({ month }: BudgetWidgetProps) {
                 Used
               </Typography>
               <Typography variant="label" className="tabular-nums">
-                {formatPercent(data.totalUsedPct, 0)}
+                {formatPercent(summary.totalUsedPct, 0)}
               </Typography>
             </div>
           </div>
         ) : null}
 
-        {!isLoading && !isError && categories.length === 0 ? (
+        {categories.length === 0 ? (
           <Typography variant="body-sm" className="text-muted-foreground">
             No budgets set for this month. Add limits to track spending by category.
           </Typography>
         ) : null}
 
-        {!isLoading && !isError
-          ? categories.map((item) => <BudgetCard key={item.id} item={item} compact />)
-          : null}
+        {categories.map((item) => (
+          <BudgetCard key={item.id} item={item} compact />
+        ))}
       </CardContent>
     </Card>
   );

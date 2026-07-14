@@ -105,7 +105,7 @@ export function DashboardView() {
           />
         ) : null}
 
-        {!isLoading && !isError && viewModel && !isEmpty ? (
+        {!isLoading && !isError && data && viewModel && !isEmpty ? (
           <FadeIn>
             <StaggerList className={spacing.section}>
               <StaggerItem>
@@ -141,11 +141,11 @@ export function DashboardView() {
               </StaggerItem>
 
               <StaggerItem>
-                <SavingsGoalsWidget />
+                <SavingsGoalsWidget month={month} />
               </StaggerItem>
 
               <StaggerItem>
-                <BudgetWidget month={month} />
+                <BudgetWidget summary={data.overview.budgetSummary} />
               </StaggerItem>
 
               <StaggerItem>

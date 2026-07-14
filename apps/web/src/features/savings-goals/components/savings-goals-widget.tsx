@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { Route } from 'next';
+import type { MonthKey } from '@finance/shared';
 
 import { buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -13,8 +14,12 @@ import { SavingsGoalCard } from './savings-goal-card';
 
 const PREVIEW_LIMIT = 3;
 
-export function SavingsGoalsWidget() {
-  const { data, isLoading, isError } = useSavingsGoalsOverview();
+type SavingsGoalsWidgetProps = {
+  month: MonthKey;
+};
+
+export function SavingsGoalsWidget({ month }: SavingsGoalsWidgetProps) {
+  const { data, isLoading, isError } = useSavingsGoalsOverview(month);
   const goals = data?.goals.slice(0, PREVIEW_LIMIT) ?? [];
 
   return (
