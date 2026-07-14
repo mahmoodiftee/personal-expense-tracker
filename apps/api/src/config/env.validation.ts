@@ -1,0 +1,49 @@
+import { z } from 'zod';
+
+/**
+ * Environment schema. The single authority on what configuration the API needs.
+ * Validation runs once at boot (fail-fast) so a misconfigured deploy never
+ * starts serving traffic in a broken state.
+ */
+export const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  PORT: z.coerce.number().int().positive().default(4000),
+
+  // Comma-separated allow-list of browser origins for CORS.
+  CORS_ORIGINS: z.string().default('http://localhost:3000'),
+
+  API_GLOBAL_PREFIX: z.string().min(1).default('api'),
+  API_DEFAULT_VERSION: z.string().min(1).default('1'),
+
+  MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
+  MONGODB_DB_NAME: z.string().min(1).default('finance'),
+
+  // Auth (phase 1.5) — optional until the auth module lands.
+  JWT_ACCESS_SECRET: z.string().min(1).optional(),
+  JWT_REFRESH_SECRET: z.string().min(1).optional(),
+  JWT_ACCESS_TTL: z.string().default('15m'),
+  JWT_REFRESH_TTL: z.string().default('7d'),
+
+  LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug', 'verbose']).default('info'),
+
+  // AI (phase 2) — blank until enabled.
+  AI_PROVIDER: z.string().optional(),
+  AI_API_KEY: z.string().optional(),
+});
+
+export type EnvConfig = z.infer<typeof envSchema>;
+
+/**
+ * Validator wired into `@nestjs/config`. Aggregates all issues into a single
+ * readable error rather than failing on the first one.
+ */
+export function validateEnv(config: Record<string, unknown>): EnvConfig {
+  const parsed = envSchema.safeParse(config);
+  if (!parsed.success) {
+    const issues = parsed.error.issues
+      .map((issue) => `  - ${issue.path.join('.') || '(root)'}: ${issue.message}`)
+      .join('\n');
+    throw new Error(`Invalid environment configuration:\n${issues}`);
+  }
+  return parsed.data;
+}
