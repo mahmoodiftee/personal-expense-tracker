@@ -15,7 +15,9 @@ import {
   DomainValidationException,
   ResourceNotFoundException,
 } from '../../../common/exceptions/app.exception';
-import { monthKeyRange } from '../../../common/util/month.util';
+import { round2 } from '../../../common/util/math.util';
+import { reconcileCurrency } from '../../../common/domain/currency.util';
+import { validateMonthRange } from '../../../common/validation/validate-month-range';
 import {
   INCOME_SOURCE_REPOSITORY,
   type IncomeSourceRepositoryPort,
@@ -135,16 +137,7 @@ export class IncomeService {
 
   /** Aggregated income across an inclusive month range. */
   async getSummary(userId: string, from: MonthKey, to: MonthKey): Promise<IncomeSummary> {
-    if (from > to) {
-      throw new DomainValidationException('`from` month must not be after `to` month');
-    }
-
-    const months = monthKeyRange(from, to, MAX_SUMMARY_MONTHS + 1);
-    if (months.length > MAX_SUMMARY_MONTHS) {
-      throw new DomainValidationException(
-        `Summary range cannot exceed ${MAX_SUMMARY_MONTHS} months`,
-      );
-    }
+    const months = validateMonthRange(from, to, MAX_SUMMARY_MONTHS);
 
     const sources = await this.repository.findMany(userId);
     const perSourceTotals = new Map<string, { name: string; amountMinor: number }>();
@@ -159,7 +152,7 @@ export class IncomeService {
         const amount = effectiveAmountForMonth(source, monthKey);
         if (!amount || amount.amountMinor <= 0) continue;
 
-        currency = this.reconcileCurrency(currency, amount.currency);
+        currency = reconcileCurrency(currency, amount.currency);
         monthMinor += amount.amountMinor;
 
         const existing = perSourceTotals.get(source.id);
@@ -208,20 +201,9 @@ export class IncomeService {
     let currency: CurrencyCode | null = null;
     let total = 0;
     for (const amount of amounts) {
-      currency = this.reconcileCurrency(currency, amount.currency);
+      currency = reconcileCurrency(currency, amount.currency);
       total += amount.amountMinor;
     }
     return { amountMinor: total, currency: currency ?? CurrencyCode.USD };
   }
-
-  private reconcileCurrency(current: CurrencyCode | null, next: CurrencyCode): CurrencyCode {
-    if (current !== null && current !== next) {
-      throw new DomainValidationException('Mixed currencies are not supported yet');
-    }
-    return next;
-  }
-}
-
-function round2(value: number): number {
-  return Math.round(value * 100) / 100;
 }

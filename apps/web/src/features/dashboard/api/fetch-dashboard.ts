@@ -3,7 +3,7 @@ import type { DashboardMonthlyOverview, DashboardOverview, MonthKey } from '@fin
 import { apiFetch } from '@/lib/api-client';
 import { monthRange } from '@/lib/month';
 
-import { demoFetchOptions } from '../lib/demo-fetch';
+import { demoFetchOptions } from '@/lib/demo-fetch';
 import { dashboardMonthlyOverviewPath, dashboardOverviewPath } from '../lib/paths';
 
 const TREND_MONTH_COUNT = 6;

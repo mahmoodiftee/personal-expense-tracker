@@ -252,6 +252,62 @@ export class TransactionMongoRepository
     }));
   }
 
+  async breakdownByCategoryGroupedByMonth(
+    userId: string,
+    from: MonthKey,
+    to: MonthKey,
+    flow: Flow,
+  ): Promise<ReadonlyMap<MonthKey, readonly CategoryAggregate[]>> {
+    const userObjectId = this.toObjectId(userId);
+    if (!userObjectId) return new Map();
+
+    const rows = await this.model
+      .aggregate<{
+        _id: {
+          monthKey: MonthKey;
+          id: Types.ObjectId | null;
+          name: string;
+          color: string;
+        };
+        totalMinor: number;
+        currency: CurrencyCode;
+        count: number;
+      }>([
+        { $match: { userId: userObjectId, monthKey: { $gte: from, $lte: to }, flow } },
+        {
+          $group: {
+            _id: {
+              monthKey: '$monthKey',
+              id: '$categoryId',
+              name: '$categorySnapshot.name',
+              color: '$categorySnapshot.color',
+            },
+            totalMinor: { $sum: '$amount.amountMinor' },
+            currency: { $first: '$amount.currency' },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { totalMinor: -1 } },
+      ])
+      .exec();
+
+    const result = new Map<MonthKey, CategoryAggregate[]>();
+    for (const row of rows) {
+      const monthKey = row._id.monthKey;
+      const aggregate: CategoryAggregate = {
+        categoryId: row._id.id ? row._id.id.toString() : '',
+        categoryName: row._id.name,
+        color: row._id.color,
+        total: { amountMinor: row.totalMinor, currency: row.currency ?? CurrencyCode.USD },
+        transactionCount: row.count,
+      };
+      const existing = result.get(monthKey) ?? [];
+      existing.push(aggregate);
+      result.set(monthKey, existing);
+    }
+    return result;
+  }
+
   async distinctMonthKeys(userId: string): Promise<readonly MonthKey[]> {
     const userObjectId = this.toObjectId(userId);
     if (!userObjectId) return [];

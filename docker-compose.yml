@@ -30,6 +30,7 @@ services:
       MONGODB_URI: mongodb://mongo:27017/finance
       MONGODB_DB_NAME: finance
       CORS_ORIGINS: http://localhost:3000
+      SINGLE_USER_ID: 000000000000000000000001
     ports:
       - '4000:4000'
 

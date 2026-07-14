@@ -1,7 +1,7 @@
 import type { CurrencyCode, FixedExpense, VariableExpense } from '@finance/shared';
 
 import { apiFetch, apiFetchPaginated } from '@/lib/api-client';
-import { demoFetchOptions } from '@/features/dashboard/lib/demo-fetch';
+import { demoFetchOptions } from '@/lib/demo-fetch';
 
 import {
   defaultCurrency,

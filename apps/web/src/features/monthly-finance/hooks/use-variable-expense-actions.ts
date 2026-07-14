@@ -1,34 +1,13 @@
 'use client';
 
-import type { MonthKey, VariableExpense } from '@finance/shared';
+import type { MonthKey } from '@finance/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+import { deleteVariableExpense } from '@/features/expenses/api/expense-api';
 import type { ApiClientError } from '@/lib/api-client';
 
-import {
-  createVariableExpense,
-  deleteVariableExpense,
-  type CreateVariableExpenseInput,
-  type MonthlyFinanceData,
-} from '../api/monthly-finance-api';
+import type { MonthlyFinanceData } from '../api/monthly-finance-api';
 import { monthlyFinanceQueryKey } from './use-monthly-finance';
-
-export function useCreateVariableExpense(month: MonthKey) {
-  const queryClient = useQueryClient();
-
-  return useMutation<VariableExpense, ApiClientError, CreateVariableExpenseInput>({
-    mutationFn: createVariableExpense,
-    onSuccess: (created) => {
-      queryClient.setQueryData<MonthlyFinanceData>(monthlyFinanceQueryKey(month), (previous) => {
-        if (!previous) return previous;
-        return { ...previous, variable: [created, ...previous.variable] };
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: monthlyFinanceQueryKey(month) });
-    },
-  });
-}
 
 export function useDeleteVariableExpense(month: MonthKey) {
   const queryClient = useQueryClient();
@@ -55,6 +34,8 @@ export function useDeleteVariableExpense(month: MonthKey) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: monthlyFinanceQueryKey(month) });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
     },
   });
 }

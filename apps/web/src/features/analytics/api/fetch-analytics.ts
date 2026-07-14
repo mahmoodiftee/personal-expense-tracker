@@ -7,7 +7,7 @@ import type {
 } from '@finance/shared';
 
 import { apiFetch } from '@/lib/api-client';
-import { demoFetchOptions } from '@/features/dashboard/lib/demo-fetch';
+import { demoFetchOptions } from '@/lib/demo-fetch';
 import { monthRange } from '@/lib/month';
 
 import { analyticsForecastPath, analyticsRangePath } from '../lib/paths';

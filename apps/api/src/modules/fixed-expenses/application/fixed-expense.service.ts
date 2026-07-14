@@ -20,7 +20,9 @@ import {
   effectiveAmountForMonth,
   isActiveInMonth,
 } from '../../../common/domain/recurring.calculations';
-import { monthKeyRange } from '../../../common/util/month.util';
+import { round2 } from '../../../common/util/math.util';
+import { reconcileCurrency } from '../../../common/domain/currency.util';
+import { validateMonthRange } from '../../../common/validation/validate-month-range';
 import {
   FIXED_EXPENSE_REPOSITORY,
   type FixedExpenseRepositoryPort,
@@ -124,9 +126,14 @@ export class FixedExpenseService {
   }
 
   async deleteExpense(userId: string, id: string): Promise<void> {
+    const expense = await this.expenses.findById(userId, id);
+    if (!expense) throw new ResourceNotFoundException('Fixed expense', id);
+
+    // Payments first so we never leave orphan payment rows for a deleted plan.
+    await this.payments.deleteForPlan(userId, id);
     const deleted = await this.expenses.delete(userId, id);
     if (!deleted) throw new ResourceNotFoundException('Fixed expense', id);
-    await this.payments.deleteForPlan(userId, id);
+
     this.logger.log(`Fixed expense deleted: ${id} [user ${userId}]`);
   }
 
@@ -202,7 +209,7 @@ export class FixedExpenseService {
     for (const expense of expenses) {
       const record = paymentByPlan.get(expense.id) ?? null;
       const item = this.toStatusItem(expense, monthKey, record);
-      currency = this.reconcileCurrency(currency, item.amount.currency);
+      currency = reconcileCurrency(currency, item.amount.currency);
       dueMinor += item.amount.amountMinor;
       if (item.status === PaymentStatus.PAID) {
         paidMinor += item.amount.amountMinor;
@@ -226,16 +233,7 @@ export class FixedExpenseService {
 
   /** Aggregated due vs paid across an inclusive month range. */
   async getSummary(userId: string, from: MonthKey, to: MonthKey): Promise<ExpenseSummary> {
-    if (from > to) {
-      throw new DomainValidationException('`from` month must not be after `to` month');
-    }
-
-    const months = monthKeyRange(from, to, MAX_SUMMARY_MONTHS + 1);
-    if (months.length > MAX_SUMMARY_MONTHS) {
-      throw new DomainValidationException(
-        `Summary range cannot exceed ${MAX_SUMMARY_MONTHS} months`,
-      );
-    }
+    const months = validateMonthRange(from, to, MAX_SUMMARY_MONTHS);
 
     const [expenses, payments] = await Promise.all([
       this.expenses.findMany(userId),
@@ -262,7 +260,7 @@ export class FixedExpenseService {
         const amount = effectiveAmountForMonth(expense, monthKey);
         if (!amount || amount.amountMinor <= 0) continue;
 
-        currency = this.reconcileCurrency(currency, amount.currency);
+        currency = reconcileCurrency(currency, amount.currency);
         monthDue += amount.amountMinor;
 
         const isPaid = paidByKey.has(paidKey(expense.id, monthKey));
@@ -327,15 +325,4 @@ export class FixedExpenseService {
       paidAt: status === PaymentStatus.PAID ? (record?.paidAt ?? null) : null,
     };
   }
-
-  private reconcileCurrency(current: CurrencyCode | null, next: CurrencyCode): CurrencyCode {
-    if (current !== null && current !== next) {
-      throw new DomainValidationException('Mixed currencies are not supported yet');
-    }
-    return next;
-  }
-}
-
-function round2(value: number): number {
-  return Math.round(value * 100) / 100;
 }

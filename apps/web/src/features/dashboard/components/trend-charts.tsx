@@ -18,16 +18,9 @@ import { Typography } from '@/components/design-system';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { cn } from '@/lib/utils';
 
-import type { ChartPoint } from '../types';
+import { CHART_COLORS, CHART_MARGIN, formatChartCompact } from '@/lib/chart-theme';
 
-const CHART_COLORS = {
-  income: 'hsl(160 84% 39%)',
-  expenses: 'hsl(0 72% 51%)',
-  savings: 'hsl(210 90% 55%)',
-  savingsRate: 'hsl(38 92% 50%)',
-  grid: 'hsl(0 0% 18%)',
-  muted: 'hsl(0 0% 55%)',
-};
+import type { ChartPoint } from '../types';
 
 type TrendChartsProps = {
   points: ChartPoint[];
@@ -94,7 +87,7 @@ export function TrendCharts({ points, className }: TrendChartsProps) {
             aria-label="Line chart comparing monthly income and expenses"
           >
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={points} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <LineChart data={points} margin={CHART_MARGIN}>
                 <CartesianGrid stroke={CHART_COLORS.grid} strokeDasharray="3 3" vertical={false} />
                 <XAxis
                   dataKey="label"
@@ -106,7 +99,7 @@ export function TrendCharts({ points, className }: TrendChartsProps) {
                   tick={{ fill: CHART_COLORS.muted, fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
+                  tickFormatter={formatChartCompact}
                 />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 12, color: CHART_COLORS.muted }} />
@@ -146,7 +139,7 @@ export function TrendCharts({ points, className }: TrendChartsProps) {
             aria-label="Bar chart showing monthly savings amounts"
           >
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={points} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <BarChart data={points} margin={CHART_MARGIN}>
                 <CartesianGrid stroke={CHART_COLORS.grid} strokeDasharray="3 3" vertical={false} />
                 <XAxis
                   dataKey="label"
@@ -158,7 +151,7 @@ export function TrendCharts({ points, className }: TrendChartsProps) {
                   tick={{ fill: CHART_COLORS.muted, fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
+                  tickFormatter={formatChartCompact}
                 />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 12, color: CHART_COLORS.muted }} />

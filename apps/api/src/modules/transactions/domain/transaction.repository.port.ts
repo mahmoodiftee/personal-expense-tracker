@@ -89,6 +89,14 @@ export interface TransactionRepositoryPort {
     flow: Flow,
   ): Promise<readonly CategoryAggregate[]>;
 
+  /** Category breakdown for each month in an inclusive range (one aggregation). */
+  breakdownByCategoryGroupedByMonth(
+    userId: string,
+    from: MonthKey,
+    to: MonthKey,
+    flow: Flow,
+  ): Promise<ReadonlyMap<MonthKey, readonly CategoryAggregate[]>>;
+
   /** Distinct months that have activity — used to seed statement backfills. */
   distinctMonthKeys(userId: string): Promise<readonly MonthKey[]>;
 }

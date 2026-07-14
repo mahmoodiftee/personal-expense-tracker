@@ -135,12 +135,13 @@ export class AnalyticsService {
   async getSpendingTrends(userId: string, query: AnalyticsRangeQueryDto): Promise<SpendingTrends> {
     const months = validateMonthRange(query.from, query.to, MAX_RANGE_MONTHS);
 
-    const [monthly, categoryRows] = await Promise.all([
+    const [monthly, categoryByMonth] = await Promise.all([
       this.loadMonthlySeries(userId, months),
-      Promise.all(
-        months.map((monthKey) =>
-          this.transactions.breakdownByCategory(userId, monthKey, Flow.EXPENSE),
-        ),
+      this.transactions.breakdownByCategoryGroupedByMonth(
+        userId,
+        query.from,
+        query.to,
+        Flow.EXPENSE,
       ),
     ]);
 
@@ -148,7 +149,7 @@ export class AnalyticsService {
 
     const points: SpendingTrendPoint[] = months.map((monthKey, index) => {
       const m = monthly[index]!;
-      const cats = categoryRows[index] ?? [];
+      const cats = categoryByMonth.get(monthKey) ?? [];
       const totalMinor = cats.reduce((sum, c) => sum + c.total.amountMinor, 0);
       const topCategories: CategorySpendingPoint[] = cats.slice(0, TOP_CATEGORIES).map((c) => ({
         name: c.categoryName,
