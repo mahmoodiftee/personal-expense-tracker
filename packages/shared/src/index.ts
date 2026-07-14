@@ -5,4 +5,5 @@ export * from './domain/income';
 export * from './domain/expense';
 export * from './domain/variable-expense';
 export * from './domain/savings';
+export * from './domain/dashboard';
 export * from './api/response';

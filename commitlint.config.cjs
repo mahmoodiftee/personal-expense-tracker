@@ -34,6 +34,7 @@ module.exports = {
         'recurring',
         'analytics',
         'savings',
+        'dashboard',
         'users',
         'auth',
         'ai',
