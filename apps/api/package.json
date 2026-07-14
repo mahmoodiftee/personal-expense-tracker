@@ -10,6 +10,8 @@
     "lint": "eslint \"src/**/*.ts\"",
     "test": "jest --config jest.config.cjs",
     "test:e2e": "jest --config ./test/jest-e2e.json --passWithNoTests",
+    "db:init": "ts-node -r dotenv/config src/scripts/init-db.ts",
+    "db:seed": "ts-node -r dotenv/config src/scripts/seed-db.ts",
     "clean": "rm -rf dist"
   },
   "dependencies": {

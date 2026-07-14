@@ -8,6 +8,6 @@
     "baseUrl": "./src",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/scripts/**/*.ts"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts"]
 }
