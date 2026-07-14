@@ -4,4 +4,5 @@ export * from './domain/models';
 export * from './domain/income';
 export * from './domain/expense';
 export * from './domain/variable-expense';
+export * from './domain/savings';
 export * from './api/response';

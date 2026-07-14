@@ -33,6 +33,7 @@ module.exports = {
         'categories',
         'recurring',
         'analytics',
+        'savings',
         'users',
         'auth',
         'ai',
