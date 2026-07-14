@@ -14,14 +14,21 @@ export default function HomePage() {
           title="Personal Finance"
           description="Track income, fixed and variable expenses, savings, and forecasts in one place."
           actions={
-            <Link href={'/design-system' as Route} className={buttonVariants()}>
-              View design system
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link href={'/dashboard' as Route} className={buttonVariants()}>
+                Open dashboard
+              </Link>
+              <Link
+                href={'/design-system' as Route}
+                className={buttonVariants({ variant: 'outline' })}
+              >
+                Design system
+              </Link>
+            </div>
           }
         />
         <Typography variant="body-sm" className="mt-8 text-muted-foreground">
-          Dashboard coming soon. Explore the design system to preview tokens, components, and API
-          patterns.
+          Your dashboard shows income, expenses, savings, forecasts, and multi-month trends.
         </Typography>
       </Container>
     </main>
