@@ -18,6 +18,9 @@ export default function HomePage() {
               <Link href={'/dashboard' as Route} className={buttonVariants()}>
                 Open dashboard
               </Link>
+              <Link href={'/finance' as Route} className={buttonVariants({ variant: 'secondary' })}>
+                Monthly finance
+              </Link>
               <Link
                 href={'/design-system' as Route}
                 className={buttonVariants({ variant: 'outline' })}
@@ -28,7 +31,8 @@ export default function HomePage() {
           }
         />
         <Typography variant="body-sm" className="mt-8 text-muted-foreground">
-          Your dashboard shows income, expenses, savings, forecasts, and multi-month trends.
+          Manage monthly fixed and variable expenses, or view your dashboard for trends and
+          forecasts.
         </Typography>
       </Container>
     </main>
