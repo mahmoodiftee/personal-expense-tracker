@@ -27,8 +27,8 @@ export class RecurringPlanEntity {
   @Prop({ type: String, enum: RecurringKind, required: true })
   kind!: RecurringKind;
 
-  @Prop({ type: Types.ObjectId, required: true })
-  categoryId!: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, default: null })
+  categoryId!: Types.ObjectId | null;
 
   @Prop({ type: String, required: true, trim: true })
   name!: string;

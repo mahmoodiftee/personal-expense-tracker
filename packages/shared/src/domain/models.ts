@@ -67,7 +67,8 @@ export interface RecurringPlan extends EntityTimestamps {
   readonly id: string;
   readonly userId: string;
   readonly kind: RecurringKind;
-  readonly categoryId: string;
+  /** Optional: income sources need not be categorised; fixed expenses usually are. */
+  readonly categoryId: string | null;
   readonly name: string;
   readonly amountHistory: readonly AmountPeriod[];
   readonly cadence: Cadence;

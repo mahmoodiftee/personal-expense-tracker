@@ -18,6 +18,13 @@ export const envSchema = z.object({
   MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
   MONGODB_DB_NAME: z.string().min(1).default('finance'),
 
+  // Single-user mode: the tenant id used until multi-user auth lands.
+  // Must be a valid 24-char hex ObjectId.
+  SINGLE_USER_ID: z
+    .string()
+    .regex(/^[0-9a-fA-F]{24}$/, 'SINGLE_USER_ID must be a 24-char hex ObjectId')
+    .default('000000000000000000000001'),
+
   // Auth (phase 1.5) — optional until the auth module lands.
   JWT_ACCESS_SECRET: z.string().min(1).optional(),
   JWT_REFRESH_SECRET: z.string().min(1).optional(),

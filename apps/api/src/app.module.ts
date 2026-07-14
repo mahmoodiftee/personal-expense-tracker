@@ -4,10 +4,12 @@ import { AppConfigModule } from './config/config.module';
 import { LoggerModule } from './core/logger/logger.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
+import { IncomeModule } from './modules/income/income.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
+import { TenantMiddleware } from './core/tenancy/tenant.middleware';
 import { validationExceptionFactory } from './common/validation/validation-exception.factory';
 
 /**
@@ -21,7 +23,7 @@ import { validationExceptionFactory } from './common/validation/validation-excep
  * Feature modules (transactions, categories, …) are added here as they land.
  */
 @Module({
-  imports: [AppConfigModule, LoggerModule, DatabaseModule, HealthModule],
+  imports: [AppConfigModule, LoggerModule, DatabaseModule, HealthModule, IncomeModule],
   providers: [
     {
       provide: APP_PIPE,
@@ -41,6 +43,7 @@ import { validationExceptionFactory } from './common/validation/validation-excep
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(RequestIdMiddleware).forRoutes('*');
+    // RequestId first (correlation), then Tenant (resolves userId) for all routes.
+    consumer.apply(RequestIdMiddleware, TenantMiddleware).forRoutes('*');
   }
 }

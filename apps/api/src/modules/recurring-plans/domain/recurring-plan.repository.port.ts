@@ -13,7 +13,7 @@ export const RECURRING_PLAN_REPOSITORY = Symbol('RECURRING_PLAN_REPOSITORY');
 export interface CreateRecurringPlanData {
   readonly userId: string;
   readonly kind: RecurringKind;
-  readonly categoryId: string;
+  readonly categoryId?: string | null;
   readonly name: string;
   readonly initialAmount: Money;
   readonly cadence: Cadence;

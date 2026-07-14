@@ -51,6 +51,11 @@ export class AppConfigService {
     return { uri: this.get('MONGODB_URI'), dbName: this.get('MONGODB_DB_NAME') };
   }
 
+  /** Tenant id used in single-user mode (replaced by the JWT subject later). */
+  get singleUserId(): string {
+    return this.get('SINGLE_USER_ID');
+  }
+
   get logLevel(): EnvConfig['LOG_LEVEL'] {
     return this.get('LOG_LEVEL');
   }
