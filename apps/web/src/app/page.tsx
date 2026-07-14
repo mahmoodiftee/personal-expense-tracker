@@ -22,6 +22,12 @@ export default function HomePage() {
                 Monthly finance
               </Link>
               <Link
+                href={'/analytics' as Route}
+                className={buttonVariants({ variant: 'secondary' })}
+              >
+                Analytics
+              </Link>
+              <Link
                 href={'/expenses' as Route}
                 className={buttonVariants({ variant: 'secondary' })}
               >
@@ -37,8 +43,7 @@ export default function HomePage() {
           }
         />
         <Typography variant="body-sm" className="mt-8 text-muted-foreground">
-          Manage monthly fixed and variable expenses, or view your dashboard for trends and
-          forecasts.
+          Manage expenses, track monthly payments, or explore analytics for trends and forecasts.
         </Typography>
       </Container>
     </main>
