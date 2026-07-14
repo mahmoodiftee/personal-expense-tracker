@@ -7,4 +7,5 @@ export * from './domain/variable-expense';
 export * from './domain/savings';
 export * from './domain/dashboard';
 export * from './domain/analytics';
+export * from './domain/financial-context';
 export * from './api/response';

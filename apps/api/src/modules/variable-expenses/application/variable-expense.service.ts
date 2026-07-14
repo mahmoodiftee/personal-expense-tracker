@@ -13,6 +13,10 @@ import {
 } from '../../../common/exceptions/app.exception';
 import type { Paginated } from '../../../common/domain/pagination';
 import {
+  CATEGORY_REPOSITORY,
+  type CategoryRepositoryPort,
+} from '../../categories/domain/category.repository.port';
+import {
   TRANSACTION_REPOSITORY,
   type TransactionFilter,
   type TransactionRepositoryPort,
@@ -44,6 +48,8 @@ export class VariableExpenseService {
   constructor(
     @Inject(TRANSACTION_REPOSITORY)
     private readonly transactions: TransactionRepositoryPort,
+    @Inject(CATEGORY_REPOSITORY)
+    private readonly categories: CategoryRepositoryPort,
     private readonly logger: AppLogger,
   ) {
     this.logger.setContext(VariableExpenseService.name);
@@ -51,13 +57,14 @@ export class VariableExpenseService {
 
   async addExpense(userId: string, dto: CreateVariableExpenseDto): Promise<VariableExpense> {
     const occurredAt = this.parseDate(dto.occurredAt);
+    const resolved = await this.resolveCategory(userId, dto.categoryId, dto.category);
 
     const tx = await this.transactions.create({
       userId,
       flow: Flow.EXPENSE,
       amount: { amountMinor: dto.amount.amountMinor, currency: dto.amount.currency },
-      categoryId: null,
-      categorySnapshot: this.buildSnapshot(dto.category),
+      categoryId: resolved.categoryId,
+      categorySnapshot: resolved.snapshot,
       description: dto.description,
       notes: dto.notes ?? null,
       tags: dto.tags ?? [],
@@ -87,8 +94,13 @@ export class VariableExpenseService {
     if (dto.notes !== undefined) changes.notes = dto.notes;
     if (dto.tags !== undefined) changes.tags = dto.tags;
     if (dto.occurredAt !== undefined) changes.occurredAt = this.parseDate(dto.occurredAt);
-    if (dto.category !== undefined) {
-      // Merge onto the existing snapshot so a partial edit never wipes colour/icon.
+
+    if (dto.categoryId !== undefined) {
+      const resolved = await this.resolveCategory(userId, dto.categoryId, dto.category);
+      changes.categoryId = resolved.categoryId;
+      changes.categorySnapshot = resolved.snapshot;
+    } else if (dto.category !== undefined) {
+      changes.categoryId = null;
       changes.categorySnapshot = this.buildSnapshot(dto.category, existing.categorySnapshot);
     }
 
@@ -124,6 +136,7 @@ export class VariableExpenseService {
 
     const filter: TransactionFilter = {
       flow: Flow.EXPENSE,
+      adHocOnly: true,
       monthKey: query.month,
       from: query.from ? this.parseDate(query.from) : undefined,
       to: query.to ? this.parseDate(query.to) : undefined,
@@ -148,6 +161,38 @@ export class VariableExpenseService {
       throw new ResourceNotFoundException('Variable expense', id);
     }
     return tx;
+  }
+
+  private async resolveCategory(
+    userId: string,
+    categoryId?: string,
+    inline?: CategoryInputDto,
+  ): Promise<{ categoryId: string | null; snapshot: CategorySnapshot }> {
+    if (categoryId) {
+      const category = await this.categories.findById(userId, categoryId);
+      if (!category) throw new ResourceNotFoundException('Category', categoryId);
+      if (category.flow !== Flow.EXPENSE || category.kind !== CategoryKind.VARIABLE) {
+        throw new DomainValidationException('Category must be a variable expense category');
+      }
+      if (category.isArchived) {
+        throw new DomainValidationException('Cannot assign an archived category');
+      }
+
+      return {
+        categoryId: category.id,
+        snapshot: {
+          name: category.name,
+          color: category.color,
+          icon: category.icon,
+          kind: category.kind,
+        },
+      };
+    }
+
+    return {
+      categoryId: null,
+      snapshot: this.buildSnapshot(inline),
+    };
   }
 
   private buildSnapshot(

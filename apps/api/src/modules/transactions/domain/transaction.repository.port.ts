@@ -18,7 +18,7 @@ export interface CreateTransactionData {
 
 export interface UpdateTransactionData {
   readonly amount?: Money;
-  readonly categoryId?: string;
+  readonly categoryId?: string | null;
   readonly categorySnapshot?: CategorySnapshot;
   readonly description?: string;
   readonly notes?: string | null;
@@ -38,6 +38,8 @@ export interface TransactionFilter {
   /** Inclusive amount bounds in minor units. */
   readonly amountMinMinor?: number;
   readonly amountMaxMinor?: number;
+  /** Excludes transactions materialised from recurring plans (variable expenses only). */
+  readonly adHocOnly?: boolean;
 }
 
 /** Aggregate total of a flow for a given month (drives statement rollups). */

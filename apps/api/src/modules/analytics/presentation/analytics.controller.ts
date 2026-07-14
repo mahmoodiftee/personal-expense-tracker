@@ -1,12 +1,15 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import type {
+  FinancialContext,
   ForecastAnalytics,
   MonthlyTrends,
   SavingsTrends,
   SpendingTrends,
 } from '@finance/shared';
+
 import { CurrentUserId } from '../../../common/decorators/current-user.decorator';
 import { AnalyticsService } from '../application/analytics.service';
+import { AnalyticsOverviewQueryDto } from '../application/dto/analytics-overview-query.dto';
 import {
   AnalyticsRangeQueryDto,
   ForecastAnalyticsQueryDto,
@@ -19,6 +22,14 @@ import {
 @Controller({ path: 'analytics', version: '1' })
 export class AnalyticsController {
   constructor(private readonly service: AnalyticsService) {}
+
+  @Get('overview')
+  getOverview(
+    @CurrentUserId() userId: string,
+    @Query() query: AnalyticsOverviewQueryDto,
+  ): Promise<FinancialContext> {
+    return this.service.getFinancialContext(userId, query);
+  }
 
   @Get('monthly-trends')
   getMonthlyTrends(

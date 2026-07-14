@@ -1,13 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { type FilterQuery, type HydratedDocument, type Model, Types } from 'mongoose';
-import {
-  CurrencyCode,
-  type Flow,
-  type Money,
-  type MonthKey,
-  type Transaction,
-} from '@finance/shared';
+import { CurrencyCode, Flow, type Money, type MonthKey, type Transaction } from '@finance/shared';
 import { MongoBaseRepository } from '../../../common/database/base.repository';
 import {
   MAX_PAGE_SIZE,
@@ -160,7 +154,13 @@ export class TransactionMongoRepository
 
     const rows = await this.model
       .aggregate<{ _id: Flow; totalMinor: number; currency: CurrencyCode; count: number }>([
-        { $match: { userId: userObjectId, monthKey } },
+        {
+          $match: {
+            userId: userObjectId,
+            monthKey,
+            $or: [{ flow: { $ne: Flow.EXPENSE } }, this.adHocExpenseClause()],
+          },
+        },
         {
           $group: {
             _id: '$flow',
@@ -190,7 +190,7 @@ export class TransactionMongoRepository
 
     const rows = await this.model
       .aggregate<{ _id: MonthKey; totalMinor: number; currency: CurrencyCode }>([
-        { $match: { userId: userObjectId, monthKey: { $gte: from, $lte: to }, flow } },
+        { $match: this.flowRangeMatch(userObjectId, from, to, flow) },
         {
           $group: {
             _id: '$monthKey',
@@ -226,7 +226,7 @@ export class TransactionMongoRepository
         currency: CurrencyCode;
         count: number;
       }>([
-        { $match: { userId: userObjectId, monthKey, flow } },
+        { $match: this.flowMonthMatch(userObjectId, monthKey, flow) },
         {
           $group: {
             _id: {
@@ -273,7 +273,7 @@ export class TransactionMongoRepository
         currency: CurrencyCode;
         count: number;
       }>([
-        { $match: { userId: userObjectId, monthKey: { $gte: from, $lte: to }, flow } },
+        { $match: this.flowRangeMatch(userObjectId, from, to, flow) },
         {
           $group: {
             _id: {
@@ -326,6 +326,8 @@ export class TransactionMongoRepository
     }
     if (filter.tags && filter.tags.length > 0) query.tags = { $all: [...filter.tags] };
 
+    if (filter.adHocOnly) query.recurringPlanId = null;
+
     if (filter.from || filter.to) {
       const range: Record<string, Date> = {};
       if (filter.from) range.$gte = filter.from;
@@ -346,6 +348,40 @@ export class TransactionMongoRepository
     }
 
     return query;
+  }
+
+  /** Variable expenses are ad-hoc ledger rows — exclude materialised recurring plans. */
+  private adHocExpenseClause(): FilterQuery<TransactionEntity> {
+    return { flow: Flow.EXPENSE, recurringPlanId: null };
+  }
+
+  private flowMonthMatch(
+    userObjectId: Types.ObjectId,
+    monthKey: MonthKey,
+    flow: Flow,
+  ): FilterQuery<TransactionEntity> {
+    const match: FilterQuery<TransactionEntity> = { userId: userObjectId, monthKey, flow };
+    if (flow === Flow.EXPENSE) {
+      (match as { recurringPlanId: null }).recurringPlanId = null;
+    }
+    return match;
+  }
+
+  private flowRangeMatch(
+    userObjectId: Types.ObjectId,
+    from: MonthKey,
+    to: MonthKey,
+    flow: Flow,
+  ): FilterQuery<TransactionEntity> {
+    const match: FilterQuery<TransactionEntity> = {
+      userId: userObjectId,
+      monthKey: { $gte: from, $lte: to },
+      flow,
+    };
+    if (flow === Flow.EXPENSE) {
+      (match as { recurringPlanId: null }).recurringPlanId = null;
+    }
+    return match;
   }
 
   private encodeCursor(doc: HydratedDocument<TransactionEntity>): string {

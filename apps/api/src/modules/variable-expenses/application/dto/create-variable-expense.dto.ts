@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsISO8601,
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -39,6 +40,12 @@ export class CreateVariableExpenseDto {
   @MaxLength(40, { each: true })
   tags?: string[];
 
+  /** Link to a catalogue category; takes precedence over inline `category`. */
+  @IsOptional()
+  @IsMongoId()
+  categoryId?: string;
+
+  /** Inline category descriptor when no catalogue category is linked. */
   @IsOptional()
   @ValidateNested()
   @Type(() => CategoryInputDto)

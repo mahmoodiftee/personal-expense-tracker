@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CategoriesModule } from '../categories/categories.module';
 import { TransactionsModule } from '../transactions/transactions.module';
 import { VariableExpenseController } from './presentation/variable-expense.controller';
 import { VariableExpenseService } from './application/variable-expense.service';
@@ -9,7 +10,7 @@ import { VariableExpenseService } from './application/variable-expense.service';
  * (Dependency Inversion), keeping ad-hoc expense logic separate from the ledger.
  */
 @Module({
-  imports: [TransactionsModule],
+  imports: [TransactionsModule, CategoriesModule],
   controllers: [VariableExpenseController],
   providers: [VariableExpenseService],
   exports: [VariableExpenseService],

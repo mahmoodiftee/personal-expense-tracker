@@ -4,6 +4,9 @@ import {
   Flow,
   ForecastMethod,
   type CategorySpendingPoint,
+  type DashboardCategoryItem,
+  type DashboardSnapshot,
+  type FinancialContext,
   type ForecastAnalytics,
   type ForecastMethodComparison,
   type Money,
@@ -20,6 +23,7 @@ import { AppLogger } from '../../../core/logger/app-logger.service';
 import { round2 } from '../../../common/util/math.util';
 import { currentMonthKey, shiftMonthKey } from '../../../common/util/month.util';
 import { validateMonthRange } from '../../../common/validation/validate-month-range';
+import { FixedExpenseService } from '../../fixed-expenses/application/fixed-expense.service';
 import { SavingsService } from '../../savings/application/savings.service';
 import { forecastSavings } from '../../savings/domain/forecast.engine';
 import {
@@ -31,6 +35,7 @@ import {
   computeSeriesDirection,
   computeTrendDelta,
 } from '../domain/trend.calculations';
+import type { AnalyticsOverviewQueryDto } from './dto/analytics-overview-query.dto';
 import type { AnalyticsRangeQueryDto, ForecastAnalyticsQueryDto } from './dto/analytics-query.dto';
 
 /** Guards runaway aggregation windows. */
@@ -47,11 +52,46 @@ const TOP_CATEGORIES = 5;
 export class AnalyticsService {
   constructor(
     private readonly savings: SavingsService,
+    private readonly fixedExpenses: FixedExpenseService,
     @Inject(TRANSACTION_REPOSITORY)
     private readonly transactions: TransactionRepositoryPort,
     private readonly logger: AppLogger,
   ) {
     this.logger.setContext(AnalyticsService.name);
+  }
+
+  /** Composed financial context for overview screens and future AI tools. */
+  async getFinancialContext(
+    userId: string,
+    query: AnalyticsOverviewQueryDto,
+  ): Promise<FinancialContext> {
+    const monthKey = query.month ?? currentMonthKey();
+    const from = shiftMonthKey(monthKey, -(query.trendMonths - 1));
+
+    const [monthly, trends, forecast, unpaidBills, categoryRows] = await Promise.all([
+      this.savings.getMonthly(userId, { month: monthKey }),
+      this.getMonthlyTrends(userId, { from, to: monthKey }),
+      this.getForecastAnalytics(userId, {
+        asOf: monthKey,
+        months: query.forecastMonths,
+        lookback: query.forecastLookback,
+        method: query.forecastMethod,
+      }),
+      this.fixedExpenses.getMonthlyStatus(userId, monthKey),
+      this.transactions.breakdownByCategory(userId, monthKey, Flow.EXPENSE),
+    ]);
+
+    this.logger.log(`Financial context loaded for ${monthKey} [user ${userId}]`);
+
+    return {
+      monthKey,
+      currency: monthly.currency,
+      snapshot: this.toSnapshot(monthly),
+      trends,
+      forecast,
+      unpaidBills,
+      topCategories: this.toTopCategories(categoryRows, query.topCategoriesLimit),
+    };
   }
 
   /** Income, expense, and savings trends with month-over-month deltas. */
@@ -253,6 +293,36 @@ export class AnalyticsService {
     return this.savings
       .getHistory(userId, { from: months[0]!, to: months[months.length - 1]! })
       .then((history) => [...history.months]);
+  }
+
+  private toSnapshot(monthly: MonthlySavings): DashboardSnapshot {
+    return {
+      monthKey: monthly.monthKey,
+      currency: monthly.currency,
+      totalIncome: monthly.income,
+      totalExpenses: monthly.totalExpense,
+      remainingBalance: monthly.savings,
+      savings: { amount: monthly.savings, ratePct: monthly.savingsRatePct },
+      expenseBreakdown: {
+        fixed: monthly.fixedExpense,
+        variable: monthly.variableExpense,
+      },
+    };
+  }
+
+  private toTopCategories(
+    rows: Awaited<ReturnType<TransactionRepositoryPort['breakdownByCategory']>>,
+    limit: number,
+  ): DashboardCategoryItem[] {
+    const totalMinor = rows.reduce((sum, row) => sum + row.total.amountMinor, 0);
+    return rows.slice(0, limit).map((row) => ({
+      categoryId: row.categoryId,
+      name: row.categoryName,
+      color: row.color,
+      total: row.total,
+      transactionCount: row.transactionCount,
+      sharePct: totalMinor ? round2((row.total.amountMinor / totalMinor) * 100) : 0,
+    }));
   }
 }
 
