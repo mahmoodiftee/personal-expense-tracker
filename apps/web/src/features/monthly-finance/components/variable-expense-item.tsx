@@ -1,6 +1,6 @@
 'use client';
 
-import { Trash2 } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/design-system';
@@ -11,10 +11,16 @@ import type { VariableExpenseItemView } from '../types';
 type VariableExpenseItemProps = {
   item: VariableExpenseItemView;
   disabled?: boolean;
+  onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 };
 
-export function VariableExpenseItem({ item, disabled, onDelete }: VariableExpenseItemProps) {
+export function VariableExpenseItem({
+  item,
+  disabled,
+  onEdit,
+  onDelete,
+}: VariableExpenseItemProps) {
   return (
     <div
       className={cn(
@@ -38,6 +44,17 @@ export function VariableExpenseItem({ item, disabled, onDelete }: VariableExpens
       <Typography variant="label" className="shrink-0 tabular-nums">
         {item.amount}
       </Typography>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="shrink-0 text-muted-foreground"
+        aria-label={`Edit ${item.description}`}
+        disabled={disabled}
+        onClick={() => onEdit(item.id)}
+      >
+        <Pencil className="h-4 w-4" />
+      </Button>
       <Button
         type="button"
         variant="ghost"

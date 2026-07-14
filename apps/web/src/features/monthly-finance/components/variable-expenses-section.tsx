@@ -1,34 +1,36 @@
 'use client';
 
 import type { CurrencyCode } from '@finance/shared';
+import { useState } from 'react';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState, FadeIn, Typography } from '@/components/design-system';
 
 import type { VariableExpenseItemView } from '../types';
-import { AddVariableExpenseForm } from './add-variable-expense-form';
+import { VariableExpenseFormActions } from './variable-expense-form-actions';
 import { VariableExpenseItem } from './variable-expense-item';
-import type { CreateVariableExpenseInput } from '../types';
+import type { MonthlyFinanceData } from '../api/monthly-finance-api';
 
 type VariableExpensesSectionProps = {
   items: VariableExpenseItemView[];
+  rawItems: MonthlyFinanceData['variable'];
   currency: CurrencyCode;
-  monthKey: string;
   isLoading?: boolean;
   isPending?: boolean;
-  onAdd: (input: CreateVariableExpenseInput) => void;
   onDelete: (id: string) => void;
 };
 
 export function VariableExpensesSection({
   items,
+  rawItems,
   currency,
-  monthKey,
   isLoading,
   isPending,
-  onAdd,
   onDelete,
 }: VariableExpensesSectionProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editingExpense = rawItems.find((item) => item.id === editingId) ?? null;
+
   return (
     <section aria-labelledby="variable-expenses-heading" className="space-y-3">
       <div className="flex items-center justify-between gap-2">
@@ -40,11 +42,10 @@ export function VariableExpensesSection({
         </Typography>
       </div>
 
-      <AddVariableExpenseForm
+      <VariableExpenseFormActions
         currency={currency}
-        monthKey={monthKey}
-        isPending={isPending}
-        onSubmit={onAdd}
+        editingExpense={editingExpense}
+        onEditClose={() => setEditingId(null)}
       />
 
       {isLoading ? (
@@ -67,7 +68,12 @@ export function VariableExpensesSection({
           <ul className="space-y-2">
             {items.map((item) => (
               <li key={item.id}>
-                <VariableExpenseItem item={item} disabled={isPending} onDelete={onDelete} />
+                <VariableExpenseItem
+                  item={item}
+                  disabled={isPending}
+                  onEdit={setEditingId}
+                  onDelete={onDelete}
+                />
               </li>
             ))}
           </ul>

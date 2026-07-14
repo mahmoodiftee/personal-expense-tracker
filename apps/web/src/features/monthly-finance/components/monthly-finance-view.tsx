@@ -23,10 +23,7 @@ import { cn } from '@/lib/utils';
 
 import { useMonthlyFinance } from '../hooks/use-monthly-finance';
 import { useToggleFixedPayment } from '../hooks/use-toggle-fixed-payment';
-import {
-  useCreateVariableExpense,
-  useDeleteVariableExpense,
-} from '../hooks/use-variable-expense-actions';
+import { useDeleteVariableExpense } from '../hooks/use-variable-expense-actions';
 import { mapMonthlyFinanceToViewModel } from '../lib/map-view-model';
 import { FixedExpensesSection } from './fixed-expenses-section';
 import { MonthlySummaryBar } from './monthly-summary-bar';
@@ -36,7 +33,6 @@ export function MonthlyFinanceView() {
   const [month, setMonth] = useState(currentMonthKey());
   const { data, isLoading, isError, error, refetch, isFetching } = useMonthlyFinance(month);
   const togglePayment = useToggleFixedPayment(month);
-  const createVariable = useCreateVariableExpense(month);
   const deleteVariable = useDeleteVariableExpense(month);
 
   const viewModel = useMemo(
@@ -44,8 +40,7 @@ export function MonthlyFinanceView() {
     [data],
   );
 
-  const isMutating =
-    togglePayment.isPending || createVariable.isPending || deleteVariable.isPending;
+  const isMutating = togglePayment.isPending || deleteVariable.isPending;
 
   const handleToggle = (expenseId: string, isPaid: boolean) => {
     togglePayment.mutate({ expenseId, isPaid });
@@ -112,11 +107,10 @@ export function MonthlyFinanceView() {
               <StaggerItem>
                 <VariableExpensesSection
                   items={viewModel?.variableItems ?? []}
+                  rawItems={data?.variable ?? []}
                   currency={(viewModel?.currency ?? 'USD') as CurrencyCode}
-                  monthKey={month}
                   isLoading={isLoading}
                   isPending={isMutating}
-                  onAdd={(input) => createVariable.mutate(input)}
                   onDelete={(id) => deleteVariable.mutate(id)}
                 />
               </StaggerItem>

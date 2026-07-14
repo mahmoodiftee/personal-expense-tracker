@@ -22,6 +22,12 @@ export default function HomePage() {
                 Monthly finance
               </Link>
               <Link
+                href={'/expenses' as Route}
+                className={buttonVariants({ variant: 'secondary' })}
+              >
+                Manage expenses
+              </Link>
+              <Link
                 href={'/design-system' as Route}
                 className={buttonVariants({ variant: 'outline' })}
               >
