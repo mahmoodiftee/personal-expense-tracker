@@ -31,6 +31,7 @@ import { MonthNavigator } from './month-navigator';
 import { SavingsCard } from './savings-card';
 import { SavingsGoalsWidget } from '@/features/savings-goals/components/savings-goals-widget';
 import { BudgetWidget } from '@/features/budgets/components/budget-widget';
+import { InsightsWidget } from '@/features/insights/components/insights-widget';
 
 export function DashboardView() {
   const [month, setMonth] = useState(currentMonthKey());
@@ -138,6 +139,10 @@ export function DashboardView() {
 
               <StaggerItem>
                 <TrendCharts points={viewModel.chartPoints} />
+              </StaggerItem>
+
+              <StaggerItem>
+                <InsightsWidget month={month} />
               </StaggerItem>
 
               <StaggerItem>
