@@ -11,6 +11,7 @@ import { SavingsModule } from './modules/savings/savings.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { SavingsGoalsModule } from './modules/savings-goals/savings-goals.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -41,6 +42,7 @@ import { validationExceptionFactory } from './common/validation/validation-excep
     DashboardModule,
     AnalyticsModule,
     CategoriesModule,
+    SavingsGoalsModule,
   ],
   providers: [
     {

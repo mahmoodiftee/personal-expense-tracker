@@ -84,3 +84,12 @@ export enum ForecastMethod {
   /** Ordinary least-squares linear regression. */
   LINEAR_REGRESSION = 'LINEAR_REGRESSION',
 }
+
+/** Preset templates for common savings goals. */
+export enum SavingsGoalTemplate {
+  EMERGENCY_FUND = 'EMERGENCY_FUND',
+  VACATION = 'VACATION',
+  NEW_LAPTOP = 'NEW_LAPTOP',
+  HOUSE_FUND = 'HOUSE_FUND',
+  CUSTOM = 'CUSTOM',
+}
