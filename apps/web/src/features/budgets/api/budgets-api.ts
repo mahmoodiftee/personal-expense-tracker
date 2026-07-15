@@ -33,11 +33,28 @@ export async function fetchBudgetAnalytics(month?: MonthKey): Promise<BudgetAnal
 }
 
 export async function fetchBudgetableCategories(): Promise<Category[]> {
+  await apiFetch<{ syncedTransactions: number }>('/categories/sync-from-expenses', {
+    ...fetchOptions(),
+    method: 'POST',
+  });
+
   const params = new URLSearchParams({
     flow: Flow.EXPENSE,
     kind: CategoryKind.VARIABLE,
   });
   return apiFetch<Category[]>(`/categories?${params.toString()}`, fetchOptions());
+}
+
+export async function createVariableCategory(name: string): Promise<Category> {
+  return apiFetch<Category>('/categories', {
+    ...fetchOptions(),
+    method: 'POST',
+    body: JSON.stringify({
+      name,
+      flow: Flow.EXPENSE,
+      kind: CategoryKind.VARIABLE,
+    }),
+  });
 }
 
 export async function createCategoryBudget(values: BudgetFormValues): Promise<CategoryBudget> {

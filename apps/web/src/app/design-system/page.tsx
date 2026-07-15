@@ -20,7 +20,6 @@ import {
   StatCard,
   StaggerItem,
   StaggerList,
-  ThemeToggle,
   Typography,
 } from '@/components/design-system';
 import { ApiIntegrationDemo } from '@/features/design-system/api-integration-demo';
@@ -42,12 +41,9 @@ export default function DesignSystemPage() {
         title="Design System"
         description="ChatGPT-inspired, dark-first tokens and reusable UI primitives for the finance platform."
         actions={
-          <>
-            <Link href="/" className={buttonVariants({ variant: 'outline' })}>
-              Home
-            </Link>
-            <ThemeToggle />
-          </>
+          <Link href="/" className={buttonVariants({ variant: 'outline' })}>
+            Home
+          </Link>
         }
       />
 
@@ -130,7 +126,7 @@ export default function DesignSystemPage() {
                     <ScaleOnHover>
                       <StatCard
                         label="Monthly savings"
-                        value="$1,240.00"
+                        value="৳1,240.00"
                         hint="vs last month"
                         trend={{ value: '+12%', direction: 'up' }}
                       />
@@ -140,7 +136,7 @@ export default function DesignSystemPage() {
                     <ScaleOnHover>
                       <StatCard
                         label="Variable spend"
-                        value="$860.50"
+                        value="৳860.50"
                         trend={{ value: '-4%', direction: 'down' }}
                       />
                     </ScaleOnHover>

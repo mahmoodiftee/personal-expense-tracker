@@ -14,7 +14,7 @@ const typographyVariants = cva('text-foreground', {
       h4: 'text-base font-medium leading-snug',
       body: 'text-[0.9375rem] leading-relaxed text-foreground',
       'body-sm': 'text-[0.8125rem] leading-relaxed text-muted-foreground',
-      caption: 'text-xs leading-normal text-muted-foreground',
+      caption: 'text-xs leading-normal text-muted-foreground mr-1',
       label: 'text-[0.8125rem] font-medium leading-none',
     },
     muted: {

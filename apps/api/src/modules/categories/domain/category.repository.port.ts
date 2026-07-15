@@ -34,4 +34,11 @@ export interface CategoryRepositoryPort extends BaseRepositoryPort<
   findMany(userId: string, query?: CategoryQuery): Promise<readonly Category[]>;
   /** Batch fetch used to hydrate transaction/breakdown reads. */
   findByIds(userId: string, ids: readonly string[]): Promise<readonly Category[]>;
+  /** Case-insensitive name lookup within a flow/kind (active categories only). */
+  findByName(
+    userId: string,
+    flow: Flow,
+    kind: CategoryKind,
+    name: string,
+  ): Promise<Category | null>;
 }

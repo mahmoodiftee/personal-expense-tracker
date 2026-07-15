@@ -45,7 +45,7 @@ export const MoneyMath = {
     return money.amountMinor < 0;
   },
 
-  /** Locale-aware display string, e.g. "$1,250.00". */
+  /** Locale-aware display string, e.g. "৳1,250.00". */
   format(money: Money, locale = 'en-US'): string {
     return new Intl.NumberFormat(locale, { style: 'currency', currency: money.currency }).format(
       MoneyMath.toMajor(money),

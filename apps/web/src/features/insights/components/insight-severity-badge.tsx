@@ -7,6 +7,7 @@ import { severityLabel } from '../lib/insight-labels';
 
 type InsightSeverityBadgeProps = {
   severity: InsightSeverity;
+  compact?: boolean;
   className?: string;
 };
 
@@ -30,15 +31,20 @@ const severityStyles: Record<
   },
 };
 
-export function InsightSeverityBadge({ severity, className }: InsightSeverityBadgeProps) {
+export function InsightSeverityBadge({ severity, compact, className }: InsightSeverityBadgeProps) {
   const styles = severityStyles[severity];
 
   return (
     <Badge
       variant={styles.variant}
-      className={cn('shrink-0 font-medium tracking-wide', styles.className, className)}
+      className={cn(
+        'shrink-0 font-medium',
+        compact ? 'px-1.5 py-0 text-[0.625rem] tracking-normal' : 'tracking-wide',
+        styles.className,
+        className,
+      )}
     >
-      {severityLabel(severity).toUpperCase()}
+      {severityLabel(severity)}
     </Badge>
   );
 }

@@ -14,7 +14,6 @@ import {
   FadeIn,
   PageHeader,
   PageShell,
-  ThemeToggle,
   Typography,
 } from '@/components/design-system';
 import { MonthNavigator } from '@/features/dashboard/components/month-navigator';
@@ -78,7 +77,6 @@ export function InsightsView() {
             >
               Dashboard
             </Link>
-            <ThemeToggle />
           </>
         }
       />

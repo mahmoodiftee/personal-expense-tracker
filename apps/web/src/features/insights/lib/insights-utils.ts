@@ -1,5 +1,7 @@
 import { InsightSeverity, type Insight, type MonthKey } from '@finance/shared';
 
+import { TAKA_SYMBOL } from '@/lib/currency-config';
+
 export type SeverityFilter = 'ALL' | InsightSeverity;
 
 export const SEVERITY_FILTER_OPTIONS: readonly SeverityFilter[] = [
@@ -61,4 +63,9 @@ export function countUnviewed(
   viewedIds: ReadonlySet<string>,
 ): number {
   return insights.filter((insight) => !viewedIds.has(insight.id)).length;
+}
+
+/** Rewrites API currency strings (BDT 1,000.00) to use the ৳ symbol in insight copy. */
+export function formatInsightMessage(message: string): string {
+  return message.replace(/BDT\s*([\d,]+(?:\.\d+)?)/g, `${TAKA_SYMBOL}$1`);
 }

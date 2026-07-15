@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { TransactionsModule } from '../transactions/transactions.module';
 
 import { CATEGORY_REPOSITORY } from './domain/category.repository.port';
 import { CategoryService } from './application/category.service';
@@ -8,7 +9,7 @@ import { CategoryMongoRepository } from './infrastructure/category.mongo.reposit
 import { CategoryController } from './presentation/category.controller';
 
 @Module({
-  imports: [MongooseModule.forFeature([CATEGORY_MODEL])],
+  imports: [MongooseModule.forFeature([CATEGORY_MODEL]), TransactionsModule],
   controllers: [CategoryController],
   providers: [CategoryService, { provide: CATEGORY_REPOSITORY, useClass: CategoryMongoRepository }],
   exports: [CategoryService, CATEGORY_REPOSITORY],

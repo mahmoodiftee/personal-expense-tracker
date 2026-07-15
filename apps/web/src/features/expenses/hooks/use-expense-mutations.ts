@@ -23,6 +23,7 @@ async function invalidateExpenseQueries(queryClient: ReturnType<typeof useQueryC
     queryClient.invalidateQueries({ queryKey: ['monthly-finance'] }),
     queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
     queryClient.invalidateQueries({ queryKey: ['analytics'] }),
+    queryClient.invalidateQueries({ queryKey: ['categories', 'budgetable'] }),
   ]);
 }
 

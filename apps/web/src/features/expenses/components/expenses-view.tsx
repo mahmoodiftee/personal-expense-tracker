@@ -16,7 +16,6 @@ import {
   FadeIn,
   PageHeader,
   PageShell,
-  ThemeToggle,
   Typography,
 } from '@/components/design-system';
 import { buttonVariants } from '@/components/ui/button';
@@ -118,7 +117,6 @@ export function ExpensesView() {
               >
                 Monthly finance
               </Link>
-              <ThemeToggle />
             </>
           }
         />

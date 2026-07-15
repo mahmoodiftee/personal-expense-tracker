@@ -18,7 +18,13 @@ import { Typography } from '@/components/design-system';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { cn } from '@/lib/utils';
 
-import { CHART_COLORS, CHART_MARGIN, formatChartCompact } from '@/lib/chart-theme';
+import {
+  CHART_COLORS,
+  CHART_MARGIN,
+  formatChartCompact,
+  formatChartCurrency,
+} from '@/lib/chart-theme';
+import { APP_CURRENCY } from '@/lib/currency-config';
 
 import type { ChartPoint } from '../types';
 
@@ -50,7 +56,7 @@ function ChartTooltip({
           {typeof entry.value === 'number'
             ? entry.name?.includes('Rate')
               ? `${entry.value.toFixed(1)}%`
-              : entry.value.toLocaleString(undefined, { style: 'currency', currency: 'USD' })
+              : formatChartCurrency(entry.value, APP_CURRENCY)
             : '—'}
         </Typography>
       ))}

@@ -14,21 +14,41 @@ type MonthlySummaryBarProps = {
 export function MonthlySummaryBar({ summary, className }: MonthlySummaryBarProps) {
   return (
     <aside
-      aria-label="Monthly expense summary"
+      aria-label="Monthly finance summary"
       className={cn('rounded-xl border border-border bg-card p-4', className)}
     >
+      <div className="mb-4 flex flex-col gap-1 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <Typography variant="caption" className="text-muted-foreground">
+            Remaining this month
+          </Typography>
+          <Typography
+            variant="h2"
+            className={cn(
+              'tabular-nums',
+              summary.isRemainingNegative ? 'text-destructive' : 'text-primary',
+            )}
+          >
+            {summary.remaining}
+          </Typography>
+        </div>
+        <Typography variant="caption" className="text-muted-foreground sm:text-right">
+          Income {summary.incomeTotal} · Spent {summary.totalSpent}
+        </Typography>
+      </div>
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <SummaryCell label="Fixed due" value={summary.fixedDue} />
         <SummaryCell label="Fixed paid" value={summary.fixedPaid} accent="success" />
+        <SummaryCell label="Fixed unpaid" value={summary.fixedUnpaid} />
         <SummaryCell label="Variable" value={summary.variableTotal} />
-        <SummaryCell label="Total committed" value={summary.totalCommitted} accent="primary" />
+        <SummaryCell label="Fixed due" value={summary.fixedDue} />
       </div>
       <Typography
         variant="caption"
         className="mt-2 block text-center text-muted-foreground md:text-left"
       >
-        {summary.paidCount} paid · {summary.unpaidCount} unpaid fixed · {summary.variableCount}{' '}
-        variable
+        Remaining updates as you mark fixed bills paid · {summary.paidCount} paid ·{' '}
+        {summary.unpaidCount} unpaid · {summary.variableCount} variable
       </Typography>
     </aside>
   );

@@ -2,6 +2,7 @@ import type {
   FixedExpenseMonthlyStatusItem,
   MonthKey,
   MonthlyExpenseStatus,
+  MonthlyIncome,
   VariableExpense,
 } from '@finance/shared';
 
@@ -18,17 +19,19 @@ import {
 export type MonthlyFinanceData = {
   fixed: MonthlyExpenseStatus;
   variable: VariableExpense[];
+  income: MonthlyIncome;
 };
 
 export async function fetchMonthlyFinance(month: MonthKey): Promise<MonthlyFinanceData> {
   const fetchOptions = demoFetchOptions();
 
-  const [fixed, variablePage] = await Promise.all([
+  const [fixed, variablePage, income] = await Promise.all([
     apiFetch<MonthlyExpenseStatus>(fixedExpensesMonthlyPath(month), fetchOptions),
     apiFetchPaginated<VariableExpense>(variableExpensesPath(month), fetchOptions),
+    apiFetch<MonthlyIncome>(`/income/monthly?month=${month}`, fetchOptions),
   ]);
 
-  return { fixed, variable: variablePage.items };
+  return { fixed, variable: variablePage.items, income };
 }
 
 export async function markFixedExpensePaid(

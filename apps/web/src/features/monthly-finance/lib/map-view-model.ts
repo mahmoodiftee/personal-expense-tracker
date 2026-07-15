@@ -1,4 +1,9 @@
-import { PaymentStatus, type MonthlyExpenseStatus, type VariableExpense } from '@finance/shared';
+import {
+  PaymentStatus,
+  type MonthlyExpenseStatus,
+  type MonthlyIncome,
+  type VariableExpense,
+} from '@finance/shared';
 
 import { formatMoney } from '@/lib/format-money';
 import { formatMonthLabel } from '@/lib/month';
@@ -28,6 +33,9 @@ export type VariableExpenseItemView = {
 };
 
 export type MonthlySummaryView = {
+  incomeTotal: string;
+  remaining: string;
+  isRemainingNegative: boolean;
   fixedDue: string;
   fixedPaid: string;
   fixedUnpaid: string;
@@ -53,6 +61,9 @@ function mapSummary(calculations: MonthlyCalculations, variableCount: number): M
   const { currency } = calculations;
 
   return {
+    incomeTotal: formatCalculationMoney(calculations.incomeTotalMinor, currency),
+    remaining: formatCalculationMoney(calculations.remainingMinor, currency),
+    isRemainingNegative: calculations.remainingMinor < 0,
     fixedDue: formatCalculationMoney(calculations.fixedDueMinor, currency),
     fixedPaid: formatCalculationMoney(calculations.fixedPaidMinor, currency),
     fixedUnpaid: formatCalculationMoney(calculations.fixedUnpaidMinor, currency),
@@ -68,8 +79,9 @@ function mapSummary(calculations: MonthlyCalculations, variableCount: number): M
 export function mapMonthlyFinanceToViewModel(
   fixed: MonthlyExpenseStatus,
   variableItems: readonly VariableExpense[],
+  income: MonthlyIncome,
 ): MonthlyFinanceViewModel {
-  const calculations = computeMonthlyCalculations(fixed, variableItems);
+  const calculations = computeMonthlyCalculations(fixed, variableItems, income.total.amountMinor);
 
   return {
     monthKey: fixed.monthKey,

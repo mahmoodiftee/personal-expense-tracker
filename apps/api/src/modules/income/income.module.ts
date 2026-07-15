@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { TransactionsModule } from '../transactions/transactions.module';
 import { IncomeController } from './presentation/income.controller';
 import { IncomeService } from './application/income.service';
 import { INCOME_SOURCE_REPOSITORY } from './domain/income-source.repository.port';
@@ -15,7 +16,7 @@ import { RECURRING_PLAN_MODEL } from '../recurring-plans/infrastructure/recurrin
  * registers that schema and constrains all access to `kind = INCOME`.
  */
 @Module({
-  imports: [MongooseModule.forFeature([RECURRING_PLAN_MODEL])],
+  imports: [MongooseModule.forFeature([RECURRING_PLAN_MODEL]), TransactionsModule],
   controllers: [IncomeController],
   providers: [
     IncomeService,

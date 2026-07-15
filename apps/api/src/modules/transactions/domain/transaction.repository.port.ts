@@ -58,6 +58,12 @@ export interface CategoryAggregate {
   readonly transactionCount: number;
 }
 
+export interface InlineCategorySnapshot {
+  readonly name: string;
+  readonly color: string;
+  readonly icon: string;
+}
+
 export interface TransactionRepositoryPort {
   create(data: CreateTransactionData): Promise<Transaction>;
   findById(userId: string, id: string): Promise<Transaction | null>;
@@ -101,4 +107,16 @@ export interface TransactionRepositoryPort {
 
   /** Distinct months that have activity — used to seed statement backfills. */
   distinctMonthKeys(userId: string): Promise<readonly MonthKey[]>;
+
+  /** Inline category labels on ad-hoc expenses that are not linked to the catalogue yet. */
+  distinctInlineExpenseCategorySnapshots(
+    userId: string,
+  ): Promise<readonly InlineCategorySnapshot[]>;
+
+  /** Links orphan ad-hoc expenses to a catalogue category by snapshot name (case-insensitive). */
+  linkInlineExpensesToCategory(
+    userId: string,
+    snapshotName: string,
+    categoryId: string,
+  ): Promise<number>;
 }

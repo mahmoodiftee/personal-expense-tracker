@@ -4,8 +4,9 @@ import { AppConfigModule } from './config/config.module';
 import { LoggerModule } from './core/logger/logger.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
-import { IncomeModule } from './modules/income/income.module';
+import { ExtraIncomeModule } from './modules/extra-income/extra-income.module';
 import { FixedExpensesModule } from './modules/fixed-expenses/fixed-expenses.module';
+import { IncomeModule } from './modules/income/income.module';
 import { VariableExpensesModule } from './modules/variable-expenses/variable-expenses.module';
 import { SavingsModule } from './modules/savings/savings.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
@@ -37,6 +38,7 @@ import { validationExceptionFactory } from './common/validation/validation-excep
     DatabaseModule,
     HealthModule,
     IncomeModule,
+    ExtraIncomeModule,
     FixedExpensesModule,
     VariableExpensesModule,
     SavingsModule,

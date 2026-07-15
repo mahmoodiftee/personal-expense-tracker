@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { type FilterQuery, type HydratedDocument, type Model, Types } from 'mongoose';
-import type { Category } from '@finance/shared';
+import { CategoryKind, Flow, type Category } from '@finance/shared';
 
 import { MongoBaseRepository } from '../../../common/database/base.repository';
 import { DomainValidationException } from '../../../common/exceptions/app.exception';
@@ -86,6 +86,29 @@ export class CategoryMongoRepository
     return this.mapMany(docs);
   }
 
+  async findByName(
+    userId: string,
+    flow: Flow,
+    kind: CategoryKind,
+    name: string,
+  ): Promise<Category | null> {
+    const trimmed = name.trim();
+    if (!trimmed) return null;
+
+    const doc = await this.model
+      .findOne(
+        this.scopedFilter(userId, {
+          flow,
+          kind,
+          isArchived: false,
+          name: { $regex: new RegExp(`^${escapeRegex(trimmed)}$`, 'i') },
+        } as FilterQuery<CategoryEntity>),
+      )
+      .exec();
+
+    return doc ? this.toDomain(doc) : null;
+  }
+
   private buildQueryFilter(userId: string, query: CategoryQuery): FilterQuery<CategoryEntity> {
     const filter: FilterQuery<CategoryEntity> = this.scopedFilter(userId);
 
@@ -95,4 +118,8 @@ export class CategoryMongoRepository
 
     return filter;
   }
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

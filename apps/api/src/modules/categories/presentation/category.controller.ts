@@ -23,6 +23,12 @@ import { UpdateCategoryDto } from '../application/dto/update-category.dto';
 export class CategoryController {
   constructor(private readonly service: CategoryService) {}
 
+  @Post('sync-from-expenses')
+  @HttpCode(HttpStatus.OK)
+  syncFromExpenses(@CurrentUserId() userId: string): Promise<{ syncedTransactions: number }> {
+    return this.service.syncFromVariableExpenses(userId);
+  }
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   createCategory(

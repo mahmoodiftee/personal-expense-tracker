@@ -14,6 +14,7 @@ import type {
   CategoryAggregate,
   CreateTransactionData,
   FlowTotal,
+  InlineCategorySnapshot,
   TransactionFilter,
   TransactionRepositoryPort,
   UpdateTransactionData,
@@ -313,6 +314,73 @@ export class TransactionMongoRepository
     if (!userObjectId) return [];
     const months = await this.model.distinct('monthKey', { userId: userObjectId }).exec();
     return (months as MonthKey[]).sort((a, b) => (a < b ? 1 : a > b ? -1 : 0));
+  }
+
+  async distinctInlineExpenseCategorySnapshots(
+    userId: string,
+  ): Promise<readonly InlineCategorySnapshot[]> {
+    const userObjectId = this.toObjectId(userId);
+    if (!userObjectId) return [];
+
+    const rows = await this.model
+      .aggregate<{
+        _id: { name: string; color: string; icon: string };
+      }>([
+        {
+          $match: {
+            userId: userObjectId,
+            flow: Flow.EXPENSE,
+            recurringPlanId: null,
+            categoryId: null,
+            'categorySnapshot.name': { $nin: ['Uncategorized', ''] },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              name: '$categorySnapshot.name',
+              color: '$categorySnapshot.color',
+              icon: '$categorySnapshot.icon',
+            },
+          },
+        },
+        { $sort: { '_id.name': 1 } },
+      ])
+      .exec();
+
+    return rows.map((row) => ({
+      name: row._id.name,
+      color: row._id.color,
+      icon: row._id.icon,
+    }));
+  }
+
+  async linkInlineExpensesToCategory(
+    userId: string,
+    snapshotName: string,
+    categoryId: string,
+  ): Promise<number> {
+    const userObjectId = this.toObjectId(userId);
+    const categoryObjectId = this.toObjectId(categoryId);
+    if (!userObjectId || !categoryObjectId) return 0;
+
+    const trimmed = snapshotName.trim();
+    if (!trimmed) return 0;
+
+    const result = await this.model
+      .updateMany(
+        {
+          userId: userObjectId,
+          flow: Flow.EXPENSE,
+          recurringPlanId: null,
+          categoryId: null,
+          'categorySnapshot.name': { $regex: new RegExp(`^${escapeRegExp(trimmed)}$`, 'i') },
+        },
+        { $set: { categoryId: categoryObjectId } },
+      )
+      .exec();
+
+    return result.modifiedCount;
   }
 
   private buildFilter(userId: string, filter: TransactionFilter): FilterQuery<TransactionEntity> {

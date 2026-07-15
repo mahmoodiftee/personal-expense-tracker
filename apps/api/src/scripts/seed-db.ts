@@ -26,11 +26,11 @@ import { SavingsGoalSchema } from '../modules/savings-goals/infrastructure/savin
 import { CategoryBudgetSchema } from '../modules/budgets/infrastructure/category-budget.schema';
 import { currentMonthKey, shiftMonthKey } from '../common/util/month.util';
 
-const USD = CurrencyCode.USD;
+const BDT = CurrencyCode.BDT;
 const force = process.argv.includes('--force');
 
 function money(amountMajor: number) {
-  return { amountMinor: Math.round(amountMajor * 100), currency: USD };
+  return { amountMinor: Math.round(amountMajor * 100), currency: BDT };
 }
 
 function monthDate(monthKey: string, day: number): Date {
@@ -309,7 +309,7 @@ async function main(): Promise<void> {
 
   console.log('\nSeed complete.');
   console.table([
-    { item: 'Income sources', count: 1, detail: `Salary ($5,500/mo) — ${salary._id}` },
+    { item: 'Income sources', count: 1, detail: `Salary (৳5,500/mo) — ${salary._id}` },
     { item: 'Fixed expenses', count: 3, detail: 'Rent, Internet, Insurance' },
     { item: 'Variable expenses', count: expenseRows.length, detail: `${historyStart} → ${month}` },
     { item: 'Savings goals', count: 2, detail: 'Emergency fund, Vacation' },

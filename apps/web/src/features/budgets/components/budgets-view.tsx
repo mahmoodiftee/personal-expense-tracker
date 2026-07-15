@@ -9,14 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  EmptyState,
-  ErrorState,
-  FadeIn,
-  PageHeader,
-  PageShell,
-  ThemeToggle,
-} from '@/components/design-system';
+import { EmptyState, ErrorState, FadeIn, PageHeader, PageShell } from '@/components/design-system';
 import { buttonVariants } from '@/components/ui/button';
 import { MonthNavigator } from '@/features/dashboard/components/month-navigator';
 import { currentMonthKey, formatMonthLabel } from '@/lib/month';
@@ -34,6 +27,7 @@ import { useMonthlyBudgetSummary } from '../hooks/use-budgets';
 import { budgetToFormValues, defaultBudgetFormValues } from '../lib/form-mappers';
 import { BudgetCard } from './budget-card';
 import { BudgetFormDialog } from './budget-form-dialog';
+import { CreateCategoryCard } from './create-category-card';
 import { DeleteBudgetDialog } from './delete-budget-dialog';
 
 type DialogState = { mode: 'create' } | { mode: 'edit'; item: CategoryBudgetStatus } | null;
@@ -94,7 +88,6 @@ export function BudgetsView() {
                 <Plus className="mr-1 h-4 w-4" aria-hidden="true" />
                 New budget
               </Button>
-              <ThemeToggle />
             </>
           }
         />
@@ -178,14 +171,21 @@ export function BudgetsView() {
             title="No budgets for this month"
             description={
               availableCategories.length === 0
-                ? 'Create variable expense categories first, then set monthly limits here.'
-                : 'Add your first category budget to track spending against limits.'
+                ? 'Add a variable expense category below, or create expenses with a category name on the Expenses page — categories from expenses are synced automatically when you open this page.'
+                : 'Pick a category and set a monthly spending limit to start tracking.'
             }
             action={
               availableCategories.length > 0
                 ? { label: 'Create budget', onClick: () => setDialog({ mode: 'create' }) }
                 : undefined
             }
+          />
+        ) : null}
+
+        {!isLoading && !isError && availableCategories.length === 0 ? (
+          <CreateCategoryCard
+            isPending={categoriesQuery.isFetching}
+            onCreated={() => categoriesQuery.refetch()}
           />
         ) : null}
       </PageShell>

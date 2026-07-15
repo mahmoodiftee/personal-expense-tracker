@@ -13,10 +13,10 @@ import {
   PageShell,
   StaggerItem,
   StaggerList,
-  ThemeToggle,
   Typography,
 } from '@/components/design-system';
 import { MonthNavigator } from '@/features/dashboard/components/month-navigator';
+import { APP_CURRENCY } from '@/lib/currency-config';
 import { spacing } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
 import { currentMonthKey } from '@/lib/month';
@@ -36,7 +36,7 @@ export function MonthlyFinanceView() {
   const deleteVariable = useDeleteVariableExpense(month);
 
   const viewModel = useMemo(
-    () => (data ? mapMonthlyFinanceToViewModel(data.fixed, data.variable) : null),
+    () => (data ? mapMonthlyFinanceToViewModel(data.fixed, data.variable, data.income) : null),
     [data],
   );
 
@@ -63,7 +63,7 @@ export function MonthlyFinanceView() {
     >
       <PageHeader
         title="Monthly finance"
-        description="Manage fixed bill payments and variable spending with live totals."
+        description="Mark fixed bills as paid and track how much income you have left this month."
         actions={
           <>
             {viewModel ? (
@@ -79,7 +79,6 @@ export function MonthlyFinanceView() {
             >
               Dashboard
             </Link>
-            <ThemeToggle />
           </>
         }
       />
@@ -120,7 +119,7 @@ export function MonthlyFinanceView() {
               <VariableExpensesSection
                 items={viewModel?.variableItems ?? []}
                 rawItems={data?.variable ?? []}
-                currency={(viewModel?.currency ?? 'USD') as CurrencyCode}
+                currency={(viewModel?.currency ?? APP_CURRENCY) as CurrencyCode}
                 isLoading={isLoading}
                 isPending={isMutating}
                 onDelete={(id) => deleteVariable.mutate(id)}

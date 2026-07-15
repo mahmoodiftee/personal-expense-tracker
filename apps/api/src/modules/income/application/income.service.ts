@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   CurrencyCode,
+  Flow,
   type IncomeSource,
   type IncomeSummary,
   type IncomeSourceShare,
@@ -27,6 +28,10 @@ import type { CreateIncomeSourceDto } from './dto/create-income-source.dto';
 import type { UpdateIncomeSourceDto } from './dto/update-income-source.dto';
 import type { UpdateIncomeAmountDto } from './dto/update-income-amount.dto';
 import type { ListIncomeSourcesQueryDto } from './dto/income-query.dto';
+import {
+  TRANSACTION_REPOSITORY,
+  type TransactionRepositoryPort,
+} from '../../transactions/domain/transaction.repository.port';
 
 /** Max months allowed in a single summary window (guards runaway ranges). */
 const MAX_SUMMARY_MONTHS = 60;
@@ -41,6 +46,8 @@ export class IncomeService {
   constructor(
     @Inject(INCOME_SOURCE_REPOSITORY)
     private readonly repository: IncomeSourceRepositoryPort,
+    @Inject(TRANSACTION_REPOSITORY)
+    private readonly transactions: TransactionRepositoryPort,
     private readonly logger: AppLogger,
   ) {
     this.logger.setContext(IncomeService.name);
@@ -129,6 +136,16 @@ export class IncomeService {
       if (amount && amount.amountMinor > 0) {
         items.push({ sourceId: source.id, name: source.name, amount });
       }
+    }
+
+    const extraIncome = await this.transactions.findManyPaginated(
+      userId,
+      { flow: Flow.INCOME, adHocOnly: true, monthKey },
+      { limit: 500 },
+    );
+    for (const tx of extraIncome.items) {
+      if (tx.amount.amountMinor <= 0) continue;
+      items.push({ sourceId: tx.id, name: tx.description, amount: tx.amount });
     }
 
     const total = this.sum(items.map((item) => item.amount));

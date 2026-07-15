@@ -132,14 +132,22 @@ export class SavingsService {
     const from = months[0]!;
     const to = months[months.length - 1]!;
 
-    const [incomeSources, fixedExpensePlans, variableByMonth] = await Promise.all([
-      this.income.listSources(userId, {}),
-      this.fixedExpenses.listExpenses(userId, {}),
-      this.transactions.sumByFlowGroupedByMonth(userId, from, to, Flow.EXPENSE),
-    ]);
+    const [incomeSources, fixedExpensePlans, variableByMonth, extraIncomeByMonth] =
+      await Promise.all([
+        this.income.listSources(userId, {}),
+        this.fixedExpenses.listExpenses(userId, {}),
+        this.transactions.sumByFlowGroupedByMonth(userId, from, to, Flow.EXPENSE),
+        this.transactions.sumByFlowGroupedByMonth(userId, from, to, Flow.INCOME),
+      ]);
 
     return months.map((monthKey) =>
-      this.computeMonthFromPlans(monthKey, incomeSources, fixedExpensePlans, variableByMonth),
+      this.computeMonthFromPlans(
+        monthKey,
+        incomeSources,
+        fixedExpensePlans,
+        variableByMonth,
+        extraIncomeByMonth,
+      ),
     );
   }
 
@@ -148,6 +156,7 @@ export class SavingsService {
     incomeSources: readonly IncomeSource[],
     fixedExpensePlans: readonly FixedExpense[],
     variableByMonth: ReadonlyMap<MonthKey, Money>,
+    extraIncomeByMonth: ReadonlyMap<MonthKey, Money>,
   ): MonthlySavings {
     let incomeMinor = 0;
     let fixedMinor = 0;
@@ -160,6 +169,13 @@ export class SavingsService {
         incomeMinor += amount.amountMinor;
         monies.push(amount);
       }
+    }
+
+    const extraIncome =
+      extraIncomeByMonth.get(monthKey) ?? ({ amountMinor: 0, currency: CurrencyCode.USD } as Money);
+    if (extraIncome.amountMinor > 0) {
+      incomeMinor += extraIncome.amountMinor;
+      monies.push(extraIncome);
     }
 
     for (const expense of fixedExpensePlans) {

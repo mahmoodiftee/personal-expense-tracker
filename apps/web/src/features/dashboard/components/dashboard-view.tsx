@@ -13,7 +13,6 @@ import {
   StatCardSkeleton,
   StaggerItem,
   StaggerList,
-  ThemeToggle,
   Typography,
 } from '@/components/design-system';
 import { spacing } from '@/lib/design-tokens';
@@ -65,7 +64,6 @@ export function DashboardView() {
             >
               Design system
             </Link>
-            <ThemeToggle />
           </>
         }
       />
@@ -100,7 +98,7 @@ export function DashboardView() {
         <EmptyState
           title="No financial data yet"
           description="Add income sources and expenses to see your dashboard come to life."
-          action={{ label: 'Explore design system', href: '/design-system' as Route }}
+          action={{ label: 'Manage income', href: '/income' as Route }}
         />
       ) : null}
 

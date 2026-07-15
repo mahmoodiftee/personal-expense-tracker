@@ -8,14 +8,7 @@ import type { SavingsGoalWithProgress } from '@finance/shared';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  EmptyState,
-  ErrorState,
-  FadeIn,
-  PageHeader,
-  PageShell,
-  ThemeToggle,
-} from '@/components/design-system';
+import { EmptyState, ErrorState, FadeIn, PageHeader, PageShell } from '@/components/design-system';
 import { buttonVariants } from '@/components/ui/button';
 
 import {
@@ -63,7 +56,6 @@ export function SavingsGoalsView() {
                 <Plus className="mr-1 h-4 w-4" aria-hidden="true" />
                 New goal
               </Button>
-              <ThemeToggle />
             </>
           }
         />

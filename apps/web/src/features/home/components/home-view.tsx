@@ -12,6 +12,7 @@ import {
   Receipt,
   Sparkles,
   Target,
+  Wallet,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -22,7 +23,6 @@ import {
   ScaleOnHover,
   StaggerItem,
   StaggerList,
-  ThemeToggle,
   Typography,
 } from '@/components/design-system';
 import { Container } from '@/components/design-system/container';
@@ -49,6 +49,12 @@ const features: NavFeature[] = [
     title: 'Monthly finance',
     description: 'Track fixed bill payments and variable spending month by month.',
     icon: CalendarDays,
+  },
+  {
+    href: '/income',
+    title: 'Manage income',
+    description: 'Set recurring income and add extra earnings for the current month.',
+    icon: Wallet,
   },
   {
     href: '/analytics',
@@ -96,8 +102,6 @@ const highlights = [
 ];
 
 export function HomeView() {
-  const appName = process.env.NEXT_PUBLIC_APP_NAME ?? 'Finance';
-
   return (
     <main className="relative min-h-screen overflow-hidden">
       <div
@@ -115,21 +119,9 @@ export function HomeView() {
 
       <Container
         size="wide"
-        className="relative flex min-h-screen flex-col px-4 py-8 sm:px-6 lg:px-8"
+        className="relative flex min-h-[calc(100vh-3.5rem)] flex-col px-4 py-6 sm:px-6 lg:px-8"
       >
-        <header className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
-              <LayoutDashboard className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <Typography variant="label" className="text-foreground">
-              {appName}
-            </Typography>
-          </div>
-          <ThemeToggle />
-        </header>
-
-        <FadeIn className="flex flex-1 flex-col justify-center py-10 md:py-16">
+        <FadeIn className="flex flex-1 flex-col justify-center py-8 md:py-12">
           <div className="mx-auto w-full max-w-3xl text-center lg:max-w-4xl">
             <Badge variant="secondary" className="mb-6 border border-border/60 bg-secondary/50">
               Personal finance, simplified

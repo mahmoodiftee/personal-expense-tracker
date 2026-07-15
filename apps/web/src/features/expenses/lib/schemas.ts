@@ -38,7 +38,7 @@ export const fixedExpenseFormSchema = z.object({
 
 export type FixedExpenseFormValues = z.infer<typeof fixedExpenseFormSchema>;
 
-export const defaultCurrency: CurrencyCode = CurrencyCode.USD;
+export const defaultCurrency: CurrencyCode = CurrencyCode.BDT;
 
 export function toIsoFromDateInput(dateInput: string): string {
   const [yearStr, monthStr, dayStr] = dateInput.split('-');

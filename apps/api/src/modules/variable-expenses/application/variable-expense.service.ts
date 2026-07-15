@@ -16,6 +16,7 @@ import {
   CATEGORY_REPOSITORY,
   type CategoryRepositoryPort,
 } from '../../categories/domain/category.repository.port';
+import { CategoryService } from '../../categories/application/category.service';
 import {
   TRANSACTION_REPOSITORY,
   type TransactionFilter,
@@ -50,6 +51,7 @@ export class VariableExpenseService {
     private readonly transactions: TransactionRepositoryPort,
     @Inject(CATEGORY_REPOSITORY)
     private readonly categories: CategoryRepositoryPort,
+    private readonly categoryService: CategoryService,
     private readonly logger: AppLogger,
   ) {
     this.logger.setContext(VariableExpenseService.name);
@@ -177,6 +179,27 @@ export class VariableExpenseService {
       if (category.isArchived) {
         throw new DomainValidationException('Cannot assign an archived category');
       }
+
+      return {
+        categoryId: category.id,
+        snapshot: {
+          name: category.name,
+          color: category.color,
+          icon: category.icon,
+          kind: category.kind,
+        },
+      };
+    }
+
+    const inlineName = inline?.name?.trim();
+    if (inlineName && inlineName !== UNCATEGORISED_NAME) {
+      const category = await this.categoryService.findOrCreateCategory(userId, {
+        name: inlineName,
+        flow: Flow.EXPENSE,
+        kind: CategoryKind.VARIABLE,
+        color: inline?.color,
+        icon: inline?.icon,
+      });
 
       return {
         categoryId: category.id,

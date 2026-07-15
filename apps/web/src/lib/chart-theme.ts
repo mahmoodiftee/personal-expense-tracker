@@ -1,3 +1,8 @@
+import type { CurrencyCode } from '@finance/shared';
+
+import { TAKA_SYMBOL } from './currency-config';
+import { formatTakaAmount } from './format-money';
+
 /** Shared Recharts theme aligned with the ChatGPT-inspired design system. */
 export const CHART_COLORS = {
   income: 'hsl(160 84% 39%)',
@@ -13,10 +18,12 @@ export const CHART_COLORS = {
 
 export const CHART_MARGIN = { top: 8, right: 8, left: 0, bottom: 0 };
 
-export function formatChartCurrency(value: number, currency = 'USD'): string {
-  return value.toLocaleString(undefined, { style: 'currency', currency, maximumFractionDigits: 0 });
+export function formatChartCurrency(value: number, _currency?: CurrencyCode): string {
+  return formatTakaAmount(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 export function formatChartCompact(value: number): string {
-  return `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`;
+  return value >= 1000
+    ? `${TAKA_SYMBOL}${(value / 1000).toFixed(0)}k`
+    : formatTakaAmount(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }

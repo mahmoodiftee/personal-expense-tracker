@@ -4,6 +4,7 @@ import { InsightSeverity, InsightType, type Insight } from '@finance/shared';
 import {
   countUnviewed,
   filterInsightsBySeverity,
+  formatInsightMessage,
   groupInsightsByMonth,
   sortInsightsByPriority,
 } from './insights-utils';
@@ -60,6 +61,12 @@ describe('insights-utils', () => {
 
   it('counts unviewed insights', () => {
     expect(countUnviewed(sample, new Set(['1', '3']))).toBe(2);
+  });
+
+  it('formats BDT amounts in insight messages as taka', () => {
+    expect(formatInsightMessage('Loan exceeded its budget (BDT 16,000.00 of BDT 15,000.00).')).toBe(
+      'Loan exceeded its budget (৳16,000.00 of ৳15,000.00).',
+    );
   });
 });
 

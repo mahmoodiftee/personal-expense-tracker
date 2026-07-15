@@ -14,7 +14,6 @@ import {
   PageShell,
   StaggerItem,
   StaggerList,
-  ThemeToggle,
   Typography,
 } from '@/components/design-system';
 import { ChartPanelSkeleton } from '@/components/page-states';
@@ -69,7 +68,6 @@ export function AnalyticsView() {
             >
               Dashboard
             </Link>
-            <ThemeToggle />
           </>
         }
       />

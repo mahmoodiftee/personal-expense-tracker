@@ -1,13 +1,16 @@
 'use client';
 
+import { type CurrencyCode } from '@finance/shared';
+
 import { Typography } from '@/components/design-system';
+import { APP_CURRENCY } from '@/lib/currency-config';
 import { formatChartCurrency } from '@/lib/chart-theme';
 
 type AnalyticsChartTooltipProps = {
   active?: boolean;
   payload?: Array<{ name?: string; value?: number; color?: string }>;
   label?: string;
-  currency?: string;
+  currency?: CurrencyCode;
   valueFormatter?: (value: number, name?: string) => string;
 };
 
@@ -15,7 +18,7 @@ export function AnalyticsChartTooltip({
   active,
   payload,
   label,
-  currency = 'USD',
+  currency = APP_CURRENCY,
   valueFormatter,
 }: AnalyticsChartTooltipProps) {
   if (!active || !payload?.length) return null;
