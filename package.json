@@ -10,6 +10,8 @@
   },
   "scripts": {
     "build": "pnpm -r build",
+    "build:api": "pnpm shared:build && pnpm --filter @finance/api build",
+    "start:api": "pnpm --filter @finance/api start",
     "dev": "pnpm -r --parallel dev",
     "dev:api": "pnpm --filter @finance/api dev",
     "dev:web": "pnpm --filter @finance/web dev",
