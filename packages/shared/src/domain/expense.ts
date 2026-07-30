@@ -1,6 +1,6 @@
 import type { Money } from './money';
 import type { AmountPeriod, EntityTimestamps, MonthKey } from './models';
-import type { Cadence, CurrencyCode, PaymentStatus, RecurringStatus } from './enums';
+import type { Cadence, CurrencyCode, PaymentStatus, PlanSubtype, RecurringStatus } from './enums';
 
 /**
  * Fixed-expense domain read models. A fixed expense is a recurring plan of
@@ -20,6 +20,8 @@ export interface FixedExpense extends EntityTimestamps {
   readonly startMonth: MonthKey;
   readonly endMonth: MonthKey | null;
   readonly categoryId: string | null;
+  readonly planSubtype: PlanSubtype;
+  readonly principalAmount: Money | null;
 }
 
 /** A fixed expense's due amount and payment state for a specific month. */

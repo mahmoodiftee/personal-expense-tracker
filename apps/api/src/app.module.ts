@@ -14,6 +14,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { SavingsGoalsModule } from './modules/savings-goals/savings-goals.module';
 import { BudgetsModule } from './modules/budgets/budgets.module';
+import { LoansModule } from './modules/loans/loans.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -47,6 +48,7 @@ import { validationExceptionFactory } from './common/validation/validation-excep
     CategoriesModule,
     SavingsGoalsModule,
     BudgetsModule,
+    LoansModule,
   ],
   providers: [
     {

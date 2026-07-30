@@ -10,6 +10,7 @@ import {
   type MonthKey,
   type MonthlyExpenseStatus,
   PaymentStatus,
+  PlanSubtype,
 } from '@finance/shared';
 import { AppLogger } from '../../../core/logger/app-logger.service';
 import {
@@ -62,6 +63,7 @@ export class FixedExpenseService {
     if (dto.endMonth && dto.endMonth < dto.startMonth) {
       throw new DomainValidationException('endMonth cannot be before startMonth');
     }
+    this.validateLoanFields(dto.planSubtype, dto.principalAmount, dto.endMonth);
 
     const expense = await this.expenses.create({
       userId,
@@ -72,6 +74,10 @@ export class FixedExpenseService {
       startMonth: dto.startMonth,
       endMonth: dto.endMonth ?? null,
       categoryId: dto.categoryId ?? null,
+      planSubtype: dto.planSubtype ?? PlanSubtype.GENERAL,
+      principalAmount: dto.principalAmount
+        ? { amountMinor: dto.principalAmount.amountMinor, currency: dto.principalAmount.currency }
+        : null,
     });
 
     this.logger.log(`Fixed expense created: ${expense.id} (${expense.name}) [user ${userId}]`);
@@ -93,12 +99,36 @@ export class FixedExpenseService {
     id: string,
     dto: UpdateFixedExpenseDto,
   ): Promise<FixedExpense> {
+    const existing = await this.getExpense(userId, id);
+    const planSubtype = dto.planSubtype ?? existing.planSubtype;
+    const principalAmount =
+      dto.principalAmount !== undefined
+        ? dto.principalAmount
+          ? {
+              amountMinor: dto.principalAmount.amountMinor,
+              currency: dto.principalAmount.currency,
+            }
+          : null
+        : existing.principalAmount;
+    const endMonth = dto.endMonth !== undefined ? dto.endMonth : existing.endMonth;
+    this.validateLoanFields(planSubtype, principalAmount, endMonth ?? undefined);
+
     const updated = await this.expenses.updateMeta(userId, id, {
       name: dto.name,
       dueDay: dto.dueDay,
       status: dto.status,
       endMonth: dto.endMonth,
       categoryId: dto.categoryId,
+      planSubtype: dto.planSubtype,
+      principalAmount:
+        dto.principalAmount !== undefined
+          ? dto.principalAmount
+            ? {
+                amountMinor: dto.principalAmount.amountMinor,
+                currency: dto.principalAmount.currency,
+              }
+            : null
+          : undefined,
     });
     if (!updated) throw new ResourceNotFoundException('Fixed expense', id);
 
@@ -324,5 +354,19 @@ export class FixedExpenseService {
       status,
       paidAt: status === PaymentStatus.PAID ? (record?.paidAt ?? null) : null,
     };
+  }
+
+  private validateLoanFields(
+    planSubtype: PlanSubtype | undefined,
+    principalAmount: Money | { amountMinor: number; currency: CurrencyCode } | null | undefined,
+    endMonth: MonthKey | undefined,
+  ): void {
+    if (planSubtype !== PlanSubtype.LOAN) return;
+    if (!principalAmount || principalAmount.amountMinor <= 0) {
+      throw new DomainValidationException('principalAmount is required for bank loans');
+    }
+    if (!endMonth) {
+      throw new DomainValidationException('endMonth is required for bank loans');
+    }
   }
 }

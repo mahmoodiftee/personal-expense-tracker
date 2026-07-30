@@ -1,4 +1,11 @@
-import type { Cadence, FixedExpense, Money, MonthKey, RecurringStatus } from '@finance/shared';
+import type {
+  Cadence,
+  FixedExpense,
+  Money,
+  MonthKey,
+  PlanSubtype,
+  RecurringStatus,
+} from '@finance/shared';
 
 export const FIXED_EXPENSE_REPOSITORY = Symbol('FIXED_EXPENSE_REPOSITORY');
 
@@ -11,6 +18,8 @@ export interface CreateFixedExpenseData {
   readonly startMonth: MonthKey;
   readonly endMonth?: MonthKey | null;
   readonly categoryId?: string | null;
+  readonly planSubtype?: PlanSubtype;
+  readonly principalAmount?: Money | null;
 }
 
 export interface UpdateFixedExpenseData {
@@ -19,10 +28,13 @@ export interface UpdateFixedExpenseData {
   readonly status?: RecurringStatus;
   readonly endMonth?: MonthKey | null;
   readonly categoryId?: string | null;
+  readonly planSubtype?: PlanSubtype;
+  readonly principalAmount?: Money | null;
 }
 
 export interface FixedExpenseQuery {
   readonly status?: RecurringStatus;
+  readonly planSubtype?: PlanSubtype;
 }
 
 /**

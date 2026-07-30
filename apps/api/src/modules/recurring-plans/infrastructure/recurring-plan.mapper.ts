@@ -4,6 +4,7 @@ import {
   CurrencyCode,
   type Money,
   type MonthKey,
+  PlanSubtype,
   type RecurringStatus,
 } from '@finance/shared';
 import type { HydratedDocument } from 'mongoose';
@@ -27,6 +28,8 @@ export interface RecurringPlanView {
   startMonth: MonthKey;
   endMonth: MonthKey | null;
   categoryId: string | null;
+  planSubtype: PlanSubtype;
+  principalAmount: Money | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -57,6 +60,13 @@ export function toRecurringPlanView(
     startMonth: doc.startMonth,
     endMonth: doc.endMonth,
     categoryId: doc.categoryId ? doc.categoryId.toString() : null,
+    planSubtype: doc.planSubtype ?? PlanSubtype.GENERAL,
+    principalAmount: doc.principalAmount
+      ? {
+          amountMinor: doc.principalAmount.amountMinor,
+          currency: doc.principalAmount.currency,
+        }
+      : null,
     createdAt: (doc as { createdAt?: Date }).createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: (doc as { updatedAt?: Date }).updatedAt?.toISOString() ?? new Date().toISOString(),
   };

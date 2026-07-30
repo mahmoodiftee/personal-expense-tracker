@@ -30,6 +30,7 @@ import { SavingsCard } from './savings-card';
 import { SavingsGoalsWidget } from '@/features/savings-goals/components/savings-goals-widget';
 import { BudgetWidget } from '@/features/budgets/components/budget-widget';
 import { InsightsWidget } from '@/features/insights/components/insights-widget';
+import { LoansWidget } from '@/features/loans/components/loans-widget';
 
 export function DashboardView() {
   const [month, setMonth] = useState(currentMonthKey());
@@ -143,6 +144,10 @@ export function DashboardView() {
 
             <StaggerItem>
               <SavingsGoalsWidget month={month} />
+            </StaggerItem>
+
+            <StaggerItem>
+              <LoansWidget month={month} />
             </StaggerItem>
 
             <StaggerItem>

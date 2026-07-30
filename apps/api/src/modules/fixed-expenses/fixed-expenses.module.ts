@@ -25,6 +25,6 @@ import { FIXED_EXPENSE_PAYMENT_MODEL } from './infrastructure/expense-payment.sc
     { provide: FIXED_EXPENSE_REPOSITORY, useClass: FixedExpenseMongoRepository },
     { provide: EXPENSE_PAYMENT_REPOSITORY, useClass: ExpensePaymentMongoRepository },
   ],
-  exports: [FixedExpenseService],
+  exports: [FixedExpenseService, FIXED_EXPENSE_REPOSITORY, EXPENSE_PAYMENT_REPOSITORY],
 })
 export class FixedExpensesModule {}

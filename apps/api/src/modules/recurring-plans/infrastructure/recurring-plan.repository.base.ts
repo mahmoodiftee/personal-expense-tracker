@@ -3,6 +3,7 @@ import {
   type Cadence,
   type Money,
   type MonthKey,
+  PlanSubtype,
   RecurringKind,
   RecurringStatus,
 } from '@finance/shared';
@@ -21,6 +22,8 @@ export interface CreateRecurringPlanInput {
   readonly startMonth: MonthKey;
   readonly endMonth?: MonthKey | null;
   readonly categoryId?: string | null;
+  readonly planSubtype?: PlanSubtype;
+  readonly principalAmount?: Money | null;
 }
 
 /** Mutable metadata common to all recurring-plan kinds. */
@@ -30,10 +33,13 @@ export interface UpdateRecurringPlanMeta {
   readonly status?: RecurringStatus;
   readonly endMonth?: MonthKey | null;
   readonly categoryId?: string | null;
+  readonly planSubtype?: PlanSubtype;
+  readonly principalAmount?: Money | null;
 }
 
 export interface RecurringPlanFilter {
   readonly status?: RecurringStatus;
+  readonly planSubtype?: PlanSubtype;
 }
 
 /**
@@ -84,6 +90,10 @@ export abstract class RecurringPlanRepositoryBase<TEntity> extends MongoBaseRepo
       startMonth: data.startMonth,
       endMonth: data.endMonth ?? null,
       autoPost: false,
+      planSubtype: data.planSubtype ?? PlanSubtype.GENERAL,
+      principalAmount: data.principalAmount
+        ? { amountMinor: data.principalAmount.amountMinor, currency: data.principalAmount.currency }
+        : null,
     });
 
     return this.toDomain(doc);
@@ -97,7 +107,10 @@ export abstract class RecurringPlanRepositoryBase<TEntity> extends MongoBaseRepo
   }
 
   async findMany(userId: string, query?: RecurringPlanFilter): Promise<TEntity[]> {
-    const filter = this.kindFilter(userId, query?.status ? { status: query.status } : {});
+    const extra: FilterQuery<RecurringPlanEntity> = {};
+    if (query?.status) extra.status = query.status;
+    if (query?.planSubtype) extra.planSubtype = query.planSubtype;
+    const filter = this.kindFilter(userId, extra);
     const docs = await this.model.find(filter).sort({ createdAt: -1 }).exec();
     return this.mapMany(docs);
   }
@@ -127,6 +140,15 @@ export abstract class RecurringPlanRepositoryBase<TEntity> extends MongoBaseRepo
     if (changes.endMonth !== undefined) set.endMonth = changes.endMonth;
     if (changes.categoryId !== undefined) {
       set.categoryId = changes.categoryId ? this.toObjectId(changes.categoryId) : null;
+    }
+    if (changes.planSubtype !== undefined) set.planSubtype = changes.planSubtype;
+    if (changes.principalAmount !== undefined) {
+      set.principalAmount = changes.principalAmount
+        ? {
+            amountMinor: changes.principalAmount.amountMinor,
+            currency: changes.principalAmount.currency,
+          }
+        : null;
     }
 
     const doc = await this.model

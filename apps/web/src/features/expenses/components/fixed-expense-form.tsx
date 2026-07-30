@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Typography } from '@/components/design-system';
 import { FadeIn } from '@/components/design-system';
 import type { ApiClientError } from '@/lib/api-client';
+import { cn } from '@/lib/utils';
 
 import { fixedExpenseFormSchema, type FixedExpenseFormValues } from '../lib/schemas';
 import { defaultFixedExpenseFormValues } from '../lib/form-mappers';
@@ -35,12 +36,15 @@ export function FixedExpenseForm({
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<FixedExpenseFormValues>({
     resolver: zodResolver(fixedExpenseFormSchema),
     defaultValues,
   });
+
+  const isLoan = watch('isLoan');
 
   const submit = handleSubmit(async (values) => {
     setApiError(null);
@@ -70,7 +74,11 @@ export function FixedExpenseForm({
         </FormField>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField label="Amount" htmlFor="amount" error={errors.amount?.message}>
+          <FormField
+            label={isLoan ? 'Monthly EMI' : 'Amount'}
+            htmlFor="amount"
+            error={errors.amount?.message}
+          >
             <Input
               id="amount"
               type="number"
@@ -121,7 +129,11 @@ export function FixedExpenseForm({
           </FormField>
         </div>
 
-        <FormField label="End month (optional)" htmlFor="endMonth" error={errors.endMonth?.message}>
+        <FormField
+          label={isLoan ? 'End month (loan term)' : 'End month (optional)'}
+          htmlFor="endMonth"
+          error={errors.endMonth?.message}
+        >
           <Input
             id="endMonth"
             placeholder="YYYY-MM"
@@ -129,6 +141,41 @@ export function FixedExpenseForm({
             {...register('endMonth')}
           />
         </FormField>
+
+        <div className="rounded-lg border border-border/60 bg-muted/20 p-4 space-y-3">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4 rounded border-input"
+              {...register('isLoan')}
+            />
+            <span>
+              <Typography variant="label">This is a bank loan</Typography>
+              <Typography variant="caption" className="block text-muted-foreground">
+                Track total borrowed, amount paid, and months remaining on the dashboard.
+              </Typography>
+            </span>
+          </label>
+
+          <div className={cn('space-y-3', !isLoan && 'hidden')} aria-hidden={!isLoan}>
+            <FormField
+              label="Total amount borrowed"
+              htmlFor="principalAmount"
+              error={errors.principalAmount?.message}
+            >
+              <Input
+                id="principalAmount"
+                type="number"
+                inputMode="decimal"
+                step="0.01"
+                min="0.01"
+                placeholder="0.00"
+                aria-invalid={Boolean(errors.principalAmount)}
+                {...register('principalAmount')}
+              />
+            </FormField>
+          </div>
+        </div>
 
         {isEdit ? (
           <FormField label="Status" htmlFor="status" error={errors.status?.message}>

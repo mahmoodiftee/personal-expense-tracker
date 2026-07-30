@@ -11,7 +11,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Cadence } from '@finance/shared';
+import { Cadence, PlanSubtype } from '@finance/shared';
 import { MoneyDto } from '../../../../common/dto/money.dto';
 import { IsMonthKey } from '../../../../common/validation/is-month-key';
 
@@ -45,4 +45,13 @@ export class CreateFixedExpenseDto {
   @IsOptional()
   @IsMongoId()
   categoryId?: string;
+
+  @IsOptional()
+  @IsEnum(PlanSubtype)
+  planSubtype?: PlanSubtype;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MoneyDto)
+  principalAmount?: MoneyDto;
 }

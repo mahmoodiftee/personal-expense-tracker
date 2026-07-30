@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsEnum,
   IsInt,
@@ -8,8 +9,10 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
-import { RecurringStatus } from '@finance/shared';
+import { PlanSubtype, RecurringStatus } from '@finance/shared';
+import { MoneyDto } from '../../../../common/dto/money.dto';
 import { IsMonthKey } from '../../../../common/validation/is-month-key';
 
 /** Update fixed-expense metadata (amount changes use the amount endpoint). */
@@ -37,4 +40,13 @@ export class UpdateFixedExpenseDto {
   @IsOptional()
   @IsMongoId()
   categoryId?: string;
+
+  @IsOptional()
+  @IsEnum(PlanSubtype)
+  planSubtype?: PlanSubtype;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MoneyDto)
+  principalAmount?: MoneyDto;
 }

@@ -1,6 +1,7 @@
 import {
   Cadence,
   MoneyMath,
+  PlanSubtype,
   RecurringStatus,
   type FixedExpense,
   type VariableExpense,
@@ -33,6 +34,10 @@ export function fixedExpenseToFormValues(expense: FixedExpense): FixedExpenseFor
     startMonth: expense.startMonth,
     endMonth: expense.endMonth ?? '',
     status: expense.status,
+    isLoan: expense.planSubtype === PlanSubtype.LOAN,
+    principalAmount: expense.principalAmount
+      ? MoneyMath.toMajor(expense.principalAmount).toFixed(2)
+      : '',
   };
 }
 
@@ -50,5 +55,7 @@ export function defaultFixedExpenseFormValues(): FixedExpenseFormValues {
     startMonth: currentMonthKey(),
     endMonth: '',
     status: RecurringStatus.ACTIVE,
+    isLoan: false,
+    principalAmount: '',
   };
 }

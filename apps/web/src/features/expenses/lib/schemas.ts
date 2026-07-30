@@ -23,18 +23,47 @@ export const variableExpenseFormSchema = z.object({
 
 export type VariableExpenseFormValues = z.infer<typeof variableExpenseFormSchema>;
 
-export const fixedExpenseFormSchema = z.object({
-  name: z.string().trim().min(1, 'Name is required').max(120, 'Max 120 characters'),
-  amount: positiveAmountSchema,
-  dueDay: z.coerce.number().int().min(1, 'Min day 1').max(31, 'Max day 31'),
-  cadence: z.nativeEnum(Cadence),
-  startMonth: monthKeySchema,
-  endMonth: z
-    .string()
-    .optional()
-    .refine((value) => !value || monthKeyRegex.test(value), 'Use YYYY-MM format'),
-  status: z.nativeEnum(RecurringStatus).optional(),
-});
+export const fixedExpenseFormSchema = z
+  .object({
+    name: z.string().trim().min(1, 'Name is required').max(120, 'Max 120 characters'),
+    amount: positiveAmountSchema,
+    dueDay: z.coerce.number().int().min(1, 'Min day 1').max(31, 'Max day 31'),
+    cadence: z.nativeEnum(Cadence),
+    startMonth: monthKeySchema,
+    endMonth: z
+      .string()
+      .optional()
+      .refine((value) => !value || monthKeyRegex.test(value), 'Use YYYY-MM format'),
+    status: z.nativeEnum(RecurringStatus).optional(),
+    isLoan: z.boolean().default(false),
+    principalAmount: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.isLoan) return;
+    if (!data.principalAmount?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Total borrowed amount is required for bank loans',
+        path: ['principalAmount'],
+      });
+    } else {
+      const parsed = Number.parseFloat(data.principalAmount);
+      if (Number.isNaN(parsed) || parsed <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Enter a valid amount greater than 0',
+          path: ['principalAmount'],
+        });
+      }
+    }
+    if (!data.endMonth?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'End month is required for bank loans',
+        path: ['endMonth'],
+      });
+    }
+  });
 
 export type FixedExpenseFormValues = z.infer<typeof fixedExpenseFormSchema>;
 

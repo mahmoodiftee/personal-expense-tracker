@@ -1,4 +1,5 @@
 import type { CurrencyCode, FixedExpense, VariableExpense } from '@finance/shared';
+import { PlanSubtype } from '@finance/shared';
 
 import { apiFetch, apiFetchPaginated } from '@/lib/api-client';
 import { demoFetchOptions } from '@/lib/demo-fetch';
@@ -83,6 +84,10 @@ export async function createFixedExpense(
     dueDay: values.dueDay,
     startMonth: values.startMonth,
     endMonth: values.endMonth || undefined,
+    planSubtype: values.isLoan ? PlanSubtype.LOAN : PlanSubtype.GENERAL,
+    ...(values.isLoan && values.principalAmount
+      ? { principalAmount: toAmountMinor(values.principalAmount, currency) }
+      : {}),
   };
 
   return apiFetch<FixedExpense>('/fixed-expenses', {
@@ -103,6 +108,11 @@ export async function updateFixedExpense(
     dueDay: values.dueDay,
     status: values.status,
     endMonth: values.endMonth || undefined,
+    planSubtype: values.isLoan ? PlanSubtype.LOAN : PlanSubtype.GENERAL,
+    principalAmount:
+      values.isLoan && values.principalAmount
+        ? toAmountMinor(values.principalAmount, currency)
+        : null,
   };
 
   const updated = await apiFetch<FixedExpense>(`/fixed-expenses/${id}`, {

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { Cadence, RecurringKind, RecurringStatus } from '@finance/shared';
+import { Cadence, PlanSubtype, RecurringKind, RecurringStatus } from '@finance/shared';
 import { MoneyEmbeddable, MoneySchema } from '../../../common/database/embedded.schemas';
 
 /** One effective-dated amount period. Editing appends; history is immutable. */
@@ -53,6 +53,12 @@ export class RecurringPlanEntity {
 
   @Prop({ type: Boolean, required: true, default: false })
   autoPost!: boolean;
+
+  @Prop({ type: String, enum: PlanSubtype, required: true, default: PlanSubtype.GENERAL })
+  planSubtype!: PlanSubtype;
+
+  @Prop({ type: MoneySchema, default: null })
+  principalAmount!: MoneyEmbeddable | null;
 }
 
 export const RecurringPlanSchema = SchemaFactory.createForClass(RecurringPlanEntity);
@@ -61,3 +67,5 @@ export const RecurringPlanSchema = SchemaFactory.createForClass(RecurringPlanEnt
 RecurringPlanSchema.index({ userId: 1, kind: 1, status: 1 });
 // Reconcile plans against their category.
 RecurringPlanSchema.index({ userId: 1, categoryId: 1 });
+// Loan overview queries.
+RecurringPlanSchema.index({ userId: 1, kind: 1, planSubtype: 1 });

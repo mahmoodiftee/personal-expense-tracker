@@ -27,6 +27,12 @@ export enum RecurringKind {
   FIXED_EXPENSE = 'FIXED_EXPENSE',
 }
 
+/** Optional subtype for recurring plans (e.g. bank loans). */
+export enum PlanSubtype {
+  GENERAL = 'GENERAL',
+  LOAN = 'LOAN',
+}
+
 /** Lifecycle status of a recurring plan. */
 export enum RecurringStatus {
   ACTIVE = 'ACTIVE',

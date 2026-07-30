@@ -50,6 +50,8 @@ export function useToggleFixedPayment(month: MonthKey) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: monthlyFinanceQueryKey(month) });
+      queryClient.invalidateQueries({ queryKey: ['loans'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
