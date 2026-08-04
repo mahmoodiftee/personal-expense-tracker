@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  PaymentStatus,
   type CategorySnapshot,
   CategoryKind,
   Flow,
@@ -71,6 +72,8 @@ export class VariableExpenseService {
       notes: dto.notes ?? null,
       tags: dto.tags ?? [],
       occurredAt,
+      paymentStatus: PaymentStatus.UNPAID,
+      paidAt: null,
     });
 
     this.logger.log(`Variable expense added: ${tx.id} (${tx.description}) [user ${userId}]`);
@@ -118,6 +121,32 @@ export class VariableExpenseService {
     const deleted = await this.transactions.delete(userId, id);
     if (!deleted) throw new ResourceNotFoundException('Variable expense', id);
     this.logger.log(`Variable expense deleted: ${id} [user ${userId}]`);
+  }
+
+  async markPaid(userId: string, id: string, paidAt?: string): Promise<VariableExpense> {
+    await this.getOwnedExpenseOrThrow(userId, id);
+
+    const updated = await this.transactions.update(userId, id, {
+      paymentStatus: PaymentStatus.PAID,
+      paidAt: paidAt ? this.parseDate(paidAt) : new Date(),
+    });
+    if (!updated) throw new ResourceNotFoundException('Variable expense', id);
+
+    this.logger.log(`Variable expense marked PAID: ${id} [user ${userId}]`);
+    return toVariableExpense(updated);
+  }
+
+  async markUnpaid(userId: string, id: string): Promise<VariableExpense> {
+    await this.getOwnedExpenseOrThrow(userId, id);
+
+    const updated = await this.transactions.update(userId, id, {
+      paymentStatus: PaymentStatus.UNPAID,
+      paidAt: null,
+    });
+    if (!updated) throw new ResourceNotFoundException('Variable expense', id);
+
+    this.logger.log(`Variable expense marked UNPAID: ${id} [user ${userId}]`);
+    return toVariableExpense(updated);
   }
 
   /** Paginated, filterable expense history (newest first). */

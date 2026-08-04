@@ -18,6 +18,7 @@ import { VariableExpenseService } from '../application/variable-expense.service'
 import { CreateVariableExpenseDto } from '../application/dto/create-variable-expense.dto';
 import { UpdateVariableExpenseDto } from '../application/dto/update-variable-expense.dto';
 import { VariableExpenseQueryDto } from '../application/dto/variable-expense-query.dto';
+import { MarkVariableExpensePaidDto } from '../application/dto/mark-variable-payment.dto';
 
 /**
  * Variable-expense endpoints (v1). Thin HTTP layer: validates input via DTOs,
@@ -71,5 +72,24 @@ export class VariableExpenseController {
   ): Promise<{ id: string; deleted: true }> {
     await this.service.deleteExpense(userId, id);
     return { id, deleted: true };
+  }
+
+  @Post(':id/pay')
+  @HttpCode(HttpStatus.OK)
+  markPaid(
+    @CurrentUserId() userId: string,
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body() dto: MarkVariableExpensePaidDto,
+  ): Promise<VariableExpense> {
+    return this.service.markPaid(userId, id, dto.paidAt);
+  }
+
+  @Post(':id/unpay')
+  @HttpCode(HttpStatus.OK)
+  markUnpaid(
+    @CurrentUserId() userId: string,
+    @Param('id', ParseObjectIdPipe) id: string,
+  ): Promise<VariableExpense> {
+    return this.service.markUnpaid(userId, id);
   }
 }

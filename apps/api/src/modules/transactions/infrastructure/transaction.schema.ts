@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { Flow } from '@finance/shared';
+import { Flow, PaymentStatus } from '@finance/shared';
 import {
   CategorySnapshotEmbeddable,
   CategorySnapshotSchema,
@@ -44,6 +44,12 @@ export class TransactionEntity {
 
   @Prop({ type: String, required: true }) // monthKey YYYY-MM (derived on write)
   monthKey!: string;
+
+  @Prop({ type: String, enum: PaymentStatus, default: null })
+  paymentStatus!: PaymentStatus | null;
+
+  @Prop({ type: Date, default: null })
+  paidAt!: Date | null;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(TransactionEntity);

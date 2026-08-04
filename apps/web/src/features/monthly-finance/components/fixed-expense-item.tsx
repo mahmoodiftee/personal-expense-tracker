@@ -13,24 +13,21 @@ type FixedExpenseItemProps = {
 };
 
 export function FixedExpenseItem({ item, disabled, onToggle }: FixedExpenseItemProps) {
-  const checkboxId = `fixed-expense-${item.id}`;
-
   return (
-    <label
-      htmlFor={checkboxId}
+    <div
       className={cn(
-        'flex min-h-[3.25rem] cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 transition-colors',
+        'flex min-h-[3.25rem] items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 transition-colors',
         'hover:bg-secondary/40',
         item.isPaid && 'border-primary/30 bg-primary/5',
         disabled && 'pointer-events-none opacity-60',
       )}
     >
       <Checkbox
-        id={checkboxId}
         checked={item.isPaid}
         disabled={disabled}
         onCheckedChange={(checked) => onToggle(item.id, checked)}
         aria-label={`Mark ${item.name} as ${item.isPaid ? 'unpaid' : 'paid'}`}
+        className="shrink-0"
       />
       <div className="min-w-0 flex-1">
         <Typography variant="label" className="block truncate">
@@ -46,6 +43,6 @@ export function FixedExpenseItem({ item, disabled, onToggle }: FixedExpenseItemP
       <Typography variant="label" className="shrink-0 tabular-nums">
         {item.amount}
       </Typography>
-    </label>
+    </div>
   );
 }

@@ -61,6 +61,8 @@ export class TransactionMongoRepository
       tags: data.tags ? [...data.tags] : [],
       occurredAt: data.occurredAt,
       monthKey: monthKeyFromDate(data.occurredAt),
+      paymentStatus: data.paymentStatus ?? null,
+      paidAt: data.paidAt ?? null,
     });
 
     return this.toDomain(doc);
@@ -92,6 +94,8 @@ export class TransactionMongoRepository
       set.occurredAt = changes.occurredAt;
       set.monthKey = monthKeyFromDate(changes.occurredAt);
     }
+    if (changes.paymentStatus !== undefined) set.paymentStatus = changes.paymentStatus;
+    if (changes.paidAt !== undefined) set.paidAt = changes.paidAt;
 
     const doc = await this.updateScopedById(userId, id, { $set: set });
     return doc ? this.toDomain(doc) : null;

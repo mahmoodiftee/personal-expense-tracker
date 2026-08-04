@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   Flow,
+  assignDistinctCategoryColors,
   type DashboardCategoryItem,
   type DashboardForecast,
   type DashboardMonthlyOverview,
@@ -123,7 +124,7 @@ export class DashboardService {
     rows: Awaited<ReturnType<TransactionRepositoryPort['breakdownByCategory']>>,
   ): DashboardCategoryItem[] {
     const totalMinor = rows.reduce((sum, row) => sum + row.total.amountMinor, 0);
-    return rows.map((row) => ({
+    const items = rows.map((row) => ({
       categoryId: row.categoryId,
       name: row.categoryName,
       color: row.color,
@@ -131,6 +132,7 @@ export class DashboardService {
       transactionCount: row.transactionCount,
       sharePct: totalMinor ? round2((row.total.amountMinor / totalMinor) * 100) : 0,
     }));
+    return assignDistinctCategoryColors(items);
   }
 }
 

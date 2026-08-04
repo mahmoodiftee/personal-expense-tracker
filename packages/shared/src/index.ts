@@ -12,4 +12,5 @@ export * from './domain/dashboard';
 export * from './domain/analytics';
 export * from './domain/financial-context';
 export * from './domain/loan';
+export * from './domain/category-colors';
 export * from './api/response';

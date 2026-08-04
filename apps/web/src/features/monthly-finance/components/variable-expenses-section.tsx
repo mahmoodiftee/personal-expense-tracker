@@ -17,6 +17,7 @@ type VariableExpensesSectionProps = {
   currency: CurrencyCode;
   isLoading?: boolean;
   isPending?: boolean;
+  onToggle: (expenseId: string, isPaid: boolean) => void;
   onDelete: (id: string) => void;
 };
 
@@ -26,6 +27,7 @@ export function VariableExpensesSection({
   currency,
   isLoading,
   isPending,
+  onToggle,
   onDelete,
 }: VariableExpensesSectionProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -71,6 +73,7 @@ export function VariableExpensesSection({
                 <VariableExpenseItem
                   item={item}
                   disabled={isPending}
+                  onToggle={onToggle}
                   onEdit={setEditingId}
                   onDelete={onDelete}
                 />

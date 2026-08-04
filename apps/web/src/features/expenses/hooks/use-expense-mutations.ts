@@ -15,6 +15,7 @@ import {
 } from '../api/expense-api';
 import type { FixedExpenseFormValues, VariableExpenseFormValues } from '../lib/schemas';
 import { fixedExpensesQueryKey, variableExpensesQueryKey } from './use-expense-queries';
+import { variableCategoriesQueryKey } from '@/features/categories/hooks/use-variable-categories';
 
 async function invalidateExpenseQueries(queryClient: ReturnType<typeof useQueryClient>) {
   await Promise.all([
@@ -24,6 +25,7 @@ async function invalidateExpenseQueries(queryClient: ReturnType<typeof useQueryC
     queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
     queryClient.invalidateQueries({ queryKey: ['analytics'] }),
     queryClient.invalidateQueries({ queryKey: ['categories', 'budgetable'] }),
+    queryClient.invalidateQueries({ queryKey: variableCategoriesQueryKey }),
     queryClient.invalidateQueries({ queryKey: ['loans'] }),
   ]);
 }

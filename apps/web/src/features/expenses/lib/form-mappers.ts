@@ -20,6 +20,7 @@ export function variableExpenseToFormValues(expense: VariableExpense): VariableE
     description: expense.description,
     amount: MoneyMath.toMajor(expense.amount).toFixed(2),
     occurredOn: toDateInputFromIso(expense.occurredAt),
+    categoryId: expense.category.id ?? undefined,
     categoryName: expense.category.name,
     notes: expense.notes ?? '',
   };
@@ -43,7 +44,14 @@ export function fixedExpenseToFormValues(expense: FixedExpense): FixedExpenseFor
 
 export function defaultVariableExpenseFormValues(): VariableExpenseFormValues {
   const today = toDateInputFromIso(new Date().toISOString());
-  return { description: '', amount: '', occurredOn: today, categoryName: '', notes: '' };
+  return {
+    description: '',
+    amount: '',
+    occurredOn: today,
+    categoryId: undefined,
+    categoryName: '',
+    notes: '',
+  };
 }
 
 export function defaultFixedExpenseFormValues(): FixedExpenseFormValues {

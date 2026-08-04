@@ -9,6 +9,7 @@ import type {
   InsightType,
   RecurringKind,
   RecurringStatus,
+  PaymentStatus,
 } from './enums';
 
 /**
@@ -108,6 +109,9 @@ export interface Transaction extends EntityTimestamps {
   readonly tags: readonly string[];
   readonly occurredAt: string; // ISO-8601 — when money actually moved
   readonly monthKey: MonthKey; // derived from occurredAt on write
+  /** Set on ad-hoc expense transactions to track paid vs due. */
+  readonly paymentStatus: PaymentStatus | null;
+  readonly paidAt: string | null;
 }
 
 export interface StatementCategoryBreakdown {

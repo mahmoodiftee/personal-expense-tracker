@@ -3,6 +3,7 @@
 import { Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Typography } from '@/components/design-system';
 import { cn } from '@/lib/utils';
 
@@ -11,6 +12,7 @@ import type { VariableExpenseItemView } from '../types';
 type VariableExpenseItemProps = {
   item: VariableExpenseItemView;
   disabled?: boolean;
+  onToggle: (expenseId: string, isPaid: boolean) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 };
@@ -18,20 +20,24 @@ type VariableExpenseItemProps = {
 export function VariableExpenseItem({
   item,
   disabled,
+  onToggle,
   onEdit,
   onDelete,
 }: VariableExpenseItemProps) {
   return (
     <div
       className={cn(
-        'flex min-h-[3.25rem] items-center gap-3 rounded-lg border border-border bg-card px-3 py-3',
+        'flex min-h-[3.25rem] items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 transition-colors',
+        item.isPaid && 'border-primary/30 bg-primary/5',
         disabled && 'opacity-60',
       )}
     >
-      <span
-        className="h-2.5 w-2.5 shrink-0 rounded-full"
-        style={{ backgroundColor: item.categoryColor }}
-        aria-hidden="true"
+      <Checkbox
+        checked={item.isPaid}
+        disabled={disabled}
+        onCheckedChange={(checked) => onToggle(item.id, checked)}
+        aria-label={`Mark ${item.description} as ${item.isPaid ? 'unpaid' : 'paid'}`}
+        className="shrink-0"
       />
       <div className="min-w-0 flex-1">
         <Typography variant="label" className="block truncate">
@@ -39,6 +45,9 @@ export function VariableExpenseItem({
         </Typography>
         <Typography variant="caption" className="text-muted-foreground">
           {item.categoryName} · {new Date(item.occurredAt).toLocaleDateString()}
+          {item.isPaid && item.paidAt
+            ? ` · Paid ${new Date(item.paidAt).toLocaleDateString()}`
+            : ''}
         </Typography>
       </div>
       <Typography variant="label" className="shrink-0 tabular-nums">

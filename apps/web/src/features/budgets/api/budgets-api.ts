@@ -5,10 +5,14 @@ import type {
   MonthKey,
   MonthlyBudgetSummary,
 } from '@finance/shared';
-import { CategoryKind, Flow } from '@finance/shared';
 
 import { apiFetch } from '@/lib/api-client';
 import { demoFetchOptions } from '@/lib/demo-fetch';
+
+import {
+  createVariableExpenseCategory,
+  fetchVariableExpenseCategories,
+} from '@/features/categories/api/categories-api';
 
 import { defaultCurrency, toAmountMinor, type BudgetFormValues } from '../lib/schemas';
 
@@ -33,28 +37,11 @@ export async function fetchBudgetAnalytics(month?: MonthKey): Promise<BudgetAnal
 }
 
 export async function fetchBudgetableCategories(): Promise<Category[]> {
-  await apiFetch<{ syncedTransactions: number }>('/categories/sync-from-expenses', {
-    ...fetchOptions(),
-    method: 'POST',
-  });
-
-  const params = new URLSearchParams({
-    flow: Flow.EXPENSE,
-    kind: CategoryKind.VARIABLE,
-  });
-  return apiFetch<Category[]>(`/categories?${params.toString()}`, fetchOptions());
+  return fetchVariableExpenseCategories();
 }
 
 export async function createVariableCategory(name: string): Promise<Category> {
-  return apiFetch<Category>('/categories', {
-    ...fetchOptions(),
-    method: 'POST',
-    body: JSON.stringify({
-      name,
-      flow: Flow.EXPENSE,
-      kind: CategoryKind.VARIABLE,
-    }),
-  });
+  return createVariableExpenseCategory(name);
 }
 
 export async function createCategoryBudget(values: BudgetFormValues): Promise<CategoryBudget> {

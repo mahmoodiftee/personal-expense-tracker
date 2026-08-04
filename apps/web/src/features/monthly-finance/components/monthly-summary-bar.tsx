@@ -37,18 +37,20 @@ export function MonthlySummaryBar({ summary, className }: MonthlySummaryBarProps
         </Typography>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <SummaryCell label="Fixed paid" value={summary.fixedPaid} accent="success" />
         <SummaryCell label="Fixed unpaid" value={summary.fixedUnpaid} />
-        <SummaryCell label="Variable" value={summary.variableTotal} />
+        <SummaryCell label="Variable paid" value={summary.variablePaid} accent="success" />
+        <SummaryCell label="Variable due" value={summary.variableUnpaid} />
+        <SummaryCell label="Variable total" value={summary.variableTotal} />
         <SummaryCell label="Fixed due" value={summary.fixedDue} />
       </div>
       <Typography
         variant="caption"
         className="mt-2 block text-center text-muted-foreground md:text-left"
       >
-        Remaining updates as you mark fixed bills paid · {summary.paidCount} paid ·{' '}
-        {summary.unpaidCount} unpaid · {summary.variableCount} variable
+        Remaining updates as you mark bills paid · {summary.paidCount} paid · {summary.unpaidCount}{' '}
+        due · {summary.variableCount} variable
       </Typography>
     </aside>
   );

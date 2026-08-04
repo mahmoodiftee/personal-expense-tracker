@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import type { ApiClientError } from '@/lib/api-client';
 
 import { variableExpenseFormSchema, type VariableExpenseFormValues } from '../lib/schemas';
 import { defaultVariableExpenseFormValues } from '../lib/form-mappers';
+import { CategoryCombobox } from './category-combobox';
 import { FormErrorBanner, FormField } from './form-field';
 
 type VariableExpenseFormProps = {
@@ -32,6 +33,7 @@ export function VariableExpenseForm({
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
@@ -93,11 +95,27 @@ export function VariableExpenseForm({
         </div>
 
         <FormField label="Category" htmlFor="categoryName" error={errors.categoryName?.message}>
-          <Input
-            id="categoryName"
-            placeholder="Optional category"
-            aria-invalid={Boolean(errors.categoryName)}
-            {...register('categoryName')}
+          <Controller
+            control={control}
+            name="categoryName"
+            render={({ field: nameField }) => (
+              <Controller
+                control={control}
+                name="categoryId"
+                render={({ field: idField }) => (
+                  <CategoryCombobox
+                    id="categoryName"
+                    value={{ id: idField.value, name: nameField.value }}
+                    onChange={(selection) => {
+                      nameField.onChange(selection.name);
+                      idField.onChange(selection.id);
+                    }}
+                    disabled={isSubmitting}
+                    aria-invalid={Boolean(errors.categoryName)}
+                  />
+                )}
+              />
+            )}
           />
         </FormField>
 

@@ -1,5 +1,6 @@
 import type { Money } from './money';
 import type { EntityTimestamps, MonthKey } from './models';
+import type { PaymentStatus } from './enums';
 
 /**
  * Variable-expense domain read models. A variable expense is an ad-hoc expense
@@ -26,4 +27,6 @@ export interface VariableExpense extends EntityTimestamps {
   readonly tags: readonly string[];
   readonly occurredAt: string; // ISO-8601 — when the money was spent
   readonly monthKey: MonthKey;
+  readonly status: PaymentStatus;
+  readonly paidAt: string | null;
 }

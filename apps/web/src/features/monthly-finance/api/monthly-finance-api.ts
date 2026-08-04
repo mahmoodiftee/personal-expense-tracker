@@ -13,6 +13,8 @@ import {
   fixedExpensePayPath,
   fixedExpenseUnpayPath,
   fixedExpensesMonthlyPath,
+  variableExpensePayPath,
+  variableExpenseUnpayPath,
   variableExpensesPath,
 } from '../lib/paths';
 
@@ -53,5 +55,21 @@ export async function markFixedExpenseUnpaid(
     ...demoFetchOptions(),
     method: 'POST',
     body: JSON.stringify({ month }),
+  });
+}
+
+export async function markVariableExpensePaid(expenseId: string): Promise<VariableExpense> {
+  return apiFetch<VariableExpense>(variableExpensePayPath(expenseId), {
+    ...demoFetchOptions(),
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+}
+
+export async function markVariableExpenseUnpaid(expenseId: string): Promise<VariableExpense> {
+  return apiFetch<VariableExpense>(variableExpenseUnpayPath(expenseId), {
+    ...demoFetchOptions(),
+    method: 'POST',
+    body: JSON.stringify({}),
   });
 }

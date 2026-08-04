@@ -36,7 +36,11 @@ export async function createVariableExpense(
     amount: toAmountMinor(values.amount, currency),
     occurredAt: toIsoFromDateInput(values.occurredOn),
     notes: values.notes || undefined,
-    ...(values.categoryName ? { category: { name: values.categoryName, color: '#64748b' } } : {}),
+    ...(values.categoryId
+      ? { categoryId: values.categoryId }
+      : values.categoryName
+        ? { category: { name: values.categoryName, color: '#64748b' } }
+        : {}),
   };
 
   return apiFetch<VariableExpense>('/variable-expenses', {
@@ -56,7 +60,11 @@ export async function updateVariableExpense(
     amount: toAmountMinor(values.amount, currency),
     occurredAt: toIsoFromDateInput(values.occurredOn),
     notes: values.notes || null,
-    category: values.categoryName ? { name: values.categoryName, color: '#64748b' } : undefined,
+    ...(values.categoryId
+      ? { categoryId: values.categoryId }
+      : values.categoryName
+        ? { category: { name: values.categoryName, color: '#64748b' } }
+        : {}),
   };
 
   return apiFetch<VariableExpense>(`/variable-expenses/${id}`, {

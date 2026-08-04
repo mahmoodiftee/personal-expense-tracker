@@ -1,4 +1,9 @@
-import { MoneyMath, type DashboardOverview, type DashboardMonthlyOverview } from '@finance/shared';
+import {
+  MoneyMath,
+  assignDistinctCategoryColors,
+  type DashboardOverview,
+  type DashboardMonthlyOverview,
+} from '@finance/shared';
 
 import { formatMoney, formatPercent } from '@/lib/format-money';
 import { formatMonthLabel, formatMonthShort } from '@/lib/month';
@@ -45,11 +50,13 @@ export function mapDashboardToViewModel(
       savings: MoneyMath.toMajor(item.savings),
       savingsRatePct: item.savingsRatePct,
     })),
-    categoryBreakdown: categoryBreakdown.map((item) => ({
-      name: item.name,
-      color: item.color,
-      total: formatMoney(item.total),
-      sharePct: item.sharePct,
-    })),
+    categoryBreakdown: assignDistinctCategoryColors(
+      categoryBreakdown.map((item) => ({
+        name: item.name,
+        color: item.color,
+        total: formatMoney(item.total),
+        sharePct: item.sharePct,
+      })),
+    ),
   };
 }

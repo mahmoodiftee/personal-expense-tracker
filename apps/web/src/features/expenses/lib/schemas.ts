@@ -17,7 +17,8 @@ export const variableExpenseFormSchema = z.object({
   description: z.string().trim().min(1, 'Description is required').max(200, 'Max 200 characters'),
   amount: positiveAmountSchema,
   occurredOn: z.string().min(1, 'Date is required'),
-  categoryName: z.string().trim().max(60, 'Max 60 characters').optional(),
+  categoryId: z.string().optional(),
+  categoryName: z.string().trim().min(1, 'Select or add a category').max(60, 'Max 60 characters'),
   notes: z.string().trim().max(2000, 'Max 2000 characters').optional(),
 });
 

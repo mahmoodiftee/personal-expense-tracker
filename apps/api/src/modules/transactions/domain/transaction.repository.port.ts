@@ -1,4 +1,11 @@
-import type { CategorySnapshot, Flow, Money, MonthKey, Transaction } from '@finance/shared';
+import type {
+  CategorySnapshot,
+  Flow,
+  Money,
+  MonthKey,
+  PaymentStatus,
+  Transaction,
+} from '@finance/shared';
 import type { CursorPagination, Paginated } from '../../../common/domain/pagination';
 
 export const TRANSACTION_REPOSITORY = Symbol('TRANSACTION_REPOSITORY');
@@ -14,6 +21,8 @@ export interface CreateTransactionData {
   readonly notes?: string | null;
   readonly tags?: readonly string[];
   readonly occurredAt: Date;
+  readonly paymentStatus?: PaymentStatus | null;
+  readonly paidAt?: Date | null;
 }
 
 export interface UpdateTransactionData {
@@ -24,6 +33,8 @@ export interface UpdateTransactionData {
   readonly notes?: string | null;
   readonly tags?: readonly string[];
   readonly occurredAt?: Date;
+  readonly paymentStatus?: PaymentStatus | null;
+  readonly paidAt?: Date | null;
 }
 
 export interface TransactionFilter {

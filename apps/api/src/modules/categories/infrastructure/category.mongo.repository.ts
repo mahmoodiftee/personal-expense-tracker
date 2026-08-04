@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { type FilterQuery, type HydratedDocument, type Model, Types } from 'mongoose';
-import { CategoryKind, Flow, type Category } from '@finance/shared';
+import { CategoryKind, Flow, categoryColorFromName, type Category } from '@finance/shared';
 
 import { MongoBaseRepository } from '../../../common/database/base.repository';
 import { DomainValidationException } from '../../../common/exceptions/app.exception';
@@ -36,7 +36,7 @@ export class CategoryMongoRepository
       name: data.name.trim(),
       flow: data.flow,
       kind: data.kind,
-      color: data.color ?? '#64748b',
+      color: data.color ?? categoryColorFromName(data.name.trim()),
       icon: data.icon ?? 'tag',
       isArchived: false,
     });

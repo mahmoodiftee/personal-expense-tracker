@@ -23,6 +23,7 @@ import { currentMonthKey } from '@/lib/month';
 
 import { useMonthlyFinance } from '../hooks/use-monthly-finance';
 import { useToggleFixedPayment } from '../hooks/use-toggle-fixed-payment';
+import { useToggleVariablePayment } from '../hooks/use-toggle-variable-payment';
 import { useDeleteVariableExpense } from '../hooks/use-variable-expense-actions';
 import { mapMonthlyFinanceToViewModel } from '../lib/map-view-model';
 import { FixedExpensesSection } from './fixed-expenses-section';
@@ -32,7 +33,8 @@ import { VariableExpensesSection } from './variable-expenses-section';
 export function MonthlyFinanceView() {
   const [month, setMonth] = useState(currentMonthKey());
   const { data, isLoading, isError, error, refetch, isFetching } = useMonthlyFinance(month);
-  const togglePayment = useToggleFixedPayment(month);
+  const toggleFixedPayment = useToggleFixedPayment(month);
+  const toggleVariablePayment = useToggleVariablePayment(month);
   const deleteVariable = useDeleteVariableExpense(month);
 
   const viewModel = useMemo(
@@ -40,10 +42,15 @@ export function MonthlyFinanceView() {
     [data],
   );
 
-  const isMutating = togglePayment.isPending || deleteVariable.isPending;
+  const isMutating =
+    toggleFixedPayment.isPending || toggleVariablePayment.isPending || deleteVariable.isPending;
 
-  const handleToggle = (expenseId: string, isPaid: boolean) => {
-    togglePayment.mutate({ expenseId, isPaid });
+  const handleFixedToggle = (expenseId: string, isPaid: boolean) => {
+    toggleFixedPayment.mutate({ expenseId, isPaid });
+  };
+
+  const handleVariableToggle = (expenseId: string, isPaid: boolean) => {
+    toggleVariablePayment.mutate({ expenseId, isPaid });
   };
 
   return (
@@ -63,7 +70,7 @@ export function MonthlyFinanceView() {
     >
       <PageHeader
         title="Monthly finance"
-        description="Mark fixed bills as paid and track how much income you have left this month."
+        description="Mark fixed and variable expenses as paid to track what's due and how much income you have left."
         actions={
           <>
             {viewModel ? (
@@ -111,7 +118,7 @@ export function MonthlyFinanceView() {
                 items={viewModel?.fixedItems ?? []}
                 isLoading={isLoading}
                 isPending={isMutating}
-                onToggle={handleToggle}
+                onToggle={handleFixedToggle}
               />
             </StaggerItem>
 
@@ -122,6 +129,7 @@ export function MonthlyFinanceView() {
                 currency={(viewModel?.currency ?? APP_CURRENCY) as CurrencyCode}
                 isLoading={isLoading}
                 isPending={isMutating}
+                onToggle={handleVariableToggle}
                 onDelete={(id) => deleteVariable.mutate(id)}
               />
             </StaggerItem>

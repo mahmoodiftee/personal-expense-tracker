@@ -27,14 +27,19 @@ export type ApiFetchOptions = RequestInit & {
 export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
   const { userId, headers, ...init } = options;
 
-  const response = await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(userId ? { 'x-user-id': userId } : {}),
-      ...headers,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(userId ? { 'x-user-id': userId } : {}),
+        ...headers,
+      },
+    });
+  } catch {
+    throw new ApiClientError('NETWORK_ERROR', 'Could not reach the server', 0);
+  }
 
   let body: ApiResponse<T>;
   try {
@@ -61,14 +66,19 @@ export async function apiFetchPaginated<T>(
 ): Promise<PaginatedResult<T>> {
   const { userId, headers, ...init } = options;
 
-  const response = await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(userId ? { 'x-user-id': userId } : {}),
-      ...headers,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(userId ? { 'x-user-id': userId } : {}),
+        ...headers,
+      },
+    });
+  } catch {
+    throw new ApiClientError('NETWORK_ERROR', 'Could not reach the server', 0);
+  }
 
   let body: ApiSuccessResponse<T[]> | ApiResponse<T[]>;
   try {

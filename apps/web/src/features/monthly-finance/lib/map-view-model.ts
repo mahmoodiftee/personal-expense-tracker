@@ -1,5 +1,6 @@
 import {
   PaymentStatus,
+  resolveCategoryColor,
   type MonthlyExpenseStatus,
   type MonthlyIncome,
   type VariableExpense,
@@ -30,6 +31,8 @@ export type VariableExpenseItemView = {
   categoryName: string;
   categoryColor: string;
   occurredAt: string;
+  isPaid: boolean;
+  paidAt: string | null;
 };
 
 export type MonthlySummaryView = {
@@ -40,6 +43,8 @@ export type MonthlySummaryView = {
   fixedPaid: string;
   fixedUnpaid: string;
   variableTotal: string;
+  variablePaid: string;
+  variableUnpaid: string;
   totalCommitted: string;
   totalSpent: string;
   paidCount: number;
@@ -68,6 +73,8 @@ function mapSummary(calculations: MonthlyCalculations, variableCount: number): M
     fixedPaid: formatCalculationMoney(calculations.fixedPaidMinor, currency),
     fixedUnpaid: formatCalculationMoney(calculations.fixedUnpaidMinor, currency),
     variableTotal: formatCalculationMoney(calculations.variableTotalMinor, currency),
+    variablePaid: formatCalculationMoney(calculations.variablePaidMinor, currency),
+    variableUnpaid: formatCalculationMoney(calculations.variableUnpaidMinor, currency),
     totalCommitted: formatCalculationMoney(calculations.totalCommittedMinor, currency),
     totalSpent: formatCalculationMoney(calculations.totalSpentMinor, currency),
     paidCount: calculations.paidCount,
@@ -100,8 +107,10 @@ export function mapMonthlyFinanceToViewModel(
       description: item.description,
       amount: formatMoney(item.amount),
       categoryName: item.category.name,
-      categoryColor: item.category.color,
+      categoryColor: resolveCategoryColor(item.category.name, item.category.color),
       occurredAt: item.occurredAt,
+      isPaid: item.status === PaymentStatus.PAID,
+      paidAt: item.paidAt,
     })),
     summary: mapSummary(calculations, variableItems.length),
     calculations,

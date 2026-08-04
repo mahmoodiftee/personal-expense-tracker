@@ -20,3 +20,11 @@ export function variableExpensesPath(month: MonthKey, limit = 100): string {
 export function variableExpensePath(id: string): string {
   return `/variable-expenses/${id}`;
 }
+
+export function variableExpensePayPath(id: string): string {
+  return `/variable-expenses/${id}/pay`;
+}
+
+export function variableExpenseUnpayPath(id: string): string {
+  return `/variable-expenses/${id}/unpay`;
+}
