@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Ported from apps/web design tokens (Monetra-inspired, light-first).
+ * NativeWind maps CSS variables onto React Native styles.
+ */
+:root {
+  --background: 240 5% 94%;
+  --foreground: 240 10% 10%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 10%;
+
+  --primary: 82 78% 55%;
+  --primary-foreground: 100 30% 12%;
+
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 240 10% 10%;
+
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 4% 46%;
+
+  --accent: 240 5% 95%;
+  --accent-foreground: 240 10% 10%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 240 6% 90%;
+  --input: 240 6% 90%;
+  --ring: 82 60% 42%;
+
+  --radius: 1.25rem;
+
+  --success: 152 69% 36%;
+  --warning: 38 92% 45%;
+}
+
+.dark {
+  --background: 0 0% 7%;
+  --foreground: 0 0% 93%;
+
+  --card: 0 0% 12%;
+  --card-foreground: 0 0% 93%;
+
+  --primary: 82 70% 52%;
+  --primary-foreground: 100 40% 10%;
+
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 93%;
+
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 55%;
+
+  --accent: 0 0% 18%;
+  --accent-foreground: 0 0% 93%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 18%;
+  --input: 0 0% 18%;
+  --ring: 82 70% 52%;
+
+  --success: 152 69% 40%;
+  --warning: 38 92% 50%;
+}

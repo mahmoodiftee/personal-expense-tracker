@@ -34,9 +34,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Shared must be built first so downstream typechecks resolve its types.
+      # Shared + client must be built first so downstream typechecks resolve types.
       - name: Build shared package
         run: pnpm --filter @finance/shared build
+
+      - name: Build client package
+        run: pnpm --filter @finance/client build
 
       - name: Format check
         run: pnpm format:check
@@ -50,5 +53,5 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Build
-        run: pnpm build
+      - name: Build API and web
+        run: pnpm --filter @finance/api --filter @finance/web build

@@ -42,10 +42,15 @@ export default tseslint.config(
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
-  // Config & script files may use Node globals and console freely.
+  // Config & script files may use Node globals and console freely. Tooling
+  // like Metro and Tailwind loads its config through CommonJS, so `require()`
+  // is the only option there.
   {
     files: ['**/*.config.{js,mjs,cjs,ts}', '**/scripts/**'],
-    rules: { 'no-console': 'off' },
+    rules: {
+      'no-console': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+    },
   },
   // NestJS relies on runtime type metadata emitted by decorators
   // (`emitDecoratorMetadata`). Forcing `import type` on decorated members

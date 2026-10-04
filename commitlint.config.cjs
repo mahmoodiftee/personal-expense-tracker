@@ -27,8 +27,10 @@ module.exports = {
       'always',
       [
         'shared',
+        'client',
         'api',
         'web',
+        'mobile',
         'transactions',
         'categories',
         'recurring',
