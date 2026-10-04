@@ -3,7 +3,7 @@ import { HydratedDocument, Types } from 'mongoose';
 import { Cadence, PlanSubtype, RecurringKind, RecurringStatus } from '@finance/shared';
 import { MoneyEmbeddable, MoneySchema } from '../../../common/database/embedded.schemas';
 
-/** One effective-dated amount period. Editing appends; history is immutable. */
+/** One effective-dated amount period. Later months append; same-month edits update in place. */
 @Schema({ _id: false })
 export class AmountPeriodEmbeddable {
   @Prop({ type: MoneySchema, required: true })

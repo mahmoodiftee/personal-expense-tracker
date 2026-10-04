@@ -171,7 +171,18 @@ export abstract class RecurringPlanRepositoryBase<TEntity> extends MongoBaseRepo
 
     const openPeriod = doc.amountHistory.find((period) => period.effectiveTo === null);
     if (openPeriod) {
-      if (effectiveFrom <= openPeriod.effectiveFrom) {
+      // Same-month edit: replace the open period in place (UI always sends the
+      // current month; plans that started this month would otherwise fail).
+      if (effectiveFrom === openPeriod.effectiveFrom) {
+        openPeriod.amount = {
+          amountMinor: amount.amountMinor,
+          currency: amount.currency,
+        };
+        doc.markModified('amountHistory');
+        await doc.save();
+        return this.toDomain(doc);
+      }
+      if (effectiveFrom < openPeriod.effectiveFrom) {
         throw new DomainValidationException(
           'New amount effective month must be after the current amount period',
         );
