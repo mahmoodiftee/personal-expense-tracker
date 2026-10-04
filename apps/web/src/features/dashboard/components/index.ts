@@ -1,6 +1,7 @@
 export { CashFlowCard } from './cash-flow-card';
 export { CategoryBreakdown } from './category-breakdown';
 export { DashboardGreeting } from './dashboard-greeting';
+export { DashboardSkeleton } from './dashboard-skeleton';
 export { DashboardView } from './dashboard-view';
 export { ExpenseCard } from './expense-card';
 export { ForecastCard } from './forecast-card';

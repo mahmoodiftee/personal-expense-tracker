@@ -26,7 +26,7 @@ export function ExpenseListRow({
   return (
     <div
       className={cn(
-        'flex min-h-[3.25rem] items-center gap-3 rounded-lg border border-border bg-card px-3 py-3',
+        'flex min-h-[3.25rem] items-center gap-3 rounded-2xl bg-muted/45 px-3.5 py-3 transition-colors hover:bg-muted/70',
         disabled && 'opacity-60',
       )}
     >
@@ -41,11 +41,12 @@ export function ExpenseListRow({
       <Typography variant="label" className="shrink-0 tabular-nums">
         {amount}
       </Typography>
-      <div className="flex shrink-0 gap-1">
+      <div className="flex shrink-0 gap-0.5">
         <Button
           type="button"
           variant="ghost"
           size="icon"
+          className="h-9 w-9 text-muted-foreground"
           aria-label={`Edit ${title}`}
           disabled={disabled}
           onClick={onEdit}
@@ -56,7 +57,7 @@ export function ExpenseListRow({
           type="button"
           variant="ghost"
           size="icon"
-          className="text-muted-foreground hover:text-destructive"
+          className="h-9 w-9 text-muted-foreground hover:text-destructive"
           aria-label={`Delete ${title}`}
           disabled={disabled}
           onClick={onDelete}

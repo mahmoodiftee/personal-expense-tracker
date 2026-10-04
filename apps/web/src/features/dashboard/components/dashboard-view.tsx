@@ -2,14 +2,7 @@
 
 import type { Route } from 'next';
 
-import {
-  EmptyState,
-  ErrorState,
-  FadeIn,
-  PageShell,
-  StatCardSkeleton,
-  Typography,
-} from '@/components/design-system';
+import { EmptyState, ErrorState, FadeIn, PageShell, Typography } from '@/components/design-system';
 import { Skeleton } from '@/components/ui/skeleton';
 import { currentMonthKey } from '@/lib/month';
 import { useState } from 'react';
@@ -18,6 +11,7 @@ import { useDashboard } from '../hooks/use-dashboard';
 import { mapDashboardToViewModel } from '../lib/map-view-model';
 import { CashFlowCard } from './cash-flow-card';
 import { DashboardGreeting } from './dashboard-greeting';
+import { DashboardSkeleton } from './dashboard-skeleton';
 import { ExpenseCard } from './expense-card';
 import { ForecastCard } from './forecast-card';
 import { IncomeCard } from './income-card';
@@ -54,6 +48,8 @@ export function DashboardView() {
               monthLabel={viewModel.monthLabel}
               onChange={setMonth}
             />
+          ) : isLoading ? (
+            <Skeleton className="h-10 w-40 rounded-full" aria-hidden="true" />
           ) : null
         }
       />
@@ -64,25 +60,7 @@ export function DashboardView() {
         </Typography>
       ) : null}
 
-      {isLoading ? (
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]" aria-busy="true">
-          <div className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-              <Skeleton className="h-56 rounded-card" />
-              <div className="grid grid-cols-2 gap-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <StatCardSkeleton key={i} />
-                ))}
-              </div>
-            </div>
-            <Skeleton className="h-80 rounded-card" />
-          </div>
-          <div className="space-y-4">
-            <Skeleton className="h-52 rounded-card" />
-            <Skeleton className="h-44 rounded-card" />
-          </div>
-        </div>
-      ) : null}
+      {isLoading ? <DashboardSkeleton /> : null}
 
       {isError ? (
         <ErrorState

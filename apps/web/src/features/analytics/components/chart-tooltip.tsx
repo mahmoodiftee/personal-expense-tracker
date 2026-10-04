@@ -24,13 +24,13 @@ export function AnalyticsChartTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-md">
-      <Typography variant="label" className="mb-1 block">
+    <div className="rounded-2xl bg-foreground px-3 py-2 text-background shadow-raised">
+      <Typography variant="caption" className="mb-1 block opacity-80">
         {label}
       </Typography>
       {payload.map((entry) => (
-        <Typography key={entry.name} variant="caption" className="block tabular-nums">
-          <span style={{ color: entry.color }}>{entry.name}: </span>
+        <Typography key={entry.name} variant="caption" className="block font-medium tabular-nums">
+          {entry.name}:{' '}
           {typeof entry.value === 'number'
             ? valueFormatter
               ? valueFormatter(entry.value, entry.name)

@@ -125,7 +125,7 @@ export function InsightCard({
   return (
     <article
       className={cn(
-        'rounded-lg border border-border bg-card p-4',
+        'rounded-card bg-card p-4 shadow-card transition-shadow hover:shadow-raised md:p-5',
         viewed && 'opacity-65',
         className,
       )}
@@ -133,7 +133,7 @@ export function InsightCard({
       <div className="flex gap-3">
         <div
           className={cn(
-            'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl',
             severityIconBg[insight.severity],
           )}
           aria-hidden="true"
@@ -141,7 +141,7 @@ export function InsightCard({
           <Icon className="h-[1.125rem] w-[1.125rem]" />
         </div>
 
-        <div className="min-w-0 flex-1 space-y-1.5">
+        <div className="min-w-0 flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <Typography as="p" variant="label" className="leading-snug">
               {insight.title}
@@ -149,7 +149,7 @@ export function InsightCard({
             <InsightSeverityBadge severity={insight.severity} />
           </div>
 
-          <Typography as="p" variant="body-sm" className="leading-relaxed">
+          <Typography as="p" variant="body-sm" className="leading-relaxed text-muted-foreground">
             {formatInsightMessage(insight.message)}
           </Typography>
 

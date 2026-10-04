@@ -89,8 +89,8 @@ export function InsightsView() {
 
       {!isLoading && !isError && insights.length > 0 ? (
         <FadeIn>
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-muted/30 px-3 py-1.5 text-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-sm">
               <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
               <span>
                 {unviewedCount > 0
@@ -98,33 +98,30 @@ export function InsightsView() {
                   : 'All caught up'}
               </span>
             </div>
-            {unviewedCount > 0 ? (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => markAllViewed(insights.map((item) => item.id))}
-              >
-                Mark all viewed
-              </Button>
-            ) : null}
+            <div className="flex flex-wrap items-center gap-2">
+              <InsightsFilterBar
+                value={severityFilter}
+                onChange={setSeverityFilter}
+                counts={severityCounts}
+              />
+              {unviewedCount > 0 ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => markAllViewed(insights.map((item) => item.id))}
+                >
+                  Mark all viewed
+                </Button>
+              ) : null}
+            </div>
           </div>
         </FadeIn>
       ) : null}
 
-      {!isLoading && !isError && insights.length > 0 ? (
-        <div className="mb-6">
-          <InsightsFilterBar
-            value={severityFilter}
-            onChange={setSeverityFilter}
-            counts={severityCounts}
-          />
-        </div>
-      ) : null}
-
       {isLoading ? (
-        <div className="space-y-3" aria-busy="true" aria-label="Loading insights">
+        <div className="grid gap-3 sm:grid-cols-2" aria-busy="true" aria-label="Loading insights">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-32 w-full rounded-2xl" />
+            <Skeleton key={index} className="h-36 w-full rounded-card" />
           ))}
         </div>
       ) : null}

@@ -27,8 +27,8 @@ export function VariableExpenseItem({
   return (
     <div
       className={cn(
-        'flex min-h-[3.25rem] items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 transition-colors',
-        item.isPaid && 'border-primary/30 bg-primary/5',
+        'flex min-h-[3.25rem] items-center gap-3 rounded-2xl bg-muted/45 px-3.5 py-3 transition-colors hover:bg-muted/70',
+        item.isPaid && 'bg-primary/10 hover:bg-primary/15',
         disabled && 'opacity-60',
       )}
     >
@@ -57,7 +57,7 @@ export function VariableExpenseItem({
         type="button"
         variant="ghost"
         size="icon"
-        className="shrink-0 text-muted-foreground"
+        className="h-9 w-9 shrink-0 text-muted-foreground"
         aria-label={`Edit ${item.description}`}
         disabled={disabled}
         onClick={() => onEdit(item.id)}
@@ -68,7 +68,7 @@ export function VariableExpenseItem({
         type="button"
         variant="ghost"
         size="icon"
-        className="shrink-0 text-muted-foreground hover:text-destructive"
+        className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
         aria-label={`Delete ${item.description}`}
         disabled={disabled}
         onClick={() => onDelete(item.id)}

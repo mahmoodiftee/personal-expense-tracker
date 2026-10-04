@@ -7,17 +7,9 @@ import { useMemo, useState } from 'react';
 
 import { type FixedExpense, type VariableExpense } from '@finance/shared';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  EmptyState,
-  ErrorState,
-  FadeIn,
-  PageHeader,
-  PageShell,
-  Typography,
-} from '@/components/design-system';
+import { EmptyState, ErrorState, FadeIn, PageHeader, PageShell } from '@/components/design-system';
 import { buttonVariants } from '@/components/ui/button';
 import { formatMoney } from '@/lib/format-money';
 
@@ -122,27 +114,32 @@ export function ExpensesView() {
         />
 
         <div
-          className="flex gap-2 rounded-lg border border-border bg-card p-1"
+          className="inline-flex w-full max-w-md items-center gap-1 rounded-full bg-muted p-1"
           role="tablist"
           aria-label="Expense type"
         >
-          {(['variable', 'fixed'] as const).map((value) => (
-            <Button
-              key={value}
-              type="button"
-              size="sm"
-              variant={tab === value ? 'default' : 'ghost'}
-              className="flex-1 capitalize"
-              role="tab"
-              aria-selected={tab === value}
-              onClick={() => setTab(value)}
-            >
-              {value}
-            </Button>
-          ))}
+          {(['variable', 'fixed'] as const).map((value) => {
+            const isActive = tab === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setTab(value)}
+                className={`flex-1 rounded-full px-3.5 py-2 text-sm font-medium capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  isActive
+                    ? 'bg-card text-foreground shadow-card'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {value}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -168,64 +165,70 @@ export function ExpensesView() {
             </CardContent>
           </Card>
 
-          <section aria-labelledby="expense-list-heading" className="space-y-3">
-            <Typography id="expense-list-heading" variant="h2">
-              {tab === 'variable' ? 'Variable expenses' : 'Fixed expenses'}
-            </Typography>
-
-            {isLoading ? (
-              <div className="space-y-2" aria-busy="true">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <Skeleton key={index} className="h-14 w-full rounded-lg" />
-                ))}
-              </div>
-            ) : null}
-
-            {isError ? (
-              <ErrorState
-                message={error?.message ?? 'Could not load expenses.'}
-                onRetry={() => refetch()}
-              />
-            ) : null}
-
-            {!isLoading && !isError && listContent.length === 0 ? (
-              <EmptyState
-                title={`No ${tab} expenses yet`}
-                description="Use the form to create your first expense."
-              />
-            ) : null}
-
-            {!isLoading && !isError && listContent.length > 0 ? (
-              <FadeIn>
-                <ul className="space-y-2">
-                  {listContent.map((item) => (
-                    <li key={item.id}>
-                      <ExpenseListRow
-                        title={item.title}
-                        subtitle={item.subtitle}
-                        amount={item.amount}
-                        disabled={isMutating}
-                        onEdit={() => {
-                          if (tab === 'variable') {
-                            setEditVariable(item.raw as VariableExpense);
-                          } else {
-                            setEditFixed(item.raw as FixedExpense);
-                          }
-                        }}
-                        onDelete={() =>
-                          setDeleteTarget({
-                            kind: tab,
-                            id: item.id,
-                            name: item.title,
-                          })
-                        }
-                      />
-                    </li>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle id="expense-list-heading">
+                {tab === 'variable' ? 'Variable expenses' : 'Fixed expenses'}
+              </CardTitle>
+              <CardDescription>
+                {listContent.length} {listContent.length === 1 ? 'item' : 'items'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {isLoading ? (
+                <div className="space-y-2" aria-busy="true">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <Skeleton key={index} className="h-14 w-full rounded-2xl" />
                   ))}
-                </ul>
-              </FadeIn>
-            ) : null}
-          </section>
+                </div>
+              ) : null}
+
+              {isError ? (
+                <ErrorState
+                  message={error?.message ?? 'Could not load expenses.'}
+                  onRetry={() => refetch()}
+                />
+              ) : null}
+
+              {!isLoading && !isError && listContent.length === 0 ? (
+                <EmptyState
+                  title={`No ${tab} expenses yet`}
+                  description="Use the form to create your first expense."
+                />
+              ) : null}
+
+              {!isLoading && !isError && listContent.length > 0 ? (
+                <FadeIn>
+                  <ul className="space-y-2" aria-labelledby="expense-list-heading">
+                    {listContent.map((item) => (
+                      <li key={item.id}>
+                        <ExpenseListRow
+                          title={item.title}
+                          subtitle={item.subtitle}
+                          amount={item.amount}
+                          disabled={isMutating}
+                          onEdit={() => {
+                            if (tab === 'variable') {
+                              setEditVariable(item.raw as VariableExpense);
+                            } else {
+                              setEditFixed(item.raw as FixedExpense);
+                            }
+                          }}
+                          onDelete={() =>
+                            setDeleteTarget({
+                              kind: tab,
+                              id: item.id,
+                              name: item.title,
+                            })
+                          }
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </FadeIn>
+              ) : null}
+            </CardContent>
+          </Card>
         </div>
       </PageShell>
 

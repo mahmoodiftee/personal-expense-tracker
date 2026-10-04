@@ -53,7 +53,7 @@
     --chart-variable: 38 92% 50%;
     --chart-savings: 82 60% 45%;
     --chart-savings-rate: 152 55% 42%;
-    --chart-forecast: 270 60% 60%;
+    --chart-forecast: 38 70% 52%;
     --chart-grid: 240 6% 88%;
     --chart-inactive: 240 6% 90%;
   }
@@ -101,7 +101,7 @@
     --chart-variable: 38 92% 55%;
     --chart-savings: 82 65% 50%;
     --chart-savings-rate: 152 60% 48%;
-    --chart-forecast: 270 70% 65%;
+    --chart-forecast: 38 80% 55%;
     --chart-grid: 0 0% 20%;
     --chart-inactive: 0 0% 22%;
   }

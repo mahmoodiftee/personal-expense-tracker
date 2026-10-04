@@ -24,7 +24,7 @@ export function InsightsMonthGroup({ group, isViewed, onToggleViewed }: Insights
       <Typography id={`insights-${group.monthKey}`} variant="h3" className="text-base sm:text-lg">
         {label}
       </Typography>
-      <StaggerList className="space-y-3">
+      <StaggerList className="grid gap-3 sm:grid-cols-2">
         {group.insights.map((insight: Insight) => (
           <StaggerItem key={insight.id}>
             <InsightCard insight={insight} viewed={isViewed(insight.id)} onView={onToggleViewed} />

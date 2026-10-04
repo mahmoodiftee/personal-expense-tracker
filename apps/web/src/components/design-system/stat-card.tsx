@@ -1,7 +1,6 @@
 import { TrendingDown, TrendingUp } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 import { Typography } from './typography';
@@ -17,39 +16,43 @@ type StatCardProps = {
   className?: string;
 };
 
-const trendVariant = {
-  up: 'success' as const,
-  down: 'destructive' as const,
-  neutral: 'secondary' as const,
-};
+function trendTextClasses(direction: NonNullable<StatCardProps['trend']>['direction']) {
+  if (direction === 'neutral') return 'text-muted-foreground';
+  return direction === 'up' ? 'text-success' : 'text-destructive';
+}
 
 export function StatCard({ label, value, hint, trend, className }: StatCardProps) {
   const TrendIcon = trend?.direction === 'down' ? TrendingDown : TrendingUp;
 
   return (
-    <Card className={cn('transition-colors hover:bg-secondary/30', className)}>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <Typography variant="h2" className="tabular-nums">
-          {value}
+    <Card className={cn('transition-shadow hover:shadow-raised', className)}>
+      <CardContent className="space-y-2 p-4 md:p-5">
+        <Typography variant="label" as="span" className="text-muted-foreground">
+          {label}
         </Typography>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <Typography variant="h2" className="tabular-nums">
+            {value}
+          </Typography>
           {trend ? (
-            <Badge variant={trendVariant[trend.direction]} className="gap-1">
+            <span
+              className={cn(
+                'inline-flex items-center gap-0.5 text-xs font-medium tabular-nums',
+                trendTextClasses(trend.direction),
+              )}
+            >
               {trend.direction !== 'neutral' ? (
                 <TrendIcon className="h-3 w-3" aria-hidden="true" />
               ) : null}
               {trend.value}
-            </Badge>
-          ) : null}
-          {hint ? (
-            <Typography variant="caption" className="text-muted-foreground">
-              {hint}
-            </Typography>
+            </span>
           ) : null}
         </div>
+        {hint ? (
+          <Typography variant="caption" className="block text-muted-foreground">
+            {hint}
+          </Typography>
+        ) : null}
       </CardContent>
     </Card>
   );

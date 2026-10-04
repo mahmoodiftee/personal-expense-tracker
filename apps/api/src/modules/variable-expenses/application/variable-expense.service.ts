@@ -3,6 +3,7 @@ import {
   PaymentStatus,
   type CategorySnapshot,
   CategoryKind,
+  DEFAULT_CATEGORY_COLOR,
   Flow,
   type Transaction,
   type VariableExpense,
@@ -36,7 +37,6 @@ type WritableTransactionUpdate = {
 };
 
 /** Defaults for a dynamic category when the caller omits colour/icon. */
-const DEFAULT_CATEGORY_COLOR = '#64748b';
 const DEFAULT_CATEGORY_ICON = 'tag';
 const UNCATEGORISED_NAME = 'Uncategorized';
 

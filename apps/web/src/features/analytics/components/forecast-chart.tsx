@@ -109,7 +109,7 @@ export function ForecastChart({
         </div>
 
         {methodComparison.length > 0 ? (
-          <div className="rounded-lg border border-border bg-secondary/20 p-3">
+          <div className="rounded-2xl bg-muted/50 p-3">
             <Typography variant="label" className="mb-2 block">
               Method comparison (next month)
             </Typography>

@@ -60,7 +60,7 @@ export function MonthlyFinanceView() {
         viewModel ? (
           <div
             className={cn(
-              'sticky bottom-0 z-10 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-8 md:hidden',
+              'sticky bottom-0 z-10 border-t border-border/40 bg-background/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-8 md:hidden',
             )}
           >
             <MonthlySummaryBar summary={viewModel.summary} />
@@ -114,24 +114,23 @@ export function MonthlyFinanceView() {
             ) : null}
 
             <StaggerItem>
-              <FixedExpensesSection
-                items={viewModel?.fixedItems ?? []}
-                isLoading={isLoading}
-                isPending={isMutating}
-                onToggle={handleFixedToggle}
-              />
-            </StaggerItem>
-
-            <StaggerItem>
-              <VariableExpensesSection
-                items={viewModel?.variableItems ?? []}
-                rawItems={data?.variable ?? []}
-                currency={(viewModel?.currency ?? APP_CURRENCY) as CurrencyCode}
-                isLoading={isLoading}
-                isPending={isMutating}
-                onToggle={handleVariableToggle}
-                onDelete={(id) => deleteVariable.mutate(id)}
-              />
+              <div className="grid gap-4 xl:grid-cols-2">
+                <FixedExpensesSection
+                  items={viewModel?.fixedItems ?? []}
+                  isLoading={isLoading}
+                  isPending={isMutating}
+                  onToggle={handleFixedToggle}
+                />
+                <VariableExpensesSection
+                  items={viewModel?.variableItems ?? []}
+                  rawItems={data?.variable ?? []}
+                  currency={(viewModel?.currency ?? APP_CURRENCY) as CurrencyCode}
+                  isLoading={isLoading}
+                  isPending={isMutating}
+                  onToggle={handleVariableToggle}
+                  onDelete={(id) => deleteVariable.mutate(id)}
+                />
+              </div>
             </StaggerItem>
           </StaggerList>
         </FadeIn>

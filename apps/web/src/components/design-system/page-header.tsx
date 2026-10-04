@@ -9,15 +9,16 @@ type PageHeaderProps = {
   className?: string;
 };
 
+/** Page title row aligned with the dashboard greeting: no divider, soft spacing. */
 export function PageHeader({ title, description, actions, className }: PageHeaderProps) {
   return (
     <header
       className={cn(
-        'flex flex-col gap-4 border-b border-border pb-6 mb-6 md:flex-row md:items-end md:justify-between',
+        'flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between',
         className,
       )}
     >
-      <div className="space-y-2">
+      <div className="space-y-1">
         <Typography variant="h1">{title}</Typography>
         {description ? (
           <Typography variant="body-sm" className="max-w-2xl">

@@ -16,9 +16,8 @@ export function FixedExpenseItem({ item, disabled, onToggle }: FixedExpenseItemP
   return (
     <div
       className={cn(
-        'flex min-h-[3.25rem] items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 transition-colors',
-        'hover:bg-secondary/40',
-        item.isPaid && 'border-primary/30 bg-primary/5',
+        'flex min-h-[3.25rem] items-center gap-3 rounded-2xl bg-muted/45 px-3.5 py-3 transition-colors hover:bg-muted/70',
+        item.isPaid && 'bg-primary/10 hover:bg-primary/15',
         disabled && 'pointer-events-none opacity-60',
       )}
     >

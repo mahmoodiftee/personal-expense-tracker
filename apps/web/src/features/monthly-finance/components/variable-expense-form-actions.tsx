@@ -1,10 +1,7 @@
 'use client';
 
 import type { CurrencyCode, VariableExpense } from '@finance/shared';
-import { Plus } from 'lucide-react';
-import { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
 import { ExpenseFormDialog } from '@/features/expenses/components/expense-form-dialog';
 import {
   useCreateVariableExpenseMutation,
@@ -14,34 +11,27 @@ import { variableExpenseToFormValues } from '@/features/expenses/lib/form-mapper
 
 type VariableExpenseFormActionsProps = {
   currency: CurrencyCode;
+  createOpen: boolean;
+  onCreateOpenChange: (open: boolean) => void;
   editingExpense?: VariableExpense | null;
   onEditClose?: () => void;
 };
 
 export function VariableExpenseFormActions({
+  createOpen,
+  onCreateOpenChange,
   editingExpense,
   onEditClose,
 }: VariableExpenseFormActionsProps) {
-  const [createOpen, setCreateOpen] = useState(false);
   const createMutation = useCreateVariableExpenseMutation();
   const updateMutation = useUpdateVariableExpenseMutation();
 
   return (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        onClick={() => setCreateOpen(true)}
-      >
-        <Plus className="h-4 w-4" />
-        Add variable expense
-      </Button>
-
       <ExpenseFormDialog
         kind="variable"
         open={createOpen}
-        onOpenChange={setCreateOpen}
+        onOpenChange={onCreateOpenChange}
         title="Add variable expense"
         submitLabel="Create expense"
         onSubmit={async (values) => {

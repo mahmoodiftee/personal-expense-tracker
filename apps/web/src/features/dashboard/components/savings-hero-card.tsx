@@ -73,7 +73,7 @@ export function SavingsHeroCard({ month, savings, savingsRate, className }: Savi
           </Typography>
         </div>
 
-        <div className="mt-auto gap-2">
+        <div className="mt-auto grid grid-cols-3 gap-2">
           {isLoading
             ? Array.from({ length: CHIP_LIMIT }).map((_, index) => (
                 <Skeleton key={index} className="h-20 rounded-2xl" />

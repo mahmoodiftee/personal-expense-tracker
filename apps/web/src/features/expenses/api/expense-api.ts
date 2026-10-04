@@ -1,5 +1,5 @@
 import type { CurrencyCode, FixedExpense, VariableExpense } from '@finance/shared';
-import { PlanSubtype } from '@finance/shared';
+import { PlanSubtype, categoryColorFromName } from '@finance/shared';
 
 import { apiFetch, apiFetchPaginated } from '@/lib/api-client';
 import { demoFetchOptions } from '@/lib/demo-fetch';
@@ -39,7 +39,12 @@ export async function createVariableExpense(
     ...(values.categoryId
       ? { categoryId: values.categoryId }
       : values.categoryName
-        ? { category: { name: values.categoryName, color: '#64748b' } }
+        ? {
+            category: {
+              name: values.categoryName,
+              color: categoryColorFromName(values.categoryName),
+            },
+          }
         : {}),
   };
 
@@ -63,7 +68,12 @@ export async function updateVariableExpense(
     ...(values.categoryId
       ? { categoryId: values.categoryId }
       : values.categoryName
-        ? { category: { name: values.categoryName, color: '#64748b' } }
+        ? {
+            category: {
+              name: values.categoryName,
+              color: categoryColorFromName(values.categoryName),
+            },
+          }
         : {}),
   };
 

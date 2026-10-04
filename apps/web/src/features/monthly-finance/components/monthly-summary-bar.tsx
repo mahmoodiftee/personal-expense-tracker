@@ -15,9 +15,9 @@ export function MonthlySummaryBar({ summary, className }: MonthlySummaryBarProps
   return (
     <aside
       aria-label="Monthly finance summary"
-      className={cn('rounded-xl border border-border bg-card p-4', className)}
+      className={cn('rounded-card bg-card p-4 shadow-card md:p-5', className)}
     >
-      <div className="mb-4 flex flex-col gap-1 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-4 flex flex-col gap-1 border-b border-border/40 pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Typography variant="caption" className="text-muted-foreground">
             Remaining this month
@@ -47,7 +47,7 @@ export function MonthlySummaryBar({ summary, className }: MonthlySummaryBarProps
       </div>
       <Typography
         variant="caption"
-        className="mt-2 block text-center text-muted-foreground md:text-left"
+        className="mt-3 block text-center text-muted-foreground md:text-left"
       >
         Remaining updates as you mark bills paid · {summary.paidCount} paid · {summary.unpaidCount}{' '}
         due · {summary.variableCount} variable
@@ -66,8 +66,8 @@ function SummaryCell({
   accent?: 'primary' | 'success';
 }) {
   return (
-    <div className="min-w-0">
-      <Typography variant="caption" className="block truncate">
+    <div className="min-w-0 rounded-2xl bg-muted/40 px-3 py-2.5">
+      <Typography variant="caption" className="block truncate text-muted-foreground">
         {label}
       </Typography>
       <Typography
