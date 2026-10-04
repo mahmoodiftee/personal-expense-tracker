@@ -46,19 +46,21 @@ function ChartTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-md">
-      <Typography variant="label" className="mb-1 block">
+    <div className="rounded-2xl bg-foreground px-3 py-2 text-background shadow-raised">
+      <Typography variant="label" as="span" className="mb-1 block text-background">
         {label}
       </Typography>
       {payload.map((entry) => (
-        <Typography key={entry.name} variant="caption" className="block tabular-nums">
-          <span style={{ color: entry.color }}>{entry.name}: </span>
-          {typeof entry.value === 'number'
-            ? entry.name?.includes('Rate')
-              ? `${entry.value.toFixed(1)}%`
-              : formatChartCurrency(entry.value, APP_CURRENCY)
-            : '—'}
-        </Typography>
+        <span key={entry.name} className="block text-xs tabular-nums text-background/80">
+          {entry.name}:{' '}
+          <span className="font-semibold text-background">
+            {typeof entry.value === 'number'
+              ? entry.name?.includes('Rate')
+                ? `${entry.value.toFixed(1)}%`
+                : formatChartCurrency(entry.value, APP_CURRENCY)
+              : '—'}
+          </span>
+        </span>
       ))}
     </div>
   );
@@ -165,7 +167,7 @@ export function TrendCharts({ points, className }: TrendChartsProps) {
                   dataKey="savings"
                   name="Savings"
                   fill={CHART_COLORS.savings}
-                  radius={[4, 4, 0, 0]}
+                  radius={[8, 8, 8, 8]}
                   isAnimationActive={!reducedMotion}
                 />
               </BarChart>

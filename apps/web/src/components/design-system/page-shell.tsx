@@ -11,18 +11,26 @@ type PageShellProps = React.ComponentPropsWithoutRef<'main'> & {
   size?: React.ComponentProps<typeof Container>['size'];
 };
 
-/** Standard page canvas: vertical page rhythm + centered content column. */
+/**
+ * Standard page canvas. Horizontal gutters come from the app shell, so the
+ * container only owns the max width and vertical rhythm.
+ */
 export function PageShell({
   children,
   footer,
   className,
   containerClassName,
-  size = 'default',
+  // Fill the shell band — max width is owned by `ShellFrame`, not a nested container.
+  size = 'full',
   ...mainProps
 }: PageShellProps) {
   return (
-    <main className={cn('min-h-screen py-6 md:py-8', className)} {...mainProps}>
-      <Container className={cn('space-y-6 md:space-y-8', containerClassName)} size={size}>
+    <main className={cn('pb-6 md:pb-8', className)} {...mainProps}>
+      <Container
+        className={cn('space-y-4 md:space-y-6', containerClassName)}
+        size={size}
+        padded={false}
+      >
         {children}
       </Container>
       {footer}

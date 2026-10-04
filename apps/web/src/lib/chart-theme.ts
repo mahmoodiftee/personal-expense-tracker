@@ -3,17 +3,24 @@ import type { CurrencyCode } from '@finance/shared';
 import { TAKA_SYMBOL } from './currency-config';
 import { formatTakaAmount } from './format-money';
 
-/** Shared Recharts theme aligned with the ChatGPT-inspired design system. */
+/**
+ * Shared Recharts theme. Values resolve through CSS variables so charts follow
+ * the active light/dark theme without a re-render.
+ */
 export const CHART_COLORS = {
-  income: 'hsl(160 84% 39%)',
-  expenses: 'hsl(0 72% 51%)',
-  fixed: 'hsl(0 55% 55%)',
-  variable: 'hsl(38 92% 50%)',
-  savings: 'hsl(210 90% 55%)',
-  savingsRate: 'hsl(160 70% 45%)',
-  forecast: 'hsl(270 70% 60%)',
-  grid: 'hsl(0 0% 18%)',
-  muted: 'hsl(0 0% 55%)',
+  income: 'hsl(var(--chart-income))',
+  expenses: 'hsl(var(--chart-expenses))',
+  fixed: 'hsl(var(--chart-fixed))',
+  variable: 'hsl(var(--chart-variable))',
+  savings: 'hsl(var(--chart-savings))',
+  savingsRate: 'hsl(var(--chart-savings-rate))',
+  forecast: 'hsl(var(--chart-forecast))',
+  /** Highlighted series/bar — the lime brand accent. */
+  active: 'hsl(var(--primary))',
+  /** Resting bar fill for unhighlighted columns. */
+  inactive: 'hsl(var(--chart-inactive))',
+  grid: 'hsl(var(--chart-grid))',
+  muted: 'hsl(var(--muted-foreground))',
 } as const;
 
 export const CHART_MARGIN = { top: 8, right: 8, left: 0, bottom: 0 };

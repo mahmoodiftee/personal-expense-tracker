@@ -11,6 +11,7 @@ export function SavingsCard({ savings, savingsRate, savingsTrend }: SavingsCardP
       label="Savings"
       value={savings}
       icon={PiggyBank}
+      tone="violet"
       trend={savingsTrend}
       hint={`${savingsRate} of income`}
     />

@@ -19,6 +19,7 @@ export function ExpenseCard({
       label="Expenses"
       value={expenses}
       icon={CreditCard}
+      tone="rose"
       trend={expenseTrend}
       trendSemantics="negative-up"
       hint={`Fixed ${expenseFixed} · Variable ${expenseVariable}`}

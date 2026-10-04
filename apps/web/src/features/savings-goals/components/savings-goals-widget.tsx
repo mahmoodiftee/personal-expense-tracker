@@ -8,6 +8,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Typography } from '@/components/design-system';
+import { cn } from '@/lib/utils';
 
 import { useSavingsGoalsOverview } from '../hooks/use-savings-goals';
 import { SavingsGoalCard } from './savings-goal-card';
@@ -24,14 +25,14 @@ export function SavingsGoalsWidget({ month }: SavingsGoalsWidgetProps) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-        <div>
-          <CardTitle>Savings goals</CardTitle>
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3">
+        <div className="min-w-0 space-y-1">
+          <CardTitle className="text-base">Savings goals</CardTitle>
           <CardDescription>Track progress toward your targets</CardDescription>
         </div>
         <Link
           href={'/savings-goals' as Route}
-          className={buttonVariants({ variant: 'outline', size: 'sm' })}
+          className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'shrink-0')}
         >
           Manage
         </Link>

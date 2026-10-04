@@ -1,36 +1,35 @@
 'use client';
 
-import Link from 'next/link';
 import type { Route } from 'next';
 
-import { buttonVariants } from '@/components/ui/button';
 import {
   EmptyState,
   ErrorState,
   FadeIn,
-  PageHeader,
   PageShell,
   StatCardSkeleton,
-  StaggerItem,
-  StaggerList,
   Typography,
 } from '@/components/design-system';
-import { spacing } from '@/lib/design-tokens';
+import { Skeleton } from '@/components/ui/skeleton';
 import { currentMonthKey } from '@/lib/month';
 import { useState } from 'react';
 
 import { useDashboard } from '../hooks/use-dashboard';
 import { mapDashboardToViewModel } from '../lib/map-view-model';
+import { CashFlowCard } from './cash-flow-card';
+import { DashboardGreeting } from './dashboard-greeting';
 import { ExpenseCard } from './expense-card';
 import { ForecastCard } from './forecast-card';
 import { IncomeCard } from './income-card';
-import { CategoryBreakdown, TrendCharts } from './lazy-charts';
+import { CategoryBreakdown } from './lazy-charts';
 import { MonthNavigator } from './month-navigator';
+import { QuickActionsCard } from './quick-actions-card';
 import { SavingsCard } from './savings-card';
-import { SavingsGoalsWidget } from '@/features/savings-goals/components/savings-goals-widget';
+import { SavingsHeroCard } from './savings-hero-card';
 import { BudgetWidget } from '@/features/budgets/components/budget-widget';
 import { InsightsWidget } from '@/features/insights/components/insights-widget';
-import { LoansWidget } from '@/features/loans/components/loans-widget';
+import { LoanSummaryCard } from '@/features/loans/components/loan-summary-card';
+import { SavingsGoalsWidget } from '@/features/savings-goals/components/savings-goals-widget';
 
 export function DashboardView() {
   const [month, setMonth] = useState(currentMonthKey());
@@ -47,25 +46,15 @@ export function DashboardView() {
 
   return (
     <PageShell>
-      <PageHeader
-        title="Dashboard"
-        description="Your monthly financial snapshot with trends and forecasts."
+      <DashboardGreeting
         actions={
-          <>
-            {viewModel ? (
-              <MonthNavigator
-                monthKey={viewModel.monthKey}
-                monthLabel={viewModel.monthLabel}
-                onChange={setMonth}
-              />
-            ) : null}
-            <Link
-              href={'/design-system' as Route}
-              className={buttonVariants({ variant: 'outline', size: 'sm' })}
-            >
-              Design system
-            </Link>
-          </>
+          viewModel ? (
+            <MonthNavigator
+              monthKey={viewModel.monthKey}
+              monthLabel={viewModel.monthLabel}
+              onChange={setMonth}
+            />
+          ) : null
         }
       />
 
@@ -76,14 +65,22 @@ export function DashboardView() {
       ) : null}
 
       {isLoading ? (
-        <div
-          className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-          aria-busy="true"
-          aria-label="Loading dashboard"
-        >
-          {Array.from({ length: 4 }).map((_, i) => (
-            <StatCardSkeleton key={i} />
-          ))}
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]" aria-busy="true">
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+              <Skeleton className="h-56 rounded-card" />
+              <div className="grid grid-cols-2 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <StatCardSkeleton key={i} />
+                ))}
+              </div>
+            </div>
+            <Skeleton className="h-80 rounded-card" />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-52 rounded-card" />
+            <Skeleton className="h-44 rounded-card" />
+          </div>
         </div>
       ) : null}
 
@@ -105,59 +102,57 @@ export function DashboardView() {
 
       {!isLoading && !isError && data && viewModel && !isEmpty ? (
         <FadeIn>
-          <StaggerList className={spacing.section}>
-            <StaggerItem>
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="min-w-0 space-y-4">
               <section
                 aria-labelledby="metrics-heading"
-                className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+                className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]"
               >
                 <Typography id="metrics-heading" variant="h2" className="sr-only">
                   Monthly metrics
                 </Typography>
-                <IncomeCard income={viewModel.income} incomeTrend={viewModel.incomeTrend} />
-                <ExpenseCard
-                  expenses={viewModel.expenses}
-                  expenseFixed={viewModel.expenseFixed}
-                  expenseVariable={viewModel.expenseVariable}
-                  expenseTrend={viewModel.expenseTrend}
-                />
-                <SavingsCard
+
+                <SavingsHeroCard
+                  month={month}
                   savings={viewModel.savings}
                   savingsRate={viewModel.savingsRate}
-                  savingsTrend={viewModel.savingsTrend}
                 />
-                <ForecastCard
-                  forecastAmount={viewModel.forecastAmount}
-                  forecastConfidence={viewModel.forecastConfidence}
-                  forecastMethod={viewModel.forecastMethod}
-                />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <IncomeCard income={viewModel.income} incomeTrend={viewModel.incomeTrend} />
+                  <ExpenseCard
+                    expenses={viewModel.expenses}
+                    expenseFixed={viewModel.expenseFixed}
+                    expenseVariable={viewModel.expenseVariable}
+                    expenseTrend={viewModel.expenseTrend}
+                  />
+                  <SavingsCard
+                    savings={viewModel.savings}
+                    savingsRate={viewModel.savingsRate}
+                    savingsTrend={viewModel.savingsTrend}
+                  />
+                  <ForecastCard
+                    forecastAmount={viewModel.forecastAmount}
+                    forecastConfidence={viewModel.forecastConfidence}
+                    forecastMethod={viewModel.forecastMethod}
+                  />
+                </div>
               </section>
-            </StaggerItem>
 
-            <StaggerItem>
-              <TrendCharts points={viewModel.chartPoints} />
-            </StaggerItem>
+              <CashFlowCard points={viewModel.chartPoints} />
 
-            <StaggerItem>
-              <InsightsWidget month={month} />
-            </StaggerItem>
-
-            <StaggerItem>
-              <SavingsGoalsWidget month={month} />
-            </StaggerItem>
-
-            <StaggerItem>
-              <LoansWidget month={month} />
-            </StaggerItem>
-
-            <StaggerItem>
               <BudgetWidget summary={data.overview.budgetSummary} />
-            </StaggerItem>
 
-            <StaggerItem>
               <CategoryBreakdown items={viewModel.categoryBreakdown} />
-            </StaggerItem>
-          </StaggerList>
+            </div>
+
+            <aside aria-label="Account overview" className="min-w-0 space-y-4">
+              <LoanSummaryCard month={month} />
+              <QuickActionsCard />
+              <SavingsGoalsWidget month={month} />
+              <InsightsWidget month={month} />
+            </aside>
+          </div>
         </FadeIn>
       ) : null}
     </PageShell>

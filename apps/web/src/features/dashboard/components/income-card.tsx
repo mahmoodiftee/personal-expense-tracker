@@ -11,6 +11,7 @@ export function IncomeCard({ income, incomeTrend }: IncomeCardProps) {
       label="Income"
       value={income}
       icon={Wallet}
+      tone="sky"
       trend={incomeTrend}
       hint="Total this month"
     />

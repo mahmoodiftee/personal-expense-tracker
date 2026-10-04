@@ -28,6 +28,8 @@ const config: Config = {
     '-mx-4',
     'sm:-mx-6',
     'lg:-mx-8',
+    'max-w-8xl',
+    'max-w-[88rem]',
   ],
   theme: {
     container: {
@@ -36,6 +38,9 @@ const config: Config = {
       screens: { '2xl': '1400px' },
     },
     extend: {
+      maxWidth: {
+        '8xl': '88rem',
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -75,8 +80,13 @@ const config: Config = {
       },
       borderRadius: {
         lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        md: 'calc(var(--radius) - 0.5rem)',
+        sm: 'calc(var(--radius) - 0.75rem)',
+        card: 'var(--radius)',
+      },
+      boxShadow: {
+        card: 'var(--shadow-card)',
+        raised: 'var(--shadow-raised)',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],

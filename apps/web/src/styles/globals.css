@@ -3,11 +3,62 @@
 @tailwind utilities;
 
 /*
- * ChatGPT-inspired design tokens (dark-first).
+ * Monetra-inspired design tokens (light-first).
  * HSL components without hsl() wrapper — Tailwind applies hsl(var(--token)).
  */
 @layer base {
   :root {
+    color-scheme: light;
+
+    --background: 240 5% 94%;
+    --foreground: 240 10% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+
+    --primary: 82 78% 55%;
+    --primary-foreground: 100 30% 12%;
+
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 10% 10%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+
+    --accent: 240 5% 95%;
+    --accent-foreground: 240 10% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 82 60% 42%;
+
+    --radius: 1.25rem;
+
+    --success: 152 69% 36%;
+    --warning: 38 92% 45%;
+
+    /* Soft elevation used by cards across the shell. */
+    --shadow-card: 0 1px 2px 0 hsl(240 10% 10% / 0.04), 0 8px 24px -12px hsl(240 10% 10% / 0.12);
+    --shadow-raised: 0 2px 6px 0 hsl(240 10% 10% / 0.06), 0 16px 40px -16px hsl(240 10% 10% / 0.18);
+
+    --chart-income: 152 60% 40%;
+    --chart-expenses: 0 72% 55%;
+    --chart-fixed: 0 55% 60%;
+    --chart-variable: 38 92% 50%;
+    --chart-savings: 82 60% 45%;
+    --chart-savings-rate: 152 55% 42%;
+    --chart-forecast: 270 60% 60%;
+    --chart-grid: 240 6% 88%;
+    --chart-inactive: 240 6% 90%;
+  }
+
+  .dark {
     color-scheme: dark;
 
     --background: 0 0% 7%;
@@ -19,8 +70,8 @@
     --popover: 0 0% 12%;
     --popover-foreground: 0 0% 93%;
 
-    --primary: 160 84% 39%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 82 70% 52%;
+    --primary-foreground: 100 40% 10%;
 
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 93%;
@@ -36,45 +87,23 @@
 
     --border: 0 0% 18%;
     --input: 0 0% 18%;
-    --ring: 160 84% 39%;
-
-    --radius: 0.75rem;
+    --ring: 82 70% 52%;
 
     --success: 152 69% 40%;
     --warning: 38 92% 50%;
-  }
 
-  /* Optional light theme — secondary to dark-first product direction. */
-  .light {
-    color-scheme: light;
+    --shadow-card: 0 1px 2px 0 hsl(0 0% 0% / 0.4), 0 8px 24px -12px hsl(0 0% 0% / 0.6);
+    --shadow-raised: 0 2px 6px 0 hsl(0 0% 0% / 0.5), 0 16px 40px -16px hsl(0 0% 0% / 0.7);
 
-    --background: 0 0% 98%;
-    --foreground: 0 0% 9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
-
-    --primary: 160 84% 32%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
-
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 9%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 160 84% 32%;
+    --chart-income: 152 69% 45%;
+    --chart-expenses: 0 72% 58%;
+    --chart-fixed: 0 55% 55%;
+    --chart-variable: 38 92% 55%;
+    --chart-savings: 82 65% 50%;
+    --chart-savings-rate: 152 60% 48%;
+    --chart-forecast: 270 70% 65%;
+    --chart-grid: 0 0% 20%;
+    --chart-inactive: 0 0% 22%;
   }
 
   * {

@@ -62,10 +62,14 @@ export function CategoryBreakdown({ items }: CategoryBreakdownProps) {
                     (props.payload as { name: string }).name,
                   ]}
                   contentStyle={{
-                    background: 'hsl(0 0% 12%)',
-                    border: '1px solid hsl(0 0% 18%)',
+                    background: 'hsl(var(--foreground))',
+                    border: 'none',
                     borderRadius: '0.75rem',
+                    color: 'hsl(var(--background))',
+                    boxShadow: 'var(--shadow-raised)',
                   }}
+                  itemStyle={{ color: 'hsl(var(--background))' }}
+                  labelStyle={{ color: 'hsl(var(--background))' }}
                 />
               </PieChart>
             </ResponsiveContainer>

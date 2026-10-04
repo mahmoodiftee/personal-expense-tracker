@@ -78,7 +78,7 @@ export function InsightsWidget({ month }: InsightsWidgetProps) {
         ) : null}
 
         {!isLoading && !isError && preview.length > 0 ? (
-          <div className="divide-y divide-border/50">
+          <div className="space-y-1">
             {preview.map((insight) => (
               <InsightCard
                 key={insight.id}

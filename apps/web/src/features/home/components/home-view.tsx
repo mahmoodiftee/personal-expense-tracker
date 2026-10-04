@@ -103,23 +103,11 @@ const highlights = [
 
 export function HomeView() {
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(var(--primary)/0.18),transparent)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-32 top-1/3 h-72 w-72 rounded-full bg-primary/5 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-24 bottom-0 h-64 w-64 rounded-full bg-primary/5 blur-3xl"
-      />
-
+    <main className="relative min-h-[calc(100vh-5rem)]">
       <Container
         size="wide"
-        className="relative flex min-h-[calc(100vh-3.5rem)] flex-col px-4 py-6 sm:px-6 lg:px-8"
+        padded={false}
+        className="relative flex min-h-[calc(100vh-5rem)] flex-col py-6"
       >
         <FadeIn className="flex flex-1 flex-col justify-center py-8 md:py-12">
           <div className="mx-auto w-full max-w-3xl text-center lg:max-w-4xl">
