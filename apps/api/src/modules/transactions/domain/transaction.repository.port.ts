@@ -65,6 +65,7 @@ export interface CategoryAggregate {
   readonly categoryId: string;
   readonly categoryName: string;
   readonly color: string;
+  readonly icon: string;
   readonly total: Money;
   readonly transactionCount: number;
 }

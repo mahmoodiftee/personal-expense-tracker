@@ -11,7 +11,7 @@ type PageShellProps = {
   refreshing?: boolean;
   onRefresh?: RefreshControlProps['onRefresh'];
   footer?: ReactNode;
-  /** Full-bleed block rendered above the padded scroll content (lime hero). */
+  /** Full-bleed block rendered above the padded scroll content (violet hero). */
   hero?: ReactNode;
   /** Sticky header above the scroll (back row on stack screens). */
   header?: ReactNode;

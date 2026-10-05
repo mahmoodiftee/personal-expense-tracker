@@ -128,6 +128,7 @@ export class DashboardService {
       categoryId: row.categoryId,
       name: row.categoryName,
       color: row.color,
+      icon: row.icon,
       total: row.total,
       transactionCount: row.transactionCount,
       sharePct: totalMinor ? round2((row.total.amountMinor / totalMinor) * 100) : 0,

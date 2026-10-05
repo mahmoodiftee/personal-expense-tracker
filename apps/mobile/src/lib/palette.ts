@@ -16,10 +16,10 @@ const TOKENS = {
     card: [0, 0, 100],
     cardForeground: [240, 10, 10],
     surfaceRaised: [240, 5, 97],
-    primary: [82, 78, 55],
-    primaryForeground: [100, 30, 12],
-    hero: [82, 78, 55],
-    heroForeground: [100, 30, 12],
+    primary: [255, 72, 54],
+    primaryForeground: [0, 0, 100],
+    hero: [255, 72, 54],
+    heroForeground: [0, 0, 100],
     contrast: [0, 0, 100],
     contrastForeground: [240, 10, 10],
     secondary: [240, 5, 96],
@@ -44,10 +44,10 @@ const TOKENS = {
     card: [0, 0, 8],
     cardForeground: [0, 0, 96],
     surfaceRaised: [0, 0, 12],
-    primary: [82, 74, 56],
-    primaryForeground: [100, 45, 8],
-    hero: [82, 74, 56],
-    heroForeground: [100, 45, 8],
+    primary: [255, 78, 64],
+    primaryForeground: [0, 0, 100],
+    hero: [255, 78, 64],
+    heroForeground: [0, 0, 100],
     contrast: [0, 0, 100],
     contrastForeground: [0, 0, 7],
     secondary: [0, 0, 12],
@@ -123,7 +123,7 @@ export function categoricalColors(palette: Palette): string[] {
   ];
 }
 
-/** Translucent overlay for chips sitting on top of the lime hero block. */
+/** Translucent overlay for chips sitting on top of the violet hero block. */
 export function heroOverlay(opacity: number): string {
   return `rgba(0, 0, 0, ${opacity})`;
 }

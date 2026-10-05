@@ -22,6 +22,7 @@ export type DashboardChartPoint = {
 export type DashboardCategorySlice = {
   name: string;
   color: string;
+  icon: string;
   total: string;
   sharePct: number;
 };
@@ -87,6 +88,7 @@ export function mapDashboardToViewModel(
       categoryBreakdown.map((item) => ({
         name: item.name,
         color: item.color,
+        icon: item.icon,
         total: formatMoney(item.total),
         sharePct: item.sharePct,
       })),

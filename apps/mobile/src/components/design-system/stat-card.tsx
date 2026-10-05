@@ -30,14 +30,12 @@ export function StatCard({
   variant = 'default',
   className,
 }: StatCardProps) {
-  const { palette } = useTheme();
+  const { palette, resolved } = useTheme();
   const onAccent = variant === 'accent';
   const onContrast = variant === 'contrast';
-  const ink = onContrast
-    ? palette.contrastForeground
-    : onAccent
-      ? palette.heroForeground
-      : undefined;
+  const accentChip = resolved === 'dark' ? '#000000' : '#FFFFFF';
+  const accentIcon = resolved === 'dark' ? '#FFFFFF' : '#000000';
+  const ink = onContrast ? palette.contrastForeground : onAccent ? '#FFFFFF' : undefined;
 
   return (
     <Card variant={variant} className={cn('flex-1', className)}>
@@ -46,8 +44,8 @@ export function StatCard({
           {Icon ? (
             <IconChip
               icon={Icon}
-              color={iconColor ?? ink ?? palette.primary}
-              background={iconBackground}
+              color={iconColor ?? (onAccent ? accentIcon : ink) ?? palette.primary}
+              background={iconBackground ?? (onAccent ? accentChip : undefined)}
               size={36}
               iconSize={16}
             />

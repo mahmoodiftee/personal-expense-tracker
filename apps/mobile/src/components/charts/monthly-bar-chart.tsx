@@ -17,6 +17,20 @@ type MonthlyBarChartProps = {
   highlightLast?: boolean;
 };
 
+/** Short bar used when a month has no value, so the column does not disappear. */
+const EMPTY_BAR_RATIO = 0.045;
+
+function withEmptyBars(points: MonthlyBarPoint[]) {
+  const peak = Math.max(...points.map((point) => Math.abs(point.value)), 0);
+  const allEmpty = peak === 0;
+  const stub = allEmpty ? 1 : peak * EMPTY_BAR_RATIO;
+
+  return {
+    allEmpty,
+    points: points.map((point) => (point.value === 0 ? { ...point, value: stub } : point)),
+  };
+}
+
 export function MonthlyBarChart({
   title,
   points,
@@ -24,6 +38,7 @@ export function MonthlyBarChart({
   highlightLast = true,
 }: MonthlyBarChartProps) {
   const { palette } = useTheme();
+  const chart = withEmptyBars(points);
 
   return (
     <Card>
@@ -35,9 +50,10 @@ export function MonthlyBarChart({
           <View className="gap-2">
             <View style={{ height: 180 }}>
               <CartesianChart
-                data={points}
+                data={chart.points}
                 xKey="label"
                 yKeys={['value']}
+                domain={chart.allEmpty ? { y: [0, 12] } : undefined}
                 domainPadding={{ left: 18, right: 18, top: 16 }}
                 axisOptions={{
                   font: null,
@@ -65,7 +81,7 @@ export function MonthlyBarChart({
                         points={inactive}
                         chartBounds={chartBounds}
                         innerPadding={0.45}
-                        barCount={points.length}
+                        barCount={chart.points.length}
                         roundedCorners={corners}
                         color={palette.chartTrack}
                       />
@@ -74,7 +90,7 @@ export function MonthlyBarChart({
                           points={active}
                           chartBounds={chartBounds}
                           innerPadding={0.45}
-                          barCount={points.length}
+                          barCount={chart.points.length}
                           roundedCorners={corners}
                           color={palette.primary}
                         />

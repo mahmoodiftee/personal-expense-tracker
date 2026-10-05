@@ -31,6 +31,8 @@ export interface DashboardCategoryItem {
   readonly categoryId: string;
   readonly name: string;
   readonly color: string;
+  /** Icon registry key stored on the category, e.g. "landmark" or "graduation-cap". */
+  readonly icon: string;
   readonly total: Money;
   readonly transactionCount: number;
   readonly sharePct: number;

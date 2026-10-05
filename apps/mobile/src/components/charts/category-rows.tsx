@@ -4,7 +4,7 @@ import { IconChip, ProgressBar, TrendChip, Typography } from '@/components/desig
 import { Card, CardContent } from '@/components/ui/card';
 import type { TrendDelta } from '@finance/client';
 
-import { iconForName } from './category-grid';
+import { iconForCategory } from './category-icon';
 import type { ChartSlice } from './chart-types';
 
 export type CategoryRow = ChartSlice & {
@@ -29,7 +29,7 @@ export function CategoryRows({ title, rows }: CategoryRowsProps) {
           <CardContent className="gap-3 py-3.5">
             <View className="flex-row items-center gap-3">
               <IconChip
-                icon={iconForName(row.name)}
+                icon={iconForCategory(row.name, row.icon)}
                 color={row.color}
                 background={`${row.color}22`}
               />

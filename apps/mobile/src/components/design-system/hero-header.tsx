@@ -55,7 +55,8 @@ export function HeroHeader({
               accessibilityRole="button"
               accessibilityLabel="Open settings"
               onPress={onRightPress}
-              className="h-10 w-10 items-center justify-center rounded-full bg-background"
+              className="h-10 w-10 items-center justify-center rounded-full"
+              style={{ backgroundColor: '#000000' }}
             >
               <Settings size={18} color="#FFFFFF" />
             </Pressable>
@@ -69,8 +70,15 @@ export function HeroHeader({
           <View className="flex-row flex-wrap items-end gap-2">
             <MoneyText value={value} variant="hero" color={heroInk} />
             {chip ? (
-              <View className="mb-1 rounded-full bg-background px-2.5 py-1">
-                <Typography variant="caption" className="text-xs font-semibold text-white">
+              <View
+                className="mb-1 rounded-full px-2.5 py-1"
+                style={{ backgroundColor: '#000000' }}
+              >
+                <Typography
+                  variant="caption"
+                  className="text-xs font-semibold"
+                  style={{ color: '#FFFFFF' }}
+                >
                   {chip}
                 </Typography>
               </View>

@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { Appearance, useColorScheme as useSystemColorScheme, View } from 'react-native';
+import { useColorScheme as useSystemColorScheme, View } from 'react-native';
 import { colorScheme as nativeWindColorScheme } from 'nativewind';
 
 import { palettes, type Palette } from '@/lib/palette';
@@ -49,16 +49,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   useEffect(() => {
     if (!hydrated) return;
-    // NativeWind class strategy remounts `.dark:root` CSS variables from this.
-    // Android's AppearanceModule rejects null, so always pass a concrete scheme.
-    if (preference === 'system') {
-      nativeWindColorScheme.set('system');
-      Appearance.setColorScheme(resolved);
-    } else {
-      nativeWindColorScheme.set(preference);
-      Appearance.setColorScheme(preference);
-    }
-  }, [hydrated, preference, resolved]);
+    // NativeWind applies the class theme. For "system" it clears the
+    // Appearance override (`unspecified`) so the phone scheme can show through.
+    // Do not also write `resolved` back with Appearance.setColorScheme:
+    // `resolved` is read from useColorScheme, which reflects that override, so
+    // writing it back makes Android recreate the activity and flip light/dark.
+    nativeWindColorScheme.set(preference);
+  }, [hydrated, preference]);
 
   const setPreference = useCallback((value: ThemePreference) => {
     setPreferenceState(value);

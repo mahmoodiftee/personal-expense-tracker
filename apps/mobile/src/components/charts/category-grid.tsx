@@ -1,39 +1,10 @@
-import {
-  Car,
-  CreditCard,
-  GraduationCap,
-  Heart,
-  Home,
-  ShoppingBag,
-  Utensils,
-  Wifi,
-  type LucideIcon,
-} from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { IconChip, Typography } from '@/components/design-system';
 import { Card, CardContent } from '@/components/ui/card';
 
+import { iconForCategory } from './category-icon';
 import type { ChartSlice } from './chart-types';
-
-const ICONS: LucideIcon[] = [
-  ShoppingBag,
-  Utensils,
-  Car,
-  Home,
-  Wifi,
-  CreditCard,
-  Heart,
-  GraduationCap,
-];
-
-function iconForName(name: string): LucideIcon {
-  let hash = 0;
-  for (let i = 0; i < name.length; i += 1) {
-    hash = (hash + name.charCodeAt(i) * (i + 1)) % ICONS.length;
-  }
-  return ICONS[hash] ?? ShoppingBag;
-}
 
 type CategoryGridProps = {
   title?: string;
@@ -65,7 +36,7 @@ export function CategoryGrid({ title, slices }: CategoryGridProps) {
                   <Typography variant="caption">{Math.round(slice.sharePct)}%</Typography>
                 </View>
                 <IconChip
-                  icon={iconForName(slice.name)}
+                  icon={iconForCategory(slice.name, slice.icon)}
                   color={slice.color}
                   background={`${slice.color}22`}
                   size={36}
@@ -79,5 +50,3 @@ export function CategoryGrid({ title, slices }: CategoryGridProps) {
     </Card>
   );
 }
-
-export { iconForName };

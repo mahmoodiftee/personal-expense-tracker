@@ -227,6 +227,7 @@ export class TransactionMongoRepository
     const rows = await this.model
       .aggregate<{
         _id: { id: Types.ObjectId | null; name: string; color: string };
+        icon: string;
         totalMinor: number;
         currency: CurrencyCode;
         count: number;
@@ -239,6 +240,7 @@ export class TransactionMongoRepository
               name: '$categorySnapshot.name',
               color: '$categorySnapshot.color',
             },
+            icon: { $first: '$categorySnapshot.icon' },
             totalMinor: { $sum: '$amount.amountMinor' },
             currency: { $first: '$amount.currency' },
             count: { $sum: 1 },
@@ -252,6 +254,7 @@ export class TransactionMongoRepository
       categoryId: row._id.id ? row._id.id.toString() : '',
       categoryName: row._id.name,
       color: row._id.color,
+      icon: row.icon ?? 'tag',
       total: { amountMinor: row.totalMinor, currency: row.currency ?? CurrencyCode.USD },
       transactionCount: row.count,
     }));
@@ -274,6 +277,7 @@ export class TransactionMongoRepository
           name: string;
           color: string;
         };
+        icon: string;
         totalMinor: number;
         currency: CurrencyCode;
         count: number;
@@ -287,6 +291,7 @@ export class TransactionMongoRepository
               name: '$categorySnapshot.name',
               color: '$categorySnapshot.color',
             },
+            icon: { $first: '$categorySnapshot.icon' },
             totalMinor: { $sum: '$amount.amountMinor' },
             currency: { $first: '$amount.currency' },
             count: { $sum: 1 },
@@ -303,6 +308,7 @@ export class TransactionMongoRepository
         categoryId: row._id.id ? row._id.id.toString() : '',
         categoryName: row._id.name,
         color: row._id.color,
+        icon: row.icon ?? 'tag',
         total: { amountMinor: row.totalMinor, currency: row.currency ?? CurrencyCode.USD },
         transactionCount: row.count,
       };

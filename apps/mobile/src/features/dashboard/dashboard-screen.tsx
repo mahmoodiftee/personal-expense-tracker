@@ -107,14 +107,7 @@ export function DashboardScreen() {
       {!isLoading && !isError && data && viewModel && !isEmpty ? (
         <View className="gap-4">
           <View className="flex-row gap-3">
-            <StatCard
-              variant="accent"
-              label="Income"
-              value={viewModel.income}
-              icon={TrendingUp}
-              iconColor={palette.primary}
-              iconBackground="#000000"
-            />
+            <StatCard variant="accent" label="Income" value={viewModel.income} icon={TrendingUp} />
             <StatCard
               variant="raised"
               label="Expenses"
