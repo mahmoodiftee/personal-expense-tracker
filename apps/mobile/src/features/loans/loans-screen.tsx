@@ -3,35 +3,38 @@ import type { MonthKey } from '@finance/shared';
 import { useState } from 'react';
 import { View } from 'react-native';
 
+import { DonutChart } from '@/components/charts/donut-chart';
 import {
   EmptyState,
   ErrorState,
   MonthNavigator,
   PageShell,
+  ProgressBar,
+  ScreenHeader,
   Typography,
 } from '@/components/design-system';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { categoricalColors } from '@/lib/palette';
+import { useTheme } from '@/providers/theme-provider';
 
 export function LoansScreen() {
+  const { palette } = useTheme();
   const [month, setMonth] = useState<MonthKey>(currentMonthKey());
   const { data, isLoading, isError, error, refetch, isRefetching } = useLoansOverview(month);
+  const colors = categoricalColors(palette);
 
   return (
     <PageShell
       safeTop={false}
+      tabBarInset={false}
+      header={<ScreenHeader title="Loans" />}
       refreshing={isRefetching}
       onRefresh={() => {
         void refetch();
       }}
     >
-      <View className="flex-row items-start justify-between gap-3">
-        <View className="flex-1">
-          <Typography variant="label">Debt</Typography>
-          <Typography variant="h1">Loans</Typography>
-        </View>
-        <MonthNavigator monthKey={month} onChange={setMonth} />
-      </View>
+      <MonthNavigator monthKey={month} onChange={setMonth} />
 
       {isLoading ? <Skeleton className="h-28 w-full" /> : null}
 
@@ -53,6 +56,34 @@ export function LoansScreen() {
       ) : null}
 
       <View className="gap-2">
+        {data && data.loans.length > 0 && data.loans[0] ? (
+          <DonutChart
+            title="Payoff mix"
+            caption="Remaining"
+            total={formatMoney({
+              ...data.loans[0].progress.remaining,
+              amountMinor: data.loans.reduce(
+                (sum, loan) => sum + loan.progress.remaining.amountMinor,
+                0,
+              ),
+            })}
+            slices={data.loans.map((loan, index) => {
+              const remainingTotal = data.loans.reduce(
+                (sum, item) => sum + item.progress.remaining.amountMinor,
+                0,
+              );
+              return {
+                name: loan.name,
+                color: colors[index % colors.length] ?? palette.primary,
+                total: formatMoney(loan.progress.remaining),
+                sharePct:
+                  remainingTotal > 0
+                    ? (loan.progress.remaining.amountMinor / remainingTotal) * 100
+                    : 0,
+              };
+            })}
+          />
+        ) : null}
         {data?.loans.map((loan) => (
           <Card key={loan.id}>
             <CardContent className="gap-2 py-3">
@@ -72,14 +103,7 @@ export function LoansScreen() {
                   {formatPercent(loan.progress.progressPct, 0)}
                 </Typography>
               </View>
-              <View className="h-2 overflow-hidden rounded-full bg-muted">
-                <View
-                  className="h-full rounded-full bg-primary"
-                  style={{
-                    width: `${Math.min(100, Math.max(0, loan.progress.progressPct))}%`,
-                  }}
-                />
-              </View>
+              <ProgressBar value={loan.progress.progressPct} />
               <Typography variant="caption">
                 Paid {formatMoney(loan.progress.paid)} of {formatMoney(loan.progress.totalTaken)} ·
                 Remaining {formatMoney(loan.progress.remaining)}

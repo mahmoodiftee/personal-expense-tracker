@@ -9,17 +9,20 @@ import type { MonthKey } from '@finance/shared';
 import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { Pressable, Switch, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   EmptyState,
   ErrorState,
   MonthNavigator,
   PageShell,
+  SectionHeader,
   Typography,
 } from '@/components/design-system';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/cn';
+import { tabBarClearance } from '@/lib/layout';
 
 function MonthSkeleton() {
   return (
@@ -33,6 +36,7 @@ function MonthSkeleton() {
 }
 
 export function MonthScreen() {
+  const insets = useSafeAreaInsets();
   const [month, setMonth] = useState<MonthKey>(currentMonthKey());
   const { data, isLoading, isError, error, refetch, isRefetching } = useMonthlyFinance(month);
   const toggleFixed = useToggleFixedPayment(month);
@@ -62,7 +66,10 @@ export function MonthScreen() {
       }}
       footer={
         viewModel ? (
-          <View className="border-t border-border bg-card px-4 pb-6 pt-3">
+          <View
+            className="bg-card px-5 pt-3"
+            style={{ paddingBottom: tabBarClearance(insets.bottom) }}
+          >
             <Typography variant="caption">Remaining this month</Typography>
             <Typography
               variant="h1"
@@ -83,7 +90,7 @@ export function MonthScreen() {
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-1">
           <Typography variant="label">Operations</Typography>
-          <Typography variant="h1">This month</Typography>
+          <Typography variant="title">This month</Typography>
         </View>
         <MonthNavigator monthKey={month} onChange={setMonth} />
       </View>
@@ -114,7 +121,7 @@ export function MonthScreen() {
           </Card>
 
           <View className="gap-2">
-            <Typography variant="h2">Fixed bills</Typography>
+            <SectionHeader title="Fixed bills" />
             {viewModel.fixedItems.length === 0 ? (
               <EmptyState
                 title="No fixed expenses"
@@ -129,7 +136,7 @@ export function MonthScreen() {
                     void handleFixedToggle(item.id, !item.isPaid);
                   }}
                   className={cn(
-                    'flex-row items-center gap-3 rounded-2xl bg-muted/60 px-3.5 py-3',
+                    'flex-row items-center gap-3 rounded-tile bg-card px-3.5 py-3',
                     item.isPaid && 'bg-primary/15',
                     busy && 'opacity-60',
                   )}
@@ -156,7 +163,7 @@ export function MonthScreen() {
           </View>
 
           <View className="gap-2">
-            <Typography variant="h2">Variable spending</Typography>
+            <SectionHeader title="Variable spending" />
             {viewModel.variableItems.length === 0 ? (
               <EmptyState
                 title="No variable expenses"
@@ -171,7 +178,7 @@ export function MonthScreen() {
                     void handleVariableToggle(item.id, !item.isPaid);
                   }}
                   className={cn(
-                    'flex-row items-center gap-3 rounded-2xl bg-muted/60 px-3.5 py-3',
+                    'flex-row items-center gap-3 rounded-tile bg-card px-3.5 py-3',
                     item.isPaid && 'bg-primary/15',
                     busy && 'opacity-60',
                   )}
@@ -206,7 +213,7 @@ export function MonthScreen() {
 
 function SummaryChip({ label, value }: { label: string; value: string }) {
   return (
-    <View className="min-w-[45%] flex-1 rounded-2xl bg-muted/50 px-3 py-2.5">
+    <View className="min-w-[45%] flex-1 rounded-tile bg-raised px-3 py-2.5">
       <Typography variant="caption">{label}</Typography>
       <Typography variant="body" className="text-sm font-semibold tabular-nums">
         {value}

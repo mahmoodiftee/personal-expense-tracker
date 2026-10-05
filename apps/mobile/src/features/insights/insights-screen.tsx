@@ -22,6 +22,7 @@ import {
   ErrorState,
   MonthNavigator,
   PageShell,
+  ScreenHeader,
   Typography,
 } from '@/components/design-system';
 import { Button } from '@/components/ui/button';
@@ -55,17 +56,15 @@ export function InsightsScreen() {
   return (
     <PageShell
       safeTop={false}
+      tabBarInset={false}
+      header={<ScreenHeader title="Insights" />}
       refreshing={isRefetching}
       onRefresh={() => {
         void refetch();
       }}
     >
       <View className="flex-row items-start justify-between gap-3">
-        <View className="flex-1">
-          <Typography variant="label">Alerts</Typography>
-          <Typography variant="h1">Insights</Typography>
-          <Typography variant="caption">{unviewed} unviewed</Typography>
-        </View>
+        <Typography variant="caption">{unviewed} unviewed</Typography>
         <MonthNavigator monthKey={month} onChange={setMonth} />
       </View>
 

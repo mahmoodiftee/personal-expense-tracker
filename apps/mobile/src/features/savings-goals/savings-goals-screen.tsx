@@ -18,7 +18,17 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
 
-import { EmptyState, ErrorState, PageShell, Typography } from '@/components/design-system';
+import {
+  EmptyState,
+  ErrorState,
+  PageShell,
+  ProgressBar,
+  ScreenHeader,
+  Typography,
+} from '@/components/design-system';
+import { DonutChart } from '@/components/charts/donut-chart';
+import { categoricalColors } from '@/lib/palette';
+import { useTheme } from '@/providers/theme-provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
@@ -29,25 +39,32 @@ import { confirmDelete, showError } from '@/lib/alerts';
 type Editor = { mode: 'create' } | { mode: 'edit'; item: SavingsGoalWithProgress } | null;
 
 export function SavingsGoalsScreen() {
+  const { palette } = useTheme();
   const [editor, setEditor] = useState<Editor>(null);
   const query = useSavingsGoalsOverview();
+  const colors = categoricalColors(palette);
 
   return (
     <PageShell
       safeTop={false}
+      tabBarInset={false}
+      header={
+        <ScreenHeader
+          title="Savings goals"
+          right={
+            <Button
+              label="Add"
+              className="px-4 py-2"
+              onPress={() => setEditor({ mode: 'create' })}
+            />
+          }
+        />
+      }
       refreshing={query.isRefetching}
       onRefresh={() => {
         void query.refetch();
       }}
     >
-      <View className="flex-row items-start justify-between gap-3">
-        <View className="flex-1">
-          <Typography variant="label">Targets</Typography>
-          <Typography variant="h1">Savings goals</Typography>
-        </View>
-        <Button label="Add" className="px-4 py-2" onPress={() => setEditor({ mode: 'create' })} />
-      </View>
-
       {editor ? (
         <GoalEditor
           initial={
@@ -85,6 +102,9 @@ export function SavingsGoalsScreen() {
           />
         ) : (
           <View className="gap-2">
+            {(query.data?.goals.length ?? 0) > 0 ? (
+              <GoalsDonut goals={query.data!.goals} colors={colors} fallback={palette.primary} />
+            ) : null}
             {query.data?.goals.map((goal) => (
               <GoalRow
                 key={goal.id}
@@ -96,6 +116,35 @@ export function SavingsGoalsScreen() {
         )
       ) : null}
     </PageShell>
+  );
+}
+
+function GoalsDonut({
+  goals,
+  colors,
+  fallback,
+}: {
+  goals: readonly SavingsGoalWithProgress[];
+  colors: string[];
+  fallback: string;
+}) {
+  const first = goals[0];
+  if (!first) return null;
+  const totalMinor = goals.reduce((sum, goal) => sum + goal.currentAmount.amountMinor, 0);
+  const total = { ...first.currentAmount, amountMinor: totalMinor };
+
+  return (
+    <DonutChart
+      title="Goal mix"
+      caption="Current"
+      total={formatMoney(total)}
+      slices={goals.map((goal, index) => ({
+        name: goal.name || templateLabel(goal.template),
+        color: colors[index % colors.length] ?? fallback,
+        total: formatMoney(goal.currentAmount),
+        sharePct: totalMinor > 0 ? (goal.currentAmount.amountMinor / totalMinor) * 100 : 0,
+      }))}
+    />
   );
 }
 
@@ -118,12 +167,7 @@ function GoalRow({ goal, onEdit }: { goal: SavingsGoalWithProgress; onEdit: () =
             {formatPercent(goal.progress.progressPct, 0)}
           </Typography>
         </View>
-        <View className="h-2 overflow-hidden rounded-full bg-muted">
-          <View
-            className="h-full rounded-full bg-primary"
-            style={{ width: `${Math.min(100, Math.max(0, goal.progress.progressPct))}%` }}
-          />
-        </View>
+        <ProgressBar value={goal.progress.progressPct} />
         {goal.progress.estimatedCompletionMonth ? (
           <Typography variant="caption">
             ETA {goal.progress.estimatedCompletionMonth}

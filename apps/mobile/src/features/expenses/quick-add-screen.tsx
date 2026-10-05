@@ -8,10 +8,9 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 
-import { Typography } from '@/components/design-system';
+import { PageShell, ScreenHeader, Typography } from '@/components/design-system';
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { FormField } from '@/components/ui/form-field';
@@ -23,7 +22,6 @@ function todayInput(): string {
 
 export function QuickAddScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const categoriesQuery = useVariableCategories();
   const createMutation = useCreateVariableExpenseMutation();
 
@@ -59,91 +57,80 @@ export function QuickAddScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <ScrollView
-        className="flex-1"
-        contentContainerClassName="gap-4 px-4 pb-10 pt-2"
-        keyboardShouldPersistTaps="handled"
-      >
-        <View className="flex-row items-center justify-between">
-          <Typography variant="h1">Add expense</Typography>
-          <Button label="Cancel" variant="ghost" onPress={() => router.back()} />
-        </View>
+    <PageShell safeTop={false} tabBarInset={false} header={<ScreenHeader title="Add expense" />}>
+      <FormField
+        label="Amount"
+        error={form.formState.errors.amount?.message}
+        value={form.watch('amount')}
+        onChangeText={(text) => form.setValue('amount', text, { shouldValidate: true })}
+        placeholder="0.00"
+        keyboardType="decimal-pad"
+      />
 
+      <FormField
+        label="Description"
+        error={form.formState.errors.description?.message}
+        value={form.watch('description')}
+        onChangeText={(text) => form.setValue('description', text, { shouldValidate: true })}
+        placeholder="Coffee, groceries…"
+      />
+
+      <FormField
+        label="Date (YYYY-MM-DD)"
+        error={form.formState.errors.occurredOn?.message}
+        value={form.watch('occurredOn')}
+        onChangeText={(text) => form.setValue('occurredOn', text, { shouldValidate: true })}
+        placeholder={todayInput()}
+        autoCapitalize="none"
+      />
+
+      <View className="gap-2">
+        <Typography variant="label">Category</Typography>
+        <Controller
+          control={form.control}
+          name="categoryName"
+          render={({ field }) => (
+            <View className="flex-row flex-wrap gap-2">
+              {categories.map((category) => (
+                <Chip
+                  key={category.id}
+                  label={category.name}
+                  selected={field.value === category.name}
+                  onPress={() => {
+                    form.setValue('categoryId', category.id, { shouldValidate: true });
+                    form.setValue('categoryName', category.name, { shouldValidate: true });
+                  }}
+                />
+              ))}
+            </View>
+          )}
+        />
         <FormField
-          label="Amount"
-          error={form.formState.errors.amount?.message}
-          value={form.watch('amount')}
-          onChangeText={(text) => form.setValue('amount', text, { shouldValidate: true })}
-          placeholder="0.00"
-          keyboardType="decimal-pad"
+          label="Or type a new category"
+          error={form.formState.errors.categoryName?.message}
+          value={form.watch('categoryName')}
+          onChangeText={(text) => {
+            form.setValue('categoryId', undefined);
+            form.setValue('categoryName', text, { shouldValidate: true });
+          }}
+          placeholder="Groceries"
         />
+      </View>
 
-        <FormField
-          label="Description"
-          error={form.formState.errors.description?.message}
-          value={form.watch('description')}
-          onChangeText={(text) => form.setValue('description', text, { shouldValidate: true })}
-          placeholder="Coffee, groceries…"
-        />
+      <FormField
+        label="Notes (optional)"
+        error={form.formState.errors.notes?.message}
+        value={form.watch('notes') ?? ''}
+        onChangeText={(text) => form.setValue('notes', text, { shouldValidate: true })}
+        placeholder="Optional details"
+        multiline
+      />
 
-        <FormField
-          label="Date (YYYY-MM-DD)"
-          error={form.formState.errors.occurredOn?.message}
-          value={form.watch('occurredOn')}
-          onChangeText={(text) => form.setValue('occurredOn', text, { shouldValidate: true })}
-          placeholder={todayInput()}
-          autoCapitalize="none"
-        />
-
-        <View className="gap-2">
-          <Typography variant="label">Category</Typography>
-          <Controller
-            control={form.control}
-            name="categoryName"
-            render={({ field }) => (
-              <View className="flex-row flex-wrap gap-2">
-                {categories.map((category) => (
-                  <Chip
-                    key={category.id}
-                    label={category.name}
-                    selected={field.value === category.name}
-                    onPress={() => {
-                      form.setValue('categoryId', category.id, { shouldValidate: true });
-                      form.setValue('categoryName', category.name, { shouldValidate: true });
-                    }}
-                  />
-                ))}
-              </View>
-            )}
-          />
-          <FormField
-            label="Or type a new category"
-            error={form.formState.errors.categoryName?.message}
-            value={form.watch('categoryName')}
-            onChangeText={(text) => {
-              form.setValue('categoryId', undefined);
-              form.setValue('categoryName', text, { shouldValidate: true });
-            }}
-            placeholder="Groceries"
-          />
-        </View>
-
-        <FormField
-          label="Notes (optional)"
-          error={form.formState.errors.notes?.message}
-          value={form.watch('notes') ?? ''}
-          onChangeText={(text) => form.setValue('notes', text, { shouldValidate: true })}
-          placeholder="Optional details"
-          multiline
-        />
-
-        <Button
-          label={createMutation.isPending ? 'Saving…' : 'Save expense'}
-          disabled={createMutation.isPending}
-          onPress={form.handleSubmit(onSubmit)}
-        />
-      </ScrollView>
-    </View>
+      <Button
+        label={createMutation.isPending ? 'Saving…' : 'Save expense'}
+        disabled={createMutation.isPending}
+        onPress={form.handleSubmit(onSubmit)}
+      />
+    </PageShell>
   );
 }

@@ -332,16 +332,16 @@ importers:
       '@finance/shared':
         specifier: workspace:*
         version: link:../shared
-      react:
-        specifier: '>=18.0.0'
-        version: 18.3.1
     devDependencies:
       '@tanstack/react-query':
-        specifier: ^5.59.0
-        version: 5.101.2(react@18.3.1)
+        specifier: ^5.104.1
+        version: 5.104.1(react@19.2.3)
       '@types/react':
         specifier: ^19.2.4
         version: 19.2.18
+      react:
+        specifier: 19.2.3
+        version: 19.2.3
       typescript:
         specifier: ^5.6.3
         version: 5.9.3

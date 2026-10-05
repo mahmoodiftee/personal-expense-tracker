@@ -29,6 +29,7 @@ import {
   ErrorState,
   MonthNavigator,
   PageShell,
+  ScreenHeader,
   Typography,
 } from '@/components/design-system';
 import { Button } from '@/components/ui/button';
@@ -57,23 +58,24 @@ export function IncomeScreen() {
   return (
     <PageShell
       safeTop={false}
+      tabBarInset={false}
+      header={
+        <ScreenHeader
+          title="Income"
+          right={
+            <Button
+              label="Add"
+              onPress={() => setEditor({ mode: 'create', kind: tab })}
+              className="px-4 py-2"
+            />
+          }
+        />
+      }
       refreshing={activeQuery.isRefetching}
       onRefresh={() => {
         void activeQuery.refetch();
       }}
     >
-      <View className="flex-row items-start justify-between gap-3">
-        <View className="flex-1">
-          <Typography variant="label">Manage</Typography>
-          <Typography variant="h1">Income</Typography>
-        </View>
-        <Button
-          label="Add"
-          onPress={() => setEditor({ mode: 'create', kind: tab })}
-          className="px-4 py-2"
-        />
-      </View>
-
       <SegmentedControl
         value={tab}
         onChange={(value) => {

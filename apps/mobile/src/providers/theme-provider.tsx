@@ -8,9 +8,10 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { useColorScheme as useSystemColorScheme } from 'react-native';
+import { Appearance, useColorScheme as useSystemColorScheme, View } from 'react-native';
 import { colorScheme as nativeWindColorScheme } from 'nativewind';
 
+import { palettes, type Palette } from '@/lib/palette';
 import { STORAGE_KEYS } from '@/lib/storage-keys';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
@@ -18,6 +19,8 @@ export type ThemePreference = 'light' | 'dark' | 'system';
 type ThemeContextValue = {
   preference: ThemePreference;
   resolved: 'light' | 'dark';
+  /** Concrete colors for Skia charts, icons and navigator options. */
+  palette: Palette;
   setPreference: (value: ThemePreference) => void;
 };
 
@@ -46,8 +49,16 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   useEffect(() => {
     if (!hydrated) return;
-    nativeWindColorScheme.set(resolved);
-  }, [hydrated, resolved]);
+    // NativeWind class strategy remounts `.dark:root` CSS variables from this.
+    // Android's AppearanceModule rejects null, so always pass a concrete scheme.
+    if (preference === 'system') {
+      nativeWindColorScheme.set('system');
+      Appearance.setColorScheme(resolved);
+    } else {
+      nativeWindColorScheme.set(preference);
+      Appearance.setColorScheme(preference);
+    }
+  }, [hydrated, preference, resolved]);
 
   const setPreference = useCallback((value: ThemePreference) => {
     setPreferenceState(value);
@@ -55,11 +66,15 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, []);
 
   const value = useMemo(
-    () => ({ preference, resolved, setPreference }),
+    () => ({ preference, resolved, palette: palettes[resolved], setPreference }),
     [preference, resolved, setPreference],
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>
+      <View className="flex-1 bg-background">{children}</View>
+    </ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

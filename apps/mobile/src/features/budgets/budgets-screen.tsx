@@ -21,8 +21,11 @@ import {
   ErrorState,
   MonthNavigator,
   PageShell,
+  ProgressBar,
+  ScreenHeader,
   Typography,
 } from '@/components/design-system';
+import { DonutChart } from '@/components/charts/donut-chart';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
@@ -43,19 +46,24 @@ export function BudgetsScreen() {
   return (
     <PageShell
       safeTop={false}
+      tabBarInset={false}
+      header={
+        <ScreenHeader
+          title="Budgets"
+          right={
+            <Button
+              label="Add"
+              className="px-4 py-2"
+              onPress={() => setEditor({ mode: 'create' })}
+            />
+          }
+        />
+      }
       refreshing={query.isRefetching}
       onRefresh={() => {
         void query.refetch();
       }}
     >
-      <View className="flex-row items-start justify-between gap-3">
-        <View className="flex-1">
-          <Typography variant="label">Limits</Typography>
-          <Typography variant="h1">Budgets</Typography>
-        </View>
-        <Button label="Add" className="px-4 py-2" onPress={() => setEditor({ mode: 'create' })} />
-      </View>
-
       <MonthNavigator
         monthKey={month}
         onChange={(next) => {
@@ -77,18 +85,37 @@ export function BudgetsScreen() {
       ) : null}
 
       {summary ? (
-        <Card>
-          <CardContent className="gap-1">
-            <Typography variant="caption">Total budget</Typography>
-            <Typography variant="h2" className="tabular-nums">
-              {formatMoney(summary.totalBudget)}
-            </Typography>
-            <Typography variant="caption">
-              Spent {formatMoney(summary.totalActual)} · Remaining{' '}
-              {formatMoney(summary.totalRemaining)} · {formatPercent(summary.totalUsedPct, 0)} used
-            </Typography>
-          </CardContent>
-        </Card>
+        <>
+          <Card>
+            <CardContent className="gap-1">
+              <Typography variant="caption">Total budget</Typography>
+              <Typography variant="h2" className="tabular-nums">
+                {formatMoney(summary.totalBudget)}
+              </Typography>
+              <Typography variant="caption">
+                Spent {formatMoney(summary.totalActual)} · Remaining{' '}
+                {formatMoney(summary.totalRemaining)} · {formatPercent(summary.totalUsedPct, 0)}{' '}
+                used
+              </Typography>
+            </CardContent>
+          </Card>
+          {summary.categories.length > 0 ? (
+            <DonutChart
+              title="Budget mix"
+              caption="Spent"
+              total={formatMoney(summary.totalActual)}
+              slices={summary.categories.map((item) => ({
+                name: item.categoryName,
+                color: item.color,
+                total: formatMoney(item.actual),
+                sharePct:
+                  summary.totalActual.amountMinor > 0
+                    ? (item.actual.amountMinor / summary.totalActual.amountMinor) * 100
+                    : 0,
+              }))}
+            />
+          ) : null}
+        </>
       ) : null}
 
       {editor ? (
@@ -163,6 +190,7 @@ function BudgetRow({
             {formatMoney(item.remaining)}
           </Typography>
         </View>
+        <ProgressBar value={item.usedPct} color={item.color} />
         <View className="flex-row gap-2">
           <Button label="Edit" variant="secondary" className="flex-1 py-2" onPress={onEdit} />
           <Button

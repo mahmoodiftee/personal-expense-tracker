@@ -20,14 +20,14 @@ export function SegmentedControl<T extends string>({
   onChange,
 }: SegmentedControlProps<T>) {
   return (
-    <View className="flex-row rounded-full border border-border bg-muted/50 p-1">
+    <View className="flex-row rounded-full bg-card p-1">
       {options.map((option) => {
         const selected = option.value === value;
         return (
           <Pressable
             key={option.value}
             onPress={() => onChange(option.value)}
-            className={cn('flex-1 items-center rounded-full px-3 py-2', selected && 'bg-card')}
+            className={cn('flex-1 items-center rounded-full px-3 py-2', selected && 'bg-raised')}
           >
             <Typography
               variant="caption"

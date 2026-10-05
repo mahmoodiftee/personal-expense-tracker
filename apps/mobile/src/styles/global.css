@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 /*
- * Ported from apps/web design tokens (Monetra-inspired, light-first).
+ * Mobile design tokens. Dark is the primary theme: a pure black canvas with
+ * surfaces separated by lightness instead of borders. Lime stays the accent.
  * NativeWind maps CSS variables onto React Native styles.
  */
 :root {
@@ -13,8 +14,18 @@
   --card: 0 0% 100%;
   --card-foreground: 240 10% 10%;
 
+  --surface-raised: 240 5% 97%;
+  --surface-raised-foreground: 240 10% 10%;
+
   --primary: 82 78% 55%;
   --primary-foreground: 100 30% 12%;
+
+  --hero: 82 78% 55%;
+  --hero-foreground: 100 30% 12%;
+  --hero-muted: 100 25% 25%;
+
+  --contrast: 0 0% 100%;
+  --contrast-foreground: 240 10% 10%;
 
   --secondary: 240 5% 96%;
   --secondary-foreground: 240 10% 10%;
@@ -32,38 +43,70 @@
   --input: 240 6% 90%;
   --ring: 82 60% 42%;
 
-  --radius: 1.25rem;
+  --radius: 1.5rem;
 
   --success: 152 69% 36%;
   --warning: 38 92% 45%;
+
+  /* Categorical palette for donuts and category tiles. */
+  --chart-1: 217 84% 55%;
+  --chart-2: 145 63% 42%;
+  --chart-3: 28 95% 53%;
+  --chart-4: 255 90% 66%;
+  --chart-5: 0 79% 63%;
+  --chart-6: 45 93% 58%;
+  --chart-track: 240 6% 88%;
 }
 
-.dark {
-  --background: 0 0% 7%;
-  --foreground: 0 0% 93%;
+/*
+ * NativeWind v4 switches CSS variables via `.dark:root` when
+ * `colorScheme.set('dark')` runs (darkMode: 'class'). Plain `.dark`
+ * works on web/DOM but does not remount tokens on native.
+ */
+.dark:root {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 96%;
 
-  --card: 0 0% 12%;
-  --card-foreground: 0 0% 93%;
+  --card: 0 0% 8%;
+  --card-foreground: 0 0% 96%;
 
-  --primary: 82 70% 52%;
-  --primary-foreground: 100 40% 10%;
+  --surface-raised: 0 0% 12%;
+  --surface-raised-foreground: 0 0% 96%;
 
-  --secondary: 0 0% 15%;
-  --secondary-foreground: 0 0% 93%;
+  --primary: 82 74% 56%;
+  --primary-foreground: 100 45% 8%;
 
-  --muted: 0 0% 15%;
-  --muted-foreground: 0 0% 55%;
+  --hero: 82 74% 56%;
+  --hero-foreground: 100 45% 8%;
+  --hero-muted: 100 35% 20%;
 
-  --accent: 0 0% 18%;
-  --accent-foreground: 0 0% 93%;
+  --contrast: 0 0% 100%;
+  --contrast-foreground: 0 0% 7%;
 
-  --destructive: 0 72% 51%;
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 0 0% 96%;
+
+  --muted: 0 0% 12%;
+  --muted-foreground: 0 0% 58%;
+
+  --accent: 0 0% 16%;
+  --accent-foreground: 0 0% 96%;
+
+  --destructive: 0 75% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 0 0% 18%;
-  --input: 0 0% 18%;
-  --ring: 82 70% 52%;
+  --border: 0 0% 14%;
+  --input: 0 0% 16%;
+  --ring: 82 74% 56%;
 
-  --success: 152 69% 40%;
-  --warning: 38 92% 50%;
+  --success: 152 65% 48%;
+  --warning: 38 92% 58%;
+
+  --chart-1: 217 88% 62%;
+  --chart-2: 145 60% 48%;
+  --chart-3: 28 95% 58%;
+  --chart-4: 255 92% 72%;
+  --chart-5: 0 79% 66%;
+  --chart-6: 45 93% 62%;
+  --chart-track: 0 0% 16%;
 }

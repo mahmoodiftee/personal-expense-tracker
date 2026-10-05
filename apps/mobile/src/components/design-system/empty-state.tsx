@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+
 import { Typography } from './typography';
 
 type EmptyStateProps = {
@@ -12,7 +13,7 @@ type EmptyStateProps = {
 
 export function EmptyState({ title, description, actionLabel, onAction }: EmptyStateProps) {
   return (
-    <View className="items-center gap-3 rounded-card border border-border bg-card p-6">
+    <View className="items-center gap-3 rounded-card bg-card p-6">
       <Typography variant="h2">{title}</Typography>
       <Typography variant="caption" className="text-center">
         {description}

@@ -6,21 +6,26 @@ import {
   useAnalytics,
 } from '@finance/client';
 import { MoneyMath, type MonthKey } from '@finance/shared';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 
+import { CategoryGrid } from '@/components/charts/category-grid';
+import { DonutChart } from '@/components/charts/donut-chart';
 import { MonthlyBarChart } from '@/components/charts/monthly-bar-chart';
+import type { ChartSlice } from '@/components/charts/chart-types';
 import {
   EmptyState,
   ErrorState,
   MonthNavigator,
   PageShell,
+  ProgressBar,
   StatCard,
   Typography,
 } from '@/components/design-system';
 import { Card, CardContent } from '@/components/ui/card';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTheme } from '@/providers/theme-provider';
 
 const RANGE_OPTIONS = [
   { value: '3', label: '3m' },
@@ -29,6 +34,7 @@ const RANGE_OPTIONS = [
 ] as const;
 
 export function AnalyticsScreen() {
+  const { palette } = useTheme();
   const [month, setMonth] = useState<MonthKey>(currentMonthKey());
   const [range, setRange] = useState<'3' | '6' | '12'>('6');
   const monthCount = Number(range);
@@ -36,6 +42,35 @@ export function AnalyticsScreen() {
     month,
     monthCount,
   );
+
+  const latestSpend = data?.spending.points[data.spending.points.length - 1];
+  const donutSlices = useMemo<ChartSlice[]>(() => {
+    if (!latestSpend) return [];
+    if (latestSpend.topCategories.length > 0) {
+      return latestSpend.topCategories.map((item) => ({
+        name: item.name,
+        color: item.color,
+        total: formatMoney(item.total),
+        sharePct: item.sharePct,
+      }));
+    }
+    const total = MoneyMath.toMajor(latestSpend.total);
+    if (total <= 0) return [];
+    return [
+      {
+        name: 'Fixed',
+        color: palette.chart5,
+        total: formatMoney(latestSpend.fixed),
+        sharePct: (MoneyMath.toMajor(latestSpend.fixed) / total) * 100,
+      },
+      {
+        name: 'Variable',
+        color: palette.chart3,
+        total: formatMoney(latestSpend.variable),
+        sharePct: (MoneyMath.toMajor(latestSpend.variable) / total) * 100,
+      },
+    ];
+  }, [latestSpend, palette.chart3, palette.chart5]);
 
   return (
     <PageShell
@@ -47,7 +82,7 @@ export function AnalyticsScreen() {
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-1">
           <Typography variant="label">Trends</Typography>
-          <Typography variant="h1">Analytics</Typography>
+          <Typography variant="title">Analytics</Typography>
         </View>
         <MonthNavigator monthKey={month} onChange={setMonth} />
       </View>
@@ -56,8 +91,8 @@ export function AnalyticsScreen() {
 
       {isLoading ? (
         <View className="gap-3">
+          <Skeleton className="h-56 w-full" />
           <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-40 w-full" />
         </View>
       ) : null}
 
@@ -73,6 +108,18 @@ export function AnalyticsScreen() {
 
       {data ? (
         <View className="gap-4">
+          <DonutChart
+            title="Spending report"
+            caption={latestSpend ? formatMonthShort(latestSpend.monthKey) : 'Total'}
+            total={
+              latestSpend
+                ? formatMoney(latestSpend.total)
+                : formatMoney(data.monthly.summary.averageExpenses)
+            }
+            slices={donutSlices}
+          />
+          <CategoryGrid slices={donutSlices} />
+
           <View className="flex-row gap-3">
             <StatCard label="Avg income" value={formatMoney(data.monthly.summary.averageIncome)} />
             <StatCard
@@ -88,7 +135,7 @@ export function AnalyticsScreen() {
             <StatCard
               label="Savings rate"
               value={formatPercent(data.savings.averageRatePct, 0)}
-              hint={`${data.savings.trendDirection.toLowerCase()} trend`}
+              caption={`${data.savings.trendDirection.toLowerCase()} trend`}
             />
           </View>
 
@@ -108,14 +155,27 @@ export function AnalyticsScreen() {
             }))}
           />
 
-          <TrendBars
-            title="Spending mix"
-            rows={data.spending.points.map((point) => ({
-              label: formatMonthShort(point.monthKey),
-              value: MoneyMath.toMajor(point.total),
-              hint: `F ${formatMoney(point.fixed)} · V ${formatMoney(point.variable)}`,
-            }))}
-          />
+          <Card>
+            <CardContent className="gap-3">
+              <Typography variant="h2">Spending mix</Typography>
+              {data.spending.points.map((point) => {
+                const max = Math.max(MoneyMath.toMajor(point.total), 1);
+                return (
+                  <View key={point.monthKey} className="gap-1.5">
+                    <View className="flex-row items-center justify-between">
+                      <Typography variant="caption" className="text-foreground">
+                        {formatMonthShort(point.monthKey)}
+                      </Typography>
+                      <Typography variant="caption">
+                        F {formatMoney(point.fixed)} · V {formatMoney(point.variable)}
+                      </Typography>
+                    </View>
+                    <ProgressBar value={(MoneyMath.toMajor(point.total) / max) * 100} />
+                  </View>
+                );
+              })}
+            </CardContent>
+          </Card>
 
           <Card>
             <CardContent className="gap-2">
@@ -166,39 +226,5 @@ export function AnalyticsScreen() {
         </View>
       ) : null}
     </PageShell>
-  );
-}
-
-function TrendBars({
-  title,
-  rows,
-}: {
-  title: string;
-  rows: { label: string; value: number; hint: string }[];
-}) {
-  const max = Math.max(...rows.map((row) => row.value), 1);
-
-  return (
-    <Card>
-      <CardContent className="gap-3">
-        <Typography variant="h2">{title}</Typography>
-        {rows.map((row) => (
-          <View key={row.label} className="gap-1">
-            <View className="flex-row items-center justify-between">
-              <Typography variant="caption" className="text-foreground">
-                {row.label}
-              </Typography>
-              <Typography variant="caption">{row.hint}</Typography>
-            </View>
-            <View className="h-2 overflow-hidden rounded-full bg-muted">
-              <View
-                className="h-full rounded-full bg-primary"
-                style={{ width: `${Math.max(4, (row.value / max) * 100)}%` }}
-              />
-            </View>
-          </View>
-        ))}
-      </CardContent>
-    </Card>
   );
 }

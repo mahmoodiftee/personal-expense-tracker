@@ -1,6 +1,15 @@
 export { EmptyState } from './empty-state';
 export { ErrorState } from './error-state';
+export { HeroHeader } from './hero-header';
+export { IconChip } from './icon-chip';
+export { ListRow } from './list-row';
+export { MoneyText } from './money-text';
 export { MonthNavigator } from './month-navigator';
 export { PageShell } from './page-shell';
+export { ProgressBar } from './progress-bar';
+export { QuickActions, type QuickActionItem } from './quick-actions';
+export { ScreenHeader } from './screen-header';
+export { SectionHeader } from './section-header';
 export { StatCard } from './stat-card';
+export { TrendChip } from './trend-chip';
 export { Typography } from './typography';

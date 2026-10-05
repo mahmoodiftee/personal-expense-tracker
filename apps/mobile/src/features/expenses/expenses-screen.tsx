@@ -24,7 +24,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Pressable, Switch, View } from 'react-native';
 
-import { EmptyState, ErrorState, PageShell, Typography } from '@/components/design-system';
+import {
+  EmptyState,
+  ErrorState,
+  PageShell,
+  ScreenHeader,
+  Typography,
+} from '@/components/design-system';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
@@ -51,23 +57,24 @@ export function ExpensesScreen() {
   return (
     <PageShell
       safeTop={false}
+      tabBarInset={false}
+      header={
+        <ScreenHeader
+          title="Expenses"
+          right={
+            <Button
+              label="Add"
+              onPress={() => setEditor({ mode: 'create', kind: tab })}
+              className="px-4 py-2"
+            />
+          }
+        />
+      }
       refreshing={activeQuery.isRefetching}
       onRefresh={() => {
         void activeQuery.refetch();
       }}
     >
-      <View className="flex-row items-start justify-between gap-3">
-        <View className="flex-1">
-          <Typography variant="label">Manage</Typography>
-          <Typography variant="h1">Expenses</Typography>
-        </View>
-        <Button
-          label="Add"
-          onPress={() => setEditor({ mode: 'create', kind: tab })}
-          className="px-4 py-2"
-        />
-      </View>
-
       <SegmentedControl
         value={tab}
         onChange={(value) => {
